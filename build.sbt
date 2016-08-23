@@ -31,8 +31,11 @@ reformatOnCompileSettings
 val validateCommands = Seq(
   "clean",
   "scalafmtTest",
+  "coverage",
   "compile",
   "test",
+  "coverageReport",
+  "coverageOff",
   "doc"
 )
 addCommandAlias("validate", validateCommands.mkString(";", ";", ""))
