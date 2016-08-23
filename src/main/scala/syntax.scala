@@ -9,9 +9,13 @@ object syntax {
 
   def doc: Expr = Doc
   def let: LetSyntax = new LetSyntax
-  def v(x: String): Var = Var(x)
+  def v(name: String): Var = Var(name)
   def `{}`: Val = EmptyObject
   def `[]`: Val = EmptyArray
+
+  implicit class CmdOps(val self: Cmd) extends AnyVal {
+    def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
+  }
 
   implicit class ExprOps(val self: Expr) extends AnyVal {
     def :=(v: Val): Cmd = Assign(self, v)
