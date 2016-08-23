@@ -1,6 +1,6 @@
 import Cmd._
 import Expr._
-import Val.{EmptyArray, EmptyObject}
+import Val.{EmptyList, EmptyMap}
 
 object syntax {
   class LetSyntax {
@@ -10,8 +10,8 @@ object syntax {
   def doc: Expr = Doc
   def let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
-  def `{}`: Val = EmptyObject
-  def `[]`: Val = EmptyArray
+  def `{}`: Val = EmptyMap
+  def `[]`: Val = EmptyList
 
   implicit class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
