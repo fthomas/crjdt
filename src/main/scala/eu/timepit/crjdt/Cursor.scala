@@ -1,15 +1,21 @@
 package eu.timepit.crjdt
 
-final case class Cursor(keys: Vector[Any], finalKey: Any)
+import eu.timepit.crjdt.Cursor.{Key, Tagged}
 
-// key can be:
-// * an Id
-// * special token: doc, head
-// * a string key
+final case class Cursor(keys: Vector[Tagged[Key]], finalKey: Key)
 
-// type tag: mapT, listT, regT
+object Cursor {
+  sealed trait Key extends Product with Serializable
+  object Key {
+    case object DocK extends Key
+    case object HeadK extends Key
+    final case class StrK(s: String) extends Key
+    final case class IdK(id: Id) extends Key
+  }
 
-sealed trait TypeTag[A]
-case class MapT[A](a: A) extends TypeTag[A]
-case class ListT[A](a: A) extends TypeTag[A]
-//...
+  sealed trait Tagged[A] extends Product with Serializable
+  object Tagged {
+    final case class MapT[A](a: A) extends Tagged[A]
+    final case class ListT[A](a: A) extends Tagged[A]
+  }
+}
