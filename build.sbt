@@ -23,11 +23,12 @@ scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test, console) -= "-Ywarn-unused-import"
 
 libraryDependencies ++= Seq(
+  "org.typelevel" %% "cats-core" % "0.7.0",
   "org.scalacheck" %% "scalacheck" % "1.13.2" % "test"
 )
 
 initialCommands += """
-  import syntax._
+  import eu.timepit.crjdt.syntax._
 """
 
 reformatOnCompileSettings

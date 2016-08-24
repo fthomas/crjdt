@@ -37,8 +37,6 @@ object Draft {
 
   def addVar(state: ReplicaState, v: Var, cur: Cursor): ReplicaState = ???
 
-  def getVar(state: ReplicaState, v: Var): Option[Cursor] = ??? // VAR
-
   def applyExpr(state: ReplicaState, expr: Expr): Cursor =
     expr match {
       case Doc => ??? // empty cursor pointing to doc // DOC
