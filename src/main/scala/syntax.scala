@@ -7,11 +7,11 @@ object syntax {
     def update(x: Var, expr: Expr): Cmd = Let(x, expr)
   }
 
-  def doc: Expr = Doc
-  def let: LetSyntax = new LetSyntax
+  val doc: Expr = Doc
+  val let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
-  def `{}`: Val = EmptyMap
-  def `[]`: Val = EmptyList
+  val `{}`: Val = EmptyMap
+  val `[]`: Val = EmptyList
 
   implicit class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
