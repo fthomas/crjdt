@@ -23,7 +23,7 @@ scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test, console) -= "-Ywarn-unused-import"
 
 libraryDependencies ++= Seq(
-  "org.scalacheck" %% "scalacheck" % "1.13.2"
+  "org.scalacheck" %% "scalacheck" % "1.13.2" % "test"
 )
 
 initialCommands += """
