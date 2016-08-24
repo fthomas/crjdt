@@ -1,4 +1,4 @@
-name := "json-crdt"
+name := "crjdt"
 licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
 
 scalaVersion := "2.11.8"
@@ -21,6 +21,10 @@ scalacOptions ++= Seq(
 )
 scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test, console) -= "-Ywarn-unused-import"
+
+libraryDependencies ++= Seq(
+  "org.scalacheck" %% "scalacheck" % "1.13.2"
+)
 
 initialCommands += """
   import syntax._

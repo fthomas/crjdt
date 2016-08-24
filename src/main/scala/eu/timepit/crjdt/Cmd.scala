@@ -1,5 +1,7 @@
-import Cmd.{Let, Sequence}
-import Expr.{Doc, Var}
+package eu.timepit.crjdt
+
+import eu.timepit.crjdt.Cmd.{Let, Sequence}
+import eu.timepit.crjdt.Expr.{Doc, Var}
 
 sealed trait Cmd extends Product with Serializable
 

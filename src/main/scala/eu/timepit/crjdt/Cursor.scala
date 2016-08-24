@@ -1,3 +1,5 @@
+package eu.timepit.crjdt
+
 final case class Cursor(keys: Vector[Any], finalKey: Any)
 
 // type tag: mapT, listT, regT

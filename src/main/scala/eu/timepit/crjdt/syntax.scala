@@ -1,6 +1,8 @@
-import Cmd._
-import Expr._
-import Val.{EmptyList, EmptyMap}
+package eu.timepit.crjdt
+
+import eu.timepit.crjdt.Cmd._
+import eu.timepit.crjdt.Expr._
+import eu.timepit.crjdt.Val._
 
 object syntax {
   class LetSyntax {
@@ -28,4 +30,6 @@ object syntax {
     def keys: Expr = Keys(self)
     def values: Expr = Values(self)
   }
+
+  implicit def string2Val(s: String): Val = Str(s)
 }

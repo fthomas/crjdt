@@ -1,3 +1,5 @@
+package eu.timepit.crjdt
+
 sealed trait Expr extends Product with Serializable
 
 object Expr {
