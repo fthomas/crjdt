@@ -22,8 +22,8 @@ object Cmd {
 // evaluation rules of the command language inspects/modifies this state
 
 object Draft {
-  type ReplicaState = Any
-  type Cursor = Any
+  type ReplicaState = Any // list of variables and mapT(doc) => ...
+  type Cursor = (List[Any], Any)
 
   def applyCmd(state: ReplicaState, cmd: Cmd): ReplicaState =
     cmd match {
