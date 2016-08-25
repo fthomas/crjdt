@@ -2,8 +2,8 @@ package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Expr.Var
 
-final case class LocalState(opsCount: BigInt,
-                            replicaId: ReplicaId,
+final case class LocalState(replicaId: ReplicaId,
+                            opsCount: BigInt,
                             variables: Map[Var, Cursor]) {
 
   def addVar(x: Var, cur: Cursor): LocalState =
@@ -15,4 +15,9 @@ final case class LocalState(opsCount: BigInt,
 
   def increaseCounterTo(c: BigInt): LocalState =
     if (opsCount < c) copy(opsCount = c) else this
+}
+
+object LocalState {
+  def empty(replicaId: ReplicaId): LocalState =
+    LocalState(replicaId, 0, Map.empty)
 }

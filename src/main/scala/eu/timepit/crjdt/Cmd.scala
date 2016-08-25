@@ -3,7 +3,7 @@ package eu.timepit.crjdt
 import eu.timepit.crjdt.Cmd.{Let, Sequence}
 import eu.timepit.crjdt.Cursor.Key.{DocK, HeadK, StrK}
 import eu.timepit.crjdt.Cursor.Tagged.{ListT, MapT}
-import eu.timepit.crjdt.Expr.{Doc, DownField, Iter}
+import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Next}
 
 sealed trait Cmd extends Product with Serializable
 
@@ -12,6 +12,7 @@ object Cmd {
   /** Sets the value of a local variable. */
   final case class Let(x: Expr.Var, expr: Expr) extends Cmd
 
+  /** Assigns the value of a register. */
   final case class Assign(expr: Expr, v: Val) extends Cmd
 
   /** Inserts an element into a list. */
@@ -50,6 +51,11 @@ object Draft {
       case Iter(e) =>
         val c = applyExpr(state, e)
         Cursor(c.keys :+ ListT(c.finalKey), HeadK) // ITER
+      case Next(e) =>
+        val cur = applyExpr(state, e)
+        // TODO return cur.next. This needs to examine state for the Ids
+        // of the elements in the current list.
+        ???
       case _ => ???
     }
 }

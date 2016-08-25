@@ -1,10 +1,12 @@
 name := "crjdt"
-licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
+licenses := Seq(
+  "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
 
 scalaVersion := "2.11.8"
 scalacOptions ++= Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:experimental.macros",
