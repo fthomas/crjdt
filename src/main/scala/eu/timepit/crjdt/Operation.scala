@@ -7,8 +7,8 @@ final case class Operation(id: Id, deps: Set[Id], cur: Cursor, mut: Mutation)
 object Operation {
   sealed trait Mutation extends Product with Serializable
   object Mutation {
-    final case class Assign(v: Val) extends Mutation
-    final case class Insert(v: Val) extends Mutation
-    case object Delete extends Mutation
+    final case class AssignM(v: Val) extends Mutation
+    final case class InsertM(v: Val) extends Mutation
+    case object DeleteM extends Mutation
   }
 }

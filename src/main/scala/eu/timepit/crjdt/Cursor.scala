@@ -18,4 +18,7 @@ object Cursor {
     final case class MapT[A](value: A) extends Tagged[A]
     final case class ListT[A](value: A) extends Tagged[A]
   }
+
+  def withFinalKey(finalKey: Key): Cursor =
+    Cursor(Vector.empty, finalKey)
 }

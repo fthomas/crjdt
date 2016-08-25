@@ -1,8 +1,11 @@
 package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Cmd._
-import eu.timepit.crjdt.Expr.Var
+import eu.timepit.crjdt.Cursor.Key.{DocK, HeadK, StrK}
+import eu.timepit.crjdt.Cursor.Tagged.{ListT, MapT}
+import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Var}
 import eu.timepit.crjdt.Operation.Mutation
+import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 
 final case class LocalState(replicaId: ReplicaId,
                             opsCounter: BigInt,
@@ -19,13 +22,13 @@ final case class LocalState(replicaId: ReplicaId,
         addVar(x, applyExpr(expr))
 
       case Assign(expr, v) => // MAKE-ASSIGN
-        makeOp(applyExpr(expr), Mutation.Assign(v))
+        makeOp(applyExpr(expr), AssignM(v))
 
       case Insert(expr, v) => // MAKE-INSERT
-        makeOp(applyExpr(expr), Mutation.Insert(v))
+        makeOp(applyExpr(expr), InsertM(v))
 
       case Delete(expr) => // MAKE-DELETE
-        makeOp(applyExpr(expr), Mutation.Delete)
+        makeOp(applyExpr(expr), DeleteM)
 
       case Yield =>
         ???
@@ -36,7 +39,22 @@ final case class LocalState(replicaId: ReplicaId,
 
   def applyExpr(expr: Expr): Cursor =
     expr match {
-      case _ => ???
+      case Doc => // DOC
+        Cursor.withFinalKey(DocK)
+
+      case DownField(expr2, key) => // GET
+        val cur = applyExpr(expr2)
+        cur.finalKey match {
+          case HeadK => cur
+          case _ => Cursor(cur.keys :+ MapT(cur.finalKey), StrK(key))
+        }
+
+      case Iter(expr2) => // ITER
+        val cur = applyExpr(expr2)
+        Cursor(cur.keys :+ ListT(cur.finalKey), HeadK)
+
+      case _ =>
+        ???
     }
 
   // APPLY-LOCAL
