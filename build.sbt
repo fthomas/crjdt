@@ -30,6 +30,7 @@ libraryDependencies ++= Seq(
 )
 
 initialCommands += """
+  import eu.timepit.crjdt._
   import eu.timepit.crjdt.syntax._
 """
 
