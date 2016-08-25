@@ -15,7 +15,7 @@ object Cursor {
 
   sealed trait Tagged[A] extends Product with Serializable
   object Tagged {
-    final case class MapT[A](a: A) extends Tagged[A]
-    final case class ListT[A](a: A) extends Tagged[A]
+    final case class MapT[A](value: A) extends Tagged[A]
+    final case class ListT[A](value: A) extends Tagged[A]
   }
 }

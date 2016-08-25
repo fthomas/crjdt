@@ -3,8 +3,8 @@ package eu.timepit.crjdt
 sealed trait Val extends Product with Serializable
 
 object Val {
-  final case class Num(n: BigDecimal) extends Val
-  final case class Str(s: String) extends Val
+  final case class Num(value: BigDecimal) extends Val
+  final case class Str(value: String) extends Val
   case object True extends Val
   case object False extends Val
   case object Null extends Val
