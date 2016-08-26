@@ -7,7 +7,21 @@ import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Var}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 
-final case class LocalState(replicaId: ReplicaId,
+/*
+TODO:
+- NEXT1,2,3,4
+- KEYS1,2,3
+- VAL1,2,3
+
+- APPLY-LOCAL
+- APPLY-REMOTE
+- SEND
+- RECV
+- YIELD
+ */
+
+final case class LocalState(ctx: Context,
+                            replicaId: ReplicaId,
                             opsCounter: BigInt,
                             variables: Map[Var, Cursor],
                             processedOps: Set[Id],
@@ -58,11 +72,10 @@ final case class LocalState(replicaId: ReplicaId,
     }
 
   // APPLY-LOCAL
-  def applyLocal(op: Operation): LocalState = {
-    // TODO: evaluate op to produce a modified local state
-    copy(processedOps = processedOps + op.id,
+  def applyLocal(op: Operation): LocalState =
+    copy(ctx = ctx.applyOp(op),
+         processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
-  }
 
   def currentId: Id =
     Id(opsCounter, replicaId)
@@ -87,7 +100,8 @@ final case class LocalState(replicaId: ReplicaId,
 
 object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
-    LocalState(replicaId = replicaId,
+    LocalState(ctx = Context.empty,
+               replicaId = replicaId,
                opsCounter = 0,
                variables = Map.empty,
                processedOps = Set.empty,

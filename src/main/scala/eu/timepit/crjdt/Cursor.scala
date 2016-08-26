@@ -12,14 +12,14 @@ object Cursor {
   object Key {
     case object DocK extends Key
     case object HeadK extends Key
-    final case class StrK(str: String) extends Key
     final case class IdK(id: Id) extends Key
+    final case class StrK(str: String) extends Key
   }
 
   sealed trait Tagged extends Product with Serializable
   object Tagged {
-    final case class MapT(value: Key) extends Tagged
-    final case class ListT(value: Key) extends Tagged
+    final case class MapT(key: Key) extends Tagged
+    final case class ListT(key: Key) extends Tagged
   }
 
   def withFinalKey(finalKey: Key): Cursor =
