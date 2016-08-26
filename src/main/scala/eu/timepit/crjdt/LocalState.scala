@@ -87,5 +87,9 @@ final case class LocalState(replicaId: ReplicaId,
 
 object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
-    LocalState(replicaId, 0, Map.empty, Set.empty, Vector.empty)
+    LocalState(replicaId = replicaId,
+               opsCounter = 0,
+               variables = Map.empty,
+               processedOps = Set.empty,
+               generatedOps = Vector.empty)
 }
