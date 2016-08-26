@@ -46,12 +46,12 @@ final case class LocalState(replicaId: ReplicaId,
         val cur = applyExpr(expr2)
         cur.finalKey match {
           case HeadK => cur
-          case _ => Cursor(cur.keys :+ MapT(cur.finalKey), StrK(key))
+          case _ => cur.push(MapT.apply, StrK(key))
         }
 
       case Iter(expr2) => // ITER
         val cur = applyExpr(expr2)
-        Cursor(cur.keys :+ ListT(cur.finalKey), HeadK)
+        cur.push(ListT.apply, HeadK)
 
       case _ =>
         ???

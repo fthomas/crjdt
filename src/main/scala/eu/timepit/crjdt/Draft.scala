@@ -4,6 +4,10 @@ import eu.timepit.crjdt.Expr.Next
 
 object Draft {
 
+  type ContextKey = Any
+
+  final case class Context(r: List[(ContextKey, Context)], pres: Set[Id])
+
   def applyExpr(state: LocalState, expr: Expr): Cursor =
     expr match {
       case Next(e) =>
