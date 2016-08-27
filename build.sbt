@@ -1,6 +1,21 @@
-name := "crjdt"
+val groupId = "eu.timepit"
+val projectName = "crjdt"
+val rootPkg = s"$groupId.$projectName"
+val gitPubUrl = s"https://github.com/fthomas/$projectName.git"
+val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
+
+name := projectName
+description := ""
+
+organization := groupId
+homepage := Some(url(s"https://github.com/fthomas/$projectName"))
+startYear := Some(2016)
 licenses := Seq(
   "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
+scmInfo := Some(
+  ScmInfo(homepage.value.get,
+          s"scm:git:$gitPubUrl",
+          Some(s"scm:git:$gitDevUrl")))
 
 scalaVersion := "2.11.8"
 scalacOptions ++= Seq(
@@ -32,9 +47,9 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
 )
 
-initialCommands += """
-  import eu.timepit.crjdt._
-  import eu.timepit.crjdt.syntax._
+initialCommands += s"""
+  import $rootPkg._
+  import $rootPkg.syntax._
 """
 
 reformatOnCompileSettings
