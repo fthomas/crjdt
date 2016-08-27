@@ -27,13 +27,11 @@ final case class LocalState(ctx: Context,
                             processedOps: Set[Id],
                             generatedOps: Vector[Operation]) {
 
-  def addVar(x: Var, cur: Cursor): LocalState =
-    copy(variables = variables.updated(x, cur))
-
   def applyCmd(cmd: Cmd): LocalState =
     cmd match {
       case Let(x, expr) => // LET
-        addVar(x, applyExpr(expr))
+        val cur = applyExpr(expr)
+        copy(variables = variables.updated(x, cur))
 
       case Assign(expr, v) => // MAKE-ASSIGN
         makeOp(applyExpr(expr), AssignM(v))
