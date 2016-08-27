@@ -1,9 +1,26 @@
 package eu.timepit.crjdt
 
+import eu.timepit.crjdt.Context.Tagged.{ListT, MapT, RegT}
+import eu.timepit.crjdt.Operation.Mutation.AssignM
+import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
+
 sealed trait Context extends Product with Serializable {
   def applyOp(op: Operation): Context =
     op.cur match {
-      case Cursor(Vector(), Cursor.Key.DocK) => ???
+      case Cursor(Vector(), kn) =>
+        op.mut match {
+          case AssignM(EmptyMap) => // EMPTY-MAP
+            val tagged = MapT(Context.Key.from(kn))
+            ???
+          case AssignM(EmptyList) => // EMPTY-LIST
+            val tagged = ListT(Context.Key.from(kn))
+            ???
+          case AssignM(v) => // ASSIGN
+            val tagged = RegT(Context.Key.from(kn))
+            ???
+          case _ =>
+            ???
+        }
       case Cursor(ks, kn) => ???
     }
 }
@@ -24,6 +41,14 @@ object Context {
     case object HeadK extends Key
     final case class IdK(id: Id) extends Key
     final case class StrK(str: String) extends Key
+
+    def from(key: Cursor.Key): Key =
+      key match {
+        case Cursor.Key.DocK => DocK
+        case Cursor.Key.HeadK => HeadK
+        case Cursor.Key.IdK(id) => IdK(id)
+        case Cursor.Key.StrK(str) => StrK(str)
+      }
   }
 
   sealed trait Value
