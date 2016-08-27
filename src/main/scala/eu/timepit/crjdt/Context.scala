@@ -13,7 +13,7 @@ object Context {
 
   case object Empty extends Context
   final case class Leaf(value: Value) extends Context
-  final case class Assoc(key: Tagged, ctx: Context) extends Context
+  final case class Assoc(key: Tagged, ctx: Context, pres: Any) extends Context
   final case class Many(assocs: List[Assoc]) extends Context
 
   // Is this the same as Cursor.Key?
