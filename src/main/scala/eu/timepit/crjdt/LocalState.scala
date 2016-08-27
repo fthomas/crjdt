@@ -1,9 +1,9 @@
 package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Cmd._
-import eu.timepit.crjdt.Cursor.Key.{DocK, HeadK, StrK}
 import eu.timepit.crjdt.Cursor.Tagged.{ListT, MapT}
 import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Var}
+import eu.timepit.crjdt.Key.{DocK, HeadK, StrK}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 

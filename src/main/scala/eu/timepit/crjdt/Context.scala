@@ -10,13 +10,13 @@ sealed trait Context extends Product with Serializable {
       case Cursor(Vector(), kn) =>
         op.mut match {
           case AssignM(EmptyMap) => // EMPTY-MAP
-            val tagged = MapT(Context.Key.from(kn))
+            val tagged = MapT(kn)
             ???
           case AssignM(EmptyList) => // EMPTY-LIST
-            val tagged = ListT(Context.Key.from(kn))
+            val tagged = ListT(kn)
             ???
           case AssignM(v) => // ASSIGN
-            val tagged = RegT(Context.Key.from(kn))
+            val tagged = RegT(kn)
             ???
           case _ =>
             ???
@@ -33,23 +33,6 @@ object Context {
   final case class Assoc(key: Tagged, ctx: Context, pres: Set[Id])
       extends Context
   final case class Many(assocs: List[Assoc]) extends Context
-
-  // Is this the same as Cursor.Key?
-  sealed trait Key extends Product with Serializable
-  object Key {
-    case object DocK extends Key
-    case object HeadK extends Key
-    final case class IdK(id: Id) extends Key
-    final case class StrK(str: String) extends Key
-
-    def from(key: Cursor.Key): Key =
-      key match {
-        case Cursor.Key.DocK => DocK
-        case Cursor.Key.HeadK => HeadK
-        case Cursor.Key.IdK(id) => IdK(id)
-        case Cursor.Key.StrK(str) => StrK(str)
-      }
-  }
 
   sealed trait Value
   object Value {
