@@ -7,19 +7,6 @@ import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Var}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 
-/*
-TODO:
-- NEXT1,2,3,4
-- KEYS1,2,3
-- VAL1,2,3
-
-- APPLY-LOCAL
-- APPLY-REMOTE
-- SEND
-- RECV
-- YIELD
- */
-
 final case class LocalState(ctx: Context,
                             replicaId: ReplicaId,
                             opsCounter: BigInt,

@@ -30,6 +30,7 @@ object Context {
   object Value {
     final case class ValV(v: Val) extends Value
     final case class IdV(id: Id) extends Value
+    case object Tail extends Value
   }
 
   sealed trait Tagged extends Product with Serializable
