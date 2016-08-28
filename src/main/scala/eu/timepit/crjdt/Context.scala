@@ -10,6 +10,9 @@ sealed trait Context extends Product with Serializable {
       case Cursor(Vector(), kn) =>
         op.mut match {
           case AssignM(EmptyMap) => // EMPTY-MAP
+            // 1. clear prior value at cursor
+            // 2. adding op.id to presence set
+            // 3. add new value to ctx
             val tagged = MapT(kn)
             ???
           case AssignM(EmptyList) => // EMPTY-LIST

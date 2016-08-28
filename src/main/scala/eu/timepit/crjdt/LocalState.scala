@@ -2,8 +2,8 @@ package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Cmd._
 import eu.timepit.crjdt.Cursor.Tagged.{ListT, MapT}
-import eu.timepit.crjdt.Expr.{Doc, DownField, Iter, Var}
-import eu.timepit.crjdt.Key.{DocK, HeadK, StrK}
+import eu.timepit.crjdt.Expr._
+import eu.timepit.crjdt.Key.{HeadK, StrK}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 
@@ -39,7 +39,10 @@ final case class LocalState(ctx: Context,
   def applyExpr(expr: Expr): Cursor =
     expr match {
       case Doc => // DOC
-        Cursor.withFinalKey(DocK)
+        Cursor.doc
+
+      case v @ Var(_) =>
+        variables.getOrElse(v, Cursor.doc)
 
       case DownField(expr2, key) => // GET
         val cur = applyExpr(expr2)
@@ -52,8 +55,17 @@ final case class LocalState(ctx: Context,
         val cur = applyExpr(expr2)
         cur.push(ListT.apply, HeadK)
 
-      case _ =>
+      case Next(expr2) =>
+        val cur = applyExpr(expr2)
         ???
+
+      case Keys(expr2) =>
+        val cur = applyExpr(expr2)
+        ??? // returns Set[String]
+
+      case Values(expr2) =>
+        val cur = applyExpr(expr2)
+        ??? // returns List[Val]
     }
 
   // APPLY-LOCAL
