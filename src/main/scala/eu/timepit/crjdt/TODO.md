@@ -21,7 +21,12 @@ Fig. 10:
 - PRESENCE1
 - PRESENCE2
 - ADD-ID1
+  - addId(ctx, k_tag, id, mut) adds id to the presence set pres(k) in ctx
+  - untag(k_tag) == k
+  - mut != DeleteM
 - ADD-ID2
+  - addId(ctx, k_tag, id, DeleteM) == ctx
+  - a delete mutation does not alter the presence set of ctx
 - ASSIGN
 - EMPTY-MAP
 - EMPTY-LIST
