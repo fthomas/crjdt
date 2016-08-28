@@ -41,12 +41,19 @@ final case class LocalState(ctx: Context,
       case Doc => // DOC
         Cursor.doc
 
-      case v @ Var(_) =>
-        variables.getOrElse(v, Cursor.doc)
+      case v @ Var(_) => // VAR
+        variables.get(v) match {
+          case Some(cur) => cur
+          // This case violates VAR's precondition x elem dom(A_p).
+          case None => Cursor.doc
+        }
 
       case DownField(expr2, key) => // GET
         val cur = applyExpr(expr2)
         cur.finalKey match {
+          // This case violates GET's precondition k_n != head.
+          // It corresponds to the dubious EXPR `iter[key]` which should
+          // be impossible to construct with the EXPR API.
           case HeadK => cur
           case _ => cur.push(MapT.apply, StrK(key))
         }
@@ -76,10 +83,6 @@ final case class LocalState(ctx: Context,
 
   def currentId: Id =
     Id(opsCounter, replicaId)
-
-  // VAR
-  def getVar(x: Var): Option[Cursor] =
-    variables.get(x)
 
   def increaseCounterTo(c: BigInt): LocalState =
     if (opsCounter < c) copy(opsCounter = c) else this

@@ -24,6 +24,6 @@ class LocalStateSpec extends Properties("LocalStateSpec") {
     val key = "key"
     val cmd = let(x) = doc.downField(key)
     val state = LocalState.empty("").applyCmd(cmd)
-    state.variables.get(x) ?= Some(Cursor(Vector(MapT(DocK)), StrK(key)))
+    state.applyExpr(x) ?= Cursor(Vector(MapT(DocK)), StrK(key))
   }
 }
