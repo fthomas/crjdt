@@ -2,7 +2,7 @@ package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Context.Tagged.{ListT, MapT, RegT}
 import eu.timepit.crjdt.Operation.Mutation
-import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM}
+import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
@@ -31,7 +31,9 @@ sealed trait Context extends Product with Serializable {
           case AssignM(v) => // ASSIGN
             val tagged = RegT(kn)
             ???
-          case _ =>
+          case InsertM(v) => // INSERT1, INSERT2
+            ???
+          case DeleteM => // DELETE
             ???
         }
       case Cursor(ks, kn) => ???
@@ -46,6 +48,16 @@ object Context {
   final case class Assoc(key: Tagged, ctx: Context, pres: Set[Id])
       extends Context
   final case class Many(assocs: List[Assoc]) extends Context
+
+  /*
+  data Context =
+      Empty
+    | X Tagged Context Pres // map
+    |                       // list
+    |                       // register
+
+  regT content: Set[(Id, Val)]
+   */
 
   sealed trait Value
   object Value {

@@ -19,7 +19,10 @@ Fig. 10:
 - CHILD-LIST
 - CHILD-REG
 - PRESENCE1
+  - returns pres(k) from ctx
 - PRESENCE2
+  - returns an empty set for pres(k)
+  - => every context has a presence set for k
 - ADD-ID1
   - addId(ctx, k_tag, id, mut) adds id to the presence set pres(k) in ctx
   - untag(k_tag) == k
