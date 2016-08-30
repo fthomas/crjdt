@@ -65,14 +65,6 @@ final case class LocalState(ctx: Context,
       case Next(expr2) =>
         val cur = applyExpr(expr2)
         ???
-
-      case Keys(expr2) =>
-        val cur = applyExpr(expr2)
-        ??? // returns Set[String]
-
-      case Values(expr2) =>
-        val cur = applyExpr(expr2)
-        ??? // returns List[Val]
     }
 
   // APPLY-LOCAL

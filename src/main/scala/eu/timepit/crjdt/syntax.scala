@@ -27,8 +27,6 @@ object syntax {
     def downField(key: String): Expr = DownField(self, key)
     def iter: Expr = Iter(self)
     def next: Expr = Next(self)
-    def keys: Expr = Keys(self)
-    def values: Expr = Values(self)
   }
 
   implicit def string2Val(s: String): Val = Str(s)
