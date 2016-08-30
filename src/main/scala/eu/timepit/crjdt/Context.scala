@@ -68,6 +68,7 @@ object Context {
     case object Tail extends Value
   }
 
+  // TODO: Replace with Tag
   sealed trait Tagged extends Product with Serializable
   object Tagged {
     final case class MapT(key: Key) extends Tagged
