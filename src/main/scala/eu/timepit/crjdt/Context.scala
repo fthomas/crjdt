@@ -55,10 +55,6 @@ object Context {
     | X Tagged Context Pres // map
     |                       // list
     | regT(k) -> RegValues, pres(k) -> {}  // register
-
-  regT content: Set[(Id, Val)] or Map[Id, Val]
-  type RegValues = Map[Id, Val]
-
    */
 
   sealed trait Value
