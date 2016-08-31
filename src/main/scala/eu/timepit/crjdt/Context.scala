@@ -20,6 +20,18 @@ sealed trait Context extends Product with Serializable {
       case _ => if (key == this.key) withPres(pres + id) else this
     }
 
+  /*
+  def getChild(key: Tag): Option[Context] =
+    this match {
+      case MapCtx(k, _, children) if k == key => ??? // children
+      case ListCtx(k,_, children) if k == key => ??? // children
+        // in lists we have to perform a linear search for key
+        // since the cursor just contains the Id of the element
+        // (or HeadK)
+      case RegCtx(k,_, _) => ???
+    }
+  */
+
   def withPres(pres: Set[Id]): Context =
     this match {
       case ctx: MapCtx => ctx.copy(pres = pres)
