@@ -1,20 +1,10 @@
 package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Context3.Tagged.{ListT, MapT, RegT}
-import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
 
 sealed trait Context3 extends Product with Serializable {
-  def addId(key: Key, id: Id, mut: Mutation): Context3 =
-    mut match {
-      case DeleteM => // ADD-ID2
-        this
-      case _ => // ADD-ID1
-        // add id to the presence set pres(key)
-        ???
-    }
-
   def applyOp(op: Operation): Context3 =
     op.cur match {
       case Cursor(Vector(), kn) =>
