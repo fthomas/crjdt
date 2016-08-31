@@ -8,6 +8,7 @@ import eu.timepit.crjdt.Tag.{ListT, MapT, RegT}
 sealed trait Context extends Product with Serializable {
   def key: Tag
 
+  // PRESENCE1, PRESENCE2
   def pres: Set[Id]
 
   def addId(key: Tag, id: Id, mut: Mutation): Context =
@@ -47,6 +48,9 @@ object Context {
     final case class Head(next: CtxList) extends CtxList
     final case class Node(ctx: Context, next: CtxList) extends CtxList
     case object Tail extends CtxList
+
+    def empty: CtxList =
+      Head(Tail)
   }
 
   ///
