@@ -15,9 +15,16 @@ sealed trait Context extends Product with Serializable {
   def applyOp(op: Operation): Context =
     op.cur match {
       case Cursor(Vector(), k) =>
+        println(s"applyOp $op")
         op.mut match {
           // EMPTY-MAP
-          case AssignM(EmptyMap) => ???
+          case mut @ AssignM(EmptyMap) =>
+            val tag = MapT(k)
+            val ctxp = this // TODO clear
+            val ctxpp = ctxp.addId(tag, op.id, mut)
+            val c = ctxpp.child2(tag)
+            val assoc = AssocCtx(tag, c, Set.empty)
+            ctxpp.addAssoc(assoc)
 
           // EMPTY-LIST
           case AssignM(EmptyList) => ???
@@ -40,15 +47,15 @@ sealed trait Context extends Product with Serializable {
         val childp = child.applyOp(op2)
         val ctxp = addId(k, op.id, op.mut)
         val assoc = AssocCtx(k, childp, Set.empty)
-        // TODO: ctxp [assoc], i.e. add assoc to ctxp
-        ???
+        ctxp.addAssoc(assoc)
     }
 
   def addAssoc(assoc: AssocCtx): Context =
     this match {
-      case MapCtx(k, p, c) => ???
+      case m @ MapCtx(k, p, c) =>
+        m.copy(children = c.updated(assoc.key, assoc))
       case ListCtx(_, _, _) => ???
-      case _ => ???
+      case _ => this
     }
 
   def addId(key: Tag, id: Id, mut: Mutation): Context =
@@ -69,6 +76,7 @@ sealed trait Context extends Product with Serializable {
       // since the cursor just contains the Id of the element
       // (or HeadK)
       case RegCtx(k, _, _) => None
+      case _ => None
     }
 
   def child2(key: Tag): Context =

@@ -7,7 +7,7 @@ import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Tag.{ListT, MapT}
 
-final case class LocalState(ctx: Context3,
+final case class LocalState(ctx: Context,
                             replicaId: ReplicaId,
                             opsCounter: BigInt,
                             variables: Map[Var, Cursor],
@@ -92,7 +92,7 @@ final case class LocalState(ctx: Context3,
 
 object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
-    LocalState(ctx = Context3.empty,
+    LocalState(ctx = Context.emptyDoc,
                replicaId = replicaId,
                opsCounter = 0,
                variables = Map.empty,

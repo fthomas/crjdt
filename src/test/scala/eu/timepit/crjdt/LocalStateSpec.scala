@@ -7,15 +7,17 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 class LocalStateSpec extends Properties("LocalStateSpec") {
+  val emptyState = LocalState.empty("")
+
   property("""applyExpr doc["shopping"]""") = secure {
     val shopping = "shopping"
-    val cur = LocalState.empty("").applyExpr(doc.downField(shopping))
+    val cur = emptyState.applyExpr(doc.downField(shopping))
     cur ?= Cursor(Vector(MapT(DocK)), StrK(shopping))
   }
 
   property("""applyExpr doc["shopping"].iter""") = secure {
     val shopping = "shopping"
-    val cur = LocalState.empty("").applyExpr(doc.downField(shopping).iter)
+    val cur = emptyState.applyExpr(doc.downField(shopping).iter)
     cur ?= Cursor(Vector(MapT(DocK), ListT(StrK(shopping))), HeadK)
   }
 
@@ -23,7 +25,16 @@ class LocalStateSpec extends Properties("LocalStateSpec") {
     val x = v("x")
     val key = "key"
     val cmd = let(x) = doc.downField(key)
-    val state = LocalState.empty("").applyCmd(cmd)
+    val state = emptyState.applyCmd(cmd)
     state.applyExpr(x) ?= Cursor(Vector(MapT(DocK)), StrK(key))
+  }
+
+  property("") = secure {
+    val cmd = (doc := `{}`) `;`
+        (doc.downField("key1") := `{}`) `;`
+        (doc.downField("key2") := `{}`)
+
+    //LocalState.empty("").applyCmd(cmd).ctx ?= LocalState.empty("").ctx
+    true
   }
 }
