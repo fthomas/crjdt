@@ -21,6 +21,12 @@ class LocalStateSpec extends Properties("LocalStateSpec") {
     cur ?= Cursor(Vector(MapT(DocK), ListT(StrK(shopping))), HeadK)
   }
 
+  property("""applyExpr doc["key1"]["key2"]""") = secure {
+    val (key1, key2) = ("key1", "key2")
+    val cur = emptyState.applyExpr(doc.downField(key1).downField(key2))
+    cur ?= Cursor(Vector(MapT(DocK), MapT(StrK(key1))), StrK(key2))
+  }
+
   property("""applyCmd let(x) := doc["key"]""") = secure {
     val x = v("x")
     val key = "key"

@@ -38,17 +38,19 @@ final case class LocalState(ctx: Context,
 
   def applyExpr(expr: Expr): Cursor =
     expr match {
-      case Doc => // DOC
-        Cursor.doc
+      // DOC
+      case Doc => Cursor.doc
 
-      case v @ Var(_) => // VAR
+      // VAR
+      case v @ Var(_) =>
         variables.get(v) match {
           case Some(cur) => cur
           // This case violates VAR's precondition x elem dom(A_p).
           case None => Cursor.doc
         }
 
-      case DownField(expr2, key) => // GET
+      // GET
+      case DownField(expr2, key) =>
         val cur = applyExpr(expr2)
         cur.finalKey match {
           // This case violates GET's precondition k_n != head.
@@ -58,7 +60,8 @@ final case class LocalState(ctx: Context,
           case _ => cur.push(MapT.apply, StrK(key))
         }
 
-      case Iter(expr2) => // ITER
+      // ITER
+      case Iter(expr2) =>
         val cur = applyExpr(expr2)
         cur.push(ListT.apply, HeadK)
 
