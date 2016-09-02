@@ -12,10 +12,5 @@ Fig. 9:
 - RECV
 - YIELD
 
-Fig. 10:
-- CHILD-LIST
-- INSERT1
-- INSERT2
-
 Fig. 11:
 - CLEAR-LIST1,2,3
