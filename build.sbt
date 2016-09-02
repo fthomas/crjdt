@@ -39,6 +39,13 @@ scalacOptions ++= Seq(
 scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test, console) -= "-Ywarn-unused-import"
 
+scalacOptions in (Compile, doc) ++= Seq(
+  "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+  "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath
+)
+
+autoAPIMappings := true
+
 val catsVersion = "0.7.0"
 val scalaCheckVersion = "1.12.5"
 
