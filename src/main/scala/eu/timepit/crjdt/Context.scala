@@ -21,8 +21,8 @@ sealed trait Context extends Product with Serializable {
 
           // ASSIGN
           case AssignM(value) =>
-            val ctx1 = this // TODO: clear
             val tag = RegT(k)
+            val (ctx1, _) = clear(op.deps, tag)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
             ctx2.addCtx(tag, child.addValue(op.id, value))
@@ -46,7 +46,7 @@ sealed trait Context extends Product with Serializable {
     this match {
       case m: MapCtx => m.copy(entries = m.entries.updated(tag, ctx))
       case l: ListCtx => ???
-      case r: RegCtx => r
+      case _: RegCtx => this
     }
 
   def addValue(id: Id, value: Val): Context =
@@ -61,6 +61,21 @@ sealed trait Context extends Product with Serializable {
       case DeleteM => this
       // ADD-ID1
       case _ => setPres(tag.key, getPres(tag.key) + id)
+    }
+
+  def clear(deps: Set[Id], tag: Tag): (Context, Set[Id]) =
+    findChild(tag) match {
+      // CLEAR-NONE
+      case None => (this, Set.empty)
+      case Some(child) =>
+        tag match {
+          // CLEAR-REG
+          case r: RegT =>
+            val concurrent = child.getRegValues.filterKeys(id => !deps(id))
+            (addCtx(r, RegCtx(concurrent)), concurrent.keySet)
+
+          case _ => ???
+        }
     }
 
   def getChild(tag: Tag): Context =
@@ -96,6 +111,12 @@ sealed trait Context extends Product with Serializable {
       case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
       case l: ListCtx => ???
       case _: RegCtx => this
+    }
+
+  def getRegValues: Map[Id, Val] =
+    this match {
+      case r: RegCtx => r.values
+      case _ => Map.empty
     }
 }
 
