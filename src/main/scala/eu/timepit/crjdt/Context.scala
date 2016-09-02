@@ -13,8 +13,8 @@ sealed trait Context extends Product with Serializable {
         op.mut match {
           // EMPTY-MAP, EMPTY-LIST
           case mut @ AssignM(EmptyMap | EmptyList) =>
-            val ctx1 = this // TODO: clearElem
             val tag = if (mut.v == EmptyMap) MapT(k) else ListT(k)
+            val (ctx1, _) = clearElem(op.deps, k)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
             ctx2.addCtx(tag, child)
@@ -31,7 +31,9 @@ sealed trait Context extends Product with Serializable {
           case InsertM(v) => ???
 
           // DELETE
-          case DeleteM => ???
+          case DeleteM =>
+            val (ctx1, _) = clearElem(op.deps, k)
+            ctx1
         }
 
       // DESCEND
@@ -68,6 +70,13 @@ sealed trait Context extends Product with Serializable {
       // ADD-ID1
       case _ => setPres(tag.key, getPres(tag.key) + id)
     }
+
+  def clearElem(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+    val (ctx1, pres1) = clearAny(deps, key)
+    val pres2 = ctx1.getPres(key)
+    val pres3 = (pres1 ++ pres2) -- deps
+    (ctx1.setPres(key, pres3), pres3)
+  }
 
   // CLEAR-ANY
   def clearAny(deps: Set[Id], key: Key): (Context, Set[Id]) = {
