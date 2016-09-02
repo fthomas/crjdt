@@ -5,7 +5,7 @@ val gitPubUrl = s"https://github.com/fthomas/$projectName.git"
 val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
 
 name := projectName
-description := ""
+description := "A conflict-free replicated JSON datatype in Scala"
 
 organization := groupId
 homepage := Some(url(s"https://github.com/fthomas/$projectName"))
