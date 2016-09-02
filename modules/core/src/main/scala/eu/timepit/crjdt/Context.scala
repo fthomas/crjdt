@@ -28,7 +28,7 @@ sealed trait Context extends Product with Serializable {
             ctx2.addCtx(tag, child.addRegValue(op.id, value))
 
           // INSERT1, INSERT2
-          case InsertM(v) => ???
+          case InsertM(value) => ???
 
           // DELETE
           case DeleteM =>

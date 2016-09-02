@@ -20,11 +20,11 @@ final case class ReplicaState(replicaId: ReplicaId,
         val cur = applyExpr(expr)
         copy(variables = variables.updated(x, cur))
 
-      case Assign(expr, v) => // MAKE-ASSIGN
-        makeOp(applyExpr(expr), AssignM(v))
+      case Assign(expr, value) => // MAKE-ASSIGN
+        makeOp(applyExpr(expr), AssignM(value))
 
-      case Insert(expr, v) => // MAKE-INSERT
-        makeOp(applyExpr(expr), InsertM(v))
+      case Insert(expr, value) => // MAKE-INSERT
+        makeOp(applyExpr(expr), InsertM(value))
 
       case Delete(expr) => // MAKE-DELETE
         makeOp(applyExpr(expr), DeleteM)
@@ -78,9 +78,6 @@ final case class ReplicaState(replicaId: ReplicaId,
 
   def currentId: Id =
     Id(opsCounter, replicaId)
-
-  def increaseCounterTo(c: BigInt): ReplicaState =
-    if (opsCounter < c) copy(opsCounter = c) else this
 
   def incrementCounter: ReplicaState =
     copy(opsCounter = opsCounter + 1)
