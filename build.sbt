@@ -34,7 +34,9 @@ lazy val commonSettings = Def.settings(
   metadataSettings,
   compileSettings,
   scaladocSettings,
-  styleSettings
+  releaseSettings,
+  styleSettings,
+  miscSettings
 )
 
 lazy val metadataSettings = Def.settings(
@@ -78,11 +80,7 @@ lazy val compileSettings = Def.settings(
     "org.typelevel" %%% "cats-core" % catsVersion,
     "org.typelevel" %%% "cats-laws" % catsVersion % "test",
     "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
-  ),
-  initialCommands += s"""
-    import $rootPkg._
-    import $rootPkg.syntax._
-  """
+  )
 )
 
 lazy val scaladocSettings = Def.settings(
@@ -116,8 +114,20 @@ lazy val noPublishSettings = Def.settings(
   publishArtifact := false
 )
 
+lazy val releaseSettings = Def.settings(
+  releaseCrossBuild := true,
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value
+)
+
 lazy val styleSettings = Def.settings(
   reformatOnCompileSettings
+)
+
+lazy val miscSettings = Def.settings(
+  initialCommands += s"""
+    import $rootPkg._
+    import $rootPkg.syntax._
+  """
 )
 
 /// commands

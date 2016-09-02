@@ -176,7 +176,7 @@ object Context {
     MapCtx(Map.empty, Map.empty)
 
   def emptyList: Context =
-    ???
+    ListCtx(Map.empty)
 
   def emptyReg: Context =
     RegCtx(Map.empty)
