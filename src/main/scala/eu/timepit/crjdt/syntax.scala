@@ -5,7 +5,7 @@ import eu.timepit.crjdt.Expr._
 import eu.timepit.crjdt.Val._
 
 object syntax {
-  class LetSyntax {
+  final class LetSyntax {
     def update(x: Var, expr: Expr): Cmd = Let(x, expr)
   }
 
@@ -15,11 +15,11 @@ object syntax {
   val `{}`: Val = EmptyMap
   val `[]`: Val = EmptyList
 
-  implicit class CmdOps(val self: Cmd) extends AnyVal {
+  implicit final class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
   }
 
-  implicit class ExprOps(val self: Expr) extends AnyVal {
+  implicit final class ExprOps(val self: Expr) extends AnyVal {
     def :=(v: Val): Cmd = Assign(self, v)
     def insert(v: Val): Cmd = Insert(self, v)
     def delete: Cmd = Delete(self)
