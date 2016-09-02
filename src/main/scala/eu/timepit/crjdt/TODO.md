@@ -18,5 +18,4 @@ Fig. 10:
 - INSERT2
 
 Fig. 11:
-- CLEAR-MAP2,3
 - CLEAR-LIST1,2,3

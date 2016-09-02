@@ -57,7 +57,7 @@ sealed trait Context extends Product with Serializable {
       case _ => this
     }
 
-  def getRegValues: Map[Id, Val] =
+  def getRegValues: RegValues =
     this match {
       case r: RegCtx => r.values
       case _ => Map.empty
@@ -109,8 +109,15 @@ sealed trait Context extends Product with Serializable {
         }
     }
 
-  def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) =
-    (this, Set.empty) // TODO
+  // CLEAR-MAP2, CLEAR-MAP3
+  def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) = {
+    val keys = keySet.map(_.key)
+    (keys -- done).headOption.fold((this, Set.empty[Id])) { k =>
+      val (ctx1, pres1) = clearElem(deps, k)
+      val (ctx2, pres2) = ctx1.clearMap(deps, done + k)
+      (ctx2, pres1 ++ pres2)
+    }
+  }
 
   def getChild(tag: Tag): Context =
     findChild(tag).getOrElse {
@@ -146,6 +153,12 @@ sealed trait Context extends Product with Serializable {
       case l: ListCtx => ???
       case _: RegCtx => this
     }
+
+  def keySet: Set[Tag] =
+    this match {
+      case m: MapCtx => m.entries.keySet
+      case _ => Set.empty
+    }
 }
 
 object Context {
@@ -155,7 +168,7 @@ object Context {
 
   final case class ListCtx() extends Context
 
-  final case class RegCtx(values: Map[Id, Val]) extends Context
+  final case class RegCtx(values: RegValues) extends Context
 
   ///
 

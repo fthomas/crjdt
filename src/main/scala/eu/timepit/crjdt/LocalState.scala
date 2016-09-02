@@ -7,9 +7,9 @@ import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Tag.{ListT, MapT}
 
-final case class LocalState(ctx: Context,
-                            replicaId: ReplicaId,
+final case class LocalState(replicaId: ReplicaId,
                             opsCounter: BigInt,
+                            context: Context,
                             variables: Map[Var, Cursor],
                             processedOps: Set[Id],
                             generatedOps: Vector[Operation]) {
@@ -72,7 +72,7 @@ final case class LocalState(ctx: Context,
 
   // APPLY-LOCAL
   def applyLocal(op: Operation): LocalState =
-    copy(ctx = ctx.applyOp(op),
+    copy(context = context.applyOp(op),
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
@@ -95,9 +95,9 @@ final case class LocalState(ctx: Context,
 
 object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
-    LocalState(ctx = Context.empty,
-               replicaId = replicaId,
+    LocalState(replicaId = replicaId,
                opsCounter = 0,
+               context = Context.empty,
                variables = Map.empty,
                processedOps = Set.empty,
                generatedOps = Vector.empty)
