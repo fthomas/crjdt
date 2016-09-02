@@ -20,8 +20,8 @@ object syntax {
   }
 
   implicit final class ExprOps(val self: Expr) extends AnyVal {
-    def :=(v: Val): Cmd = Assign(self, v)
-    def insert(v: Val): Cmd = Insert(self, v)
+    def :=(value: Val): Cmd = Assign(self, value)
+    def insert(value: Val): Cmd = Insert(self, value)
     def delete: Cmd = Delete(self)
 
     def downField(key: String): Expr = DownField(self, key)

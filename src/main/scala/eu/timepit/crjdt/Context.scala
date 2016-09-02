@@ -13,7 +13,7 @@ sealed trait Context extends Product with Serializable {
         op.mut match {
           // EMPTY-MAP, EMPTY-LIST
           case mut @ AssignM(EmptyMap | EmptyList) =>
-            val tag = if (mut.v == EmptyMap) MapT(k) else ListT(k)
+            val tag = if (mut.value == EmptyMap) MapT(k) else ListT(k)
             val (ctx1, _) = clearElem(op.deps, k)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
