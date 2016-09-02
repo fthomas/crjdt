@@ -97,7 +97,7 @@ object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
     LocalState(replicaId = replicaId,
                opsCounter = 0,
-               context = Context.empty,
+               context = Context.emptyMap,
                variables = Map.empty,
                processedOps = Set.empty,
                generatedOps = Vector.empty)
