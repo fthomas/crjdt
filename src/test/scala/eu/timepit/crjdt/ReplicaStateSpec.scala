@@ -6,8 +6,8 @@ import eu.timepit.crjdt.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
-object LocalStateSpec extends Properties("LocalStateSpec") {
-  val emptyState = LocalState.empty("")
+object ReplicaStateSpec extends Properties("ReplicaState") {
+  val emptyState = ReplicaState.empty("")
 
   property("""applyExpr doc["shopping"]""") = secure {
     val shopping = "shopping"

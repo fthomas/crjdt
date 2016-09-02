@@ -7,14 +7,14 @@ import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Tag.{ListT, MapT}
 
-final case class LocalState(replicaId: ReplicaId,
-                            opsCounter: BigInt,
-                            context: Context,
-                            variables: Map[Var, Cursor],
-                            processedOps: Set[Id],
-                            generatedOps: Vector[Operation]) {
+final case class ReplicaState(replicaId: ReplicaId,
+                              opsCounter: BigInt,
+                              context: Context,
+                              variables: Map[Var, Cursor],
+                              processedOps: Set[Id],
+                              generatedOps: Vector[Operation]) {
 
-  def applyCmd(cmd: Cmd): LocalState =
+  def applyCmd(cmd: Cmd): ReplicaState =
     cmd match {
       case Let(x, expr) => // LET
         val cur = applyExpr(expr)
@@ -71,7 +71,7 @@ final case class LocalState(replicaId: ReplicaId,
     }
 
   // APPLY-LOCAL
-  def applyLocal(op: Operation): LocalState =
+  def applyLocal(op: Operation): ReplicaState =
     copy(context = context.applyOp(op),
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
@@ -79,26 +79,26 @@ final case class LocalState(replicaId: ReplicaId,
   def currentId: Id =
     Id(opsCounter, replicaId)
 
-  def increaseCounterTo(c: BigInt): LocalState =
+  def increaseCounterTo(c: BigInt): ReplicaState =
     if (opsCounter < c) copy(opsCounter = c) else this
 
-  def incrementCounter: LocalState =
+  def incrementCounter: ReplicaState =
     copy(opsCounter = opsCounter + 1)
 
   // MAKE-OP
-  def makeOp(cur: Cursor, mut: Mutation): LocalState = {
+  def makeOp(cur: Cursor, mut: Mutation): ReplicaState = {
     val newState = incrementCounter
     val op = Operation(newState.currentId, newState.processedOps, cur, mut)
     newState.applyLocal(op)
   }
 }
 
-object LocalState {
-  def empty(replicaId: ReplicaId): LocalState =
-    LocalState(replicaId = replicaId,
-               opsCounter = 0,
-               context = Context.emptyMap,
-               variables = Map.empty,
-               processedOps = Set.empty,
-               generatedOps = Vector.empty)
+object ReplicaState {
+  def empty(replicaId: ReplicaId): ReplicaState =
+    ReplicaState(replicaId = replicaId,
+                 opsCounter = 0,
+                 context = Context.emptyMap,
+                 variables = Map.empty,
+                 processedOps = Set.empty,
+                 generatedOps = Vector.empty)
 }
