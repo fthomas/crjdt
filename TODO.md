@@ -5,7 +5,6 @@ Fig. 8:
 - VAL1,2,3
 
 Fig. 9:
-- APPLY-LOCAL
 - APPLY-REMOTE
 - SEND
 - RECV
