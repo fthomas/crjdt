@@ -40,11 +40,12 @@ scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test, console) -= "-Ywarn-unused-import"
 
 val catsVersion = "0.7.0"
+val scalaCheckVersion = "1.12.5"
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % catsVersion,
   "org.typelevel" %% "cats-laws" % catsVersion % "test",
-  "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
+  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test"
 )
 
 initialCommands += s"""

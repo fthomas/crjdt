@@ -36,7 +36,9 @@ object LocalStateSpec extends Properties("LocalStateSpec") {
   }
 
   property("applyCmd doc := {}") = secure {
-    val cmd = (doc := `{}`) `;` (doc.downField("key1") := Val.Str("hallo"))
+    val cmd = (doc := `{}`) `;`
+        (doc.downField("key1") := Val.Str("hallo")) `;`
+        doc.downField("key1").delete
     println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
     true
   }
