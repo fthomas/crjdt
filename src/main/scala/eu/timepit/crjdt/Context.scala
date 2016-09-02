@@ -1,36 +1,34 @@
 package eu.timepit.crjdt
 
-import eu.timepit.crjdt.Context._
+import eu.timepit.crjdt.Context.{ListCtx, MapCtx, RegCtx}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.Tag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
-  def key: Tag
-
-  // PRESENCE1, PRESENCE2
-  def pres: Set[Id]
-
   def applyOp(op: Operation): Context =
     op.cur match {
       case Cursor(Vector(), k) =>
-        println(s"applyOp $op")
         op.mut match {
           // EMPTY-MAP
-          case mut @ AssignM(EmptyMap) =>
+          case AssignM(EmptyMap) =>
+            val ctx1 = this // TODO: clearElem
             val tag = MapT(k)
-            val ctxp = this // TODO clear
-            val ctxpp = ctxp.addId(tag, op.id, mut)
-            val c = ctxpp.child2(tag)
-            val assoc = AssocCtx(tag, c, Set.empty)
-            ctxpp.addAssoc(assoc)
+            val ctx2 = ctx1.addId(tag, op.id, op.mut)
+            val child = ctx2.getChild(tag)
+            ctx2.addCtx(tag, child)
 
           // EMPTY-LIST
           case AssignM(EmptyList) => ???
 
           // ASSIGN
-          case AssignM(v) => ???
+          case AssignM(value) =>
+            val ctx1 = this // TODO: clear
+            val tag = RegT(k)
+            val ctx2 = ctx1.addId(tag, op.id, op.mut)
+            val child = ctx2.getChild(tag)
+            ctx2.addCtx(tag, child.addValue(op.id, value))
 
           // INSERT1, INSERT2
           case InsertM(v) => ???
@@ -40,99 +38,81 @@ sealed trait Context extends Product with Serializable {
         }
 
       // DESCEND
-      case Cursor(k +: _, _) =>
-        val child = child2(k)
-        val cur2 = op.cur.dropFirst
-        val op2 = op.copy(cur = cur2)
-        val childp = child.applyOp(op2)
-        val ctxp = addId(k, op.id, op.mut)
-        val assoc = AssocCtx(k, childp, Set.empty)
-        ctxp.addAssoc(assoc)
+      case Cursor(k1 +: _, _) =>
+        val child0 = getChild(k1)
+        val child1 = child0.applyOp(op.copy(cur = op.cur.dropFirst))
+        val ctx1 = addId(k1, op.id, op.mut)
+        ctx1.addCtx(k1, child1)
     }
 
-  def addAssoc(assoc: AssocCtx): Context =
+  def addCtx(tag: Tag, ctx: Context): Context =
     this match {
-      case m @ MapCtx(k, p, c) =>
-        m.copy(children = c.updated(assoc.key, assoc))
-      case ListCtx(_, _, _) => ???
+      case m: MapCtx => m.copy(entries = m.entries.updated(tag, ctx))
+      case l: ListCtx => ???
+      case r: RegCtx => r
+    }
+
+  def addValue(id: Id, value: Val): Context =
+    this match {
+      case r: RegCtx => r.copy(values = r.values.updated(id, value))
       case _ => this
     }
 
-  def addId(key: Tag, id: Id, mut: Mutation): Context =
+  def addId(tag: Tag, id: Id, mut: Mutation): Context =
     mut match {
       // ADD-ID2
       case DeleteM => this
-
       // ADD-ID1
-      case _ => if (key == this.key) withPres(pres + id) else this
+      case _ => setPres(tag.key, getPres(tag.key) + id)
     }
 
-  def getChild(key: Tag): Option[Context] =
+  def getChild(tag: Tag): Context =
+    findChild(tag).getOrElse {
+      tag match {
+        // CHILD-MAP
+        case MapT(_) => MapCtx(Map.empty, Map.empty)
+        // CHILD-LIST
+        case ListT(_) => ???
+        // CHILD-REG
+        case RegT(_) => RegCtx(Map.empty)
+      }
+    }
+
+  // CHILD-GET
+  def findChild(tag: Tag): Option[Context] =
     this match {
-      case AssocCtx(k, ctx, _) if k == key => Some(ctx)
-      case MapCtx(_, _, children) => children.get(key)
-      case ListCtx(_, _, children) => ??? // children
-      // in lists we have to perform a linear search for key
-      // since the cursor just contains the Id of the element
-      // (or HeadK)
-      case RegCtx(k, _, _) => None
-      case _ => None
+      case m: MapCtx => m.entries.get(tag)
+      case l: ListCtx => ???
+      case r: RegCtx => None
     }
 
-  def child2(key: Tag): Context =
-    getChild(key) match {
-      case Some(x) => x
-      case None =>
-        key match {
-          // CHILD-MAP
-          case k @ MapT(_) => MapCtx(k, Set.empty, Map.empty)
-          // CHILD-LIST
-          case k @ ListT(_) => ListCtx(k, Set.empty, CtxList.empty)
-          // CHILD-REG
-          case k @ RegT(_) => RegCtx(k, Set.empty, Map.empty)
-        }
-    }
-
-  def withPres(pres: Set[Id]): Context =
+  // PRESENCE1, PRESENCE2
+  def getPres(key: Key): Set[Id] =
     this match {
-      case ctx: MapCtx => ctx.copy(pres = pres)
-      case ctx: ListCtx => ctx.copy(pres = pres)
-      case ctx: RegCtx => ctx.copy(pres = pres)
-      case ctx: AssocCtx => ctx.copy(pres = pres)
+      case m: MapCtx => m.presSets.getOrElse(key, Set.empty)
+      case l: ListCtx => ???
+      case r: RegCtx => Set.empty
+    }
+
+  def setPres(key: Key, pres: Set[Id]): Context =
+    this match {
+      case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
+      case l: ListCtx => ???
+      case r: RegCtx => r
     }
 }
 
 object Context {
-  // ctx must not be AssocCtx
-  final case class AssocCtx(key: Tag, ctx: Context, pres: Set[Id])
+  final case class MapCtx(entries: Map[Tag, Context],
+                          presSets: Map[Key, Set[Id]])
       extends Context
 
-  final case class MapCtx(key: MapT,
-                          pres: Set[Id],
-                          children: Map[Tag, AssocCtx])
-      extends Context
+  final case class ListCtx() extends Context
 
-  final case class ListCtx(key: ListT, pres: Set[Id], children: CtxList)
-      extends Context
-
-  final case class RegCtx(key: RegT, pres: Set[Id], values: RegValues)
-      extends Context
+  final case class RegCtx(values: Map[Id, Val]) extends Context
 
   ///
 
-  trait CtxList extends Product with Serializable
-
-  object CtxList {
-    final case class Head(next: CtxList) extends CtxList
-    final case class Node(ctx: AssocCtx, next: CtxList) extends CtxList
-    case object Tail extends CtxList
-
-    def empty: CtxList =
-      Head(Tail)
-  }
-
-  ///
-
-  def emptyDoc: Context =
-    MapCtx(MapT(Key.DocK), Set.empty, Map.empty)
+  def empty: Context =
+    MapCtx(Map.empty, Map.empty)
 }

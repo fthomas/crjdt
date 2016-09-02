@@ -6,7 +6,7 @@ import eu.timepit.crjdt.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
-class LocalStateSpec extends Properties("LocalStateSpec") {
+object LocalStateSpec extends Properties("LocalStateSpec") {
   val emptyState = LocalState.empty("")
 
   property("""applyExpr doc["shopping"]""") = secure {
@@ -35,12 +35,9 @@ class LocalStateSpec extends Properties("LocalStateSpec") {
     state.applyExpr(x) ?= Cursor(Vector(MapT(DocK)), StrK(key))
   }
 
-  property("") = secure {
-    val cmd = (doc := `{}`) `;`
-        (doc.downField("key1") := `{}`) `;`
-        (doc.downField("key2") := `{}`)
-
-    //LocalState.empty("").applyCmd(cmd).ctx ?= LocalState.empty("").ctx
+  property("applyCmd doc := {}") = secure {
+    val cmd = (doc := `{}`) `;` (doc.downField("key1") := Val.Str("hallo"))
+    emptyState.applyCmd(cmd).ctx //?= emptyState.ctx
     true
   }
 }

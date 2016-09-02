@@ -95,7 +95,7 @@ final case class LocalState(ctx: Context,
 
 object LocalState {
   def empty(replicaId: ReplicaId): LocalState =
-    LocalState(ctx = Context.emptyDoc,
+    LocalState(ctx = Context.empty,
                replicaId = replicaId,
                opsCounter = 0,
                variables = Map.empty,

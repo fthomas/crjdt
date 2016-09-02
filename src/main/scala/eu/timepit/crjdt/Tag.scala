@@ -1,6 +1,9 @@
 package eu.timepit.crjdt
 
-sealed trait Tag extends Product with Serializable
+sealed trait Tag extends Product with Serializable {
+  def key: Key
+}
+
 sealed trait RecTag extends Tag
 
 object Tag {
