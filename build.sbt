@@ -1,76 +1,133 @@
+/// variables
+
 val groupId = "eu.timepit"
 val projectName = "crjdt"
 val rootPkg = s"$groupId.$projectName"
 val gitPubUrl = s"https://github.com/fthomas/$projectName.git"
 val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
 
-name := projectName
-description := "A conflict-free replicated JSON datatype in Scala"
-
-organization := groupId
-homepage := Some(url(s"https://github.com/fthomas/$projectName"))
-startYear := Some(2016)
-licenses := Seq(
-  "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
-scmInfo := Some(
-  ScmInfo(homepage.value.get,
-          s"scm:git:$gitPubUrl",
-          Some(s"scm:git:$gitDevUrl")))
-bintrayPackageLabels := Seq("JSON", "CRDT", "Scala")
-
-scalaVersion := "2.11.8"
-scalacOptions ++= Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:experimental.macros",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-unchecked",
-  "-Xfatal-warnings",
-  "-Xfuture",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-unused-import",
-  "-Ywarn-value-discard"
-)
-scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
-scalacOptions in (Test, console) -= "-Ywarn-unused-import"
-
-scalacOptions in (Compile, doc) ++= Seq(
-  "-doc-source-url",
-  scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-  "-sourcepath",
-  baseDirectory.in(LocalRootProject).value.getAbsolutePath
-)
-
-autoAPIMappings := true
-
 val catsVersion = "0.7.2"
 val scalaCheckVersion = "1.12.5"
 
-libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % catsVersion,
-  "org.typelevel" %% "cats-laws" % catsVersion % "test",
-  "org.scalacheck" %% "scalacheck" % scalaCheckVersion % "test"
+/// projects
+
+lazy val root = project
+  .in(file("."))
+  .aggregate(coreJVM, coreJS)
+  .settings(commonSettings)
+  .settings(noPublishSettings)
+  .settings(console := console.in(coreJVM, Compile).value)
+
+lazy val core = crossProject
+  .crossType(CrossType.Pure)
+  .in(file("modules/core"))
+  .settings(moduleName := s"$projectName-core")
+  .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
+
+lazy val coreJVM = core.jvm
+lazy val coreJS = core.js
+
+/// settings
+
+lazy val commonSettings = Def.settings(
+  metadataSettings,
+  compileSettings,
+  scaladocSettings,
+  styleSettings
 )
 
-initialCommands += s"""
-  import $rootPkg._
-  import $rootPkg.syntax._
-"""
+lazy val metadataSettings = Def.settings(
+  name := projectName,
+  description := "A conflict-free replicated JSON datatype in Scala",
+  organization := groupId,
+  homepage := Some(url(s"https://github.com/fthomas/$projectName")),
+  startYear := Some(2016),
+  licenses := Seq(
+    "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+  scmInfo := Some(
+    ScmInfo(homepage.value.get,
+            s"scm:git:$gitPubUrl",
+            Some(s"scm:git:$gitDevUrl"))),
+  bintrayPackageLabels := Seq("JSON", "CRDT", "Scala")
+)
 
-reformatOnCompileSettings
+lazy val compileSettings = Def.settings(
+  scalaVersion := "2.11.8",
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-encoding",
+    "UTF-8",
+    "-feature",
+    "-language:existentials",
+    "-language:experimental.macros",
+    "-language:higherKinds",
+    "-language:implicitConversions",
+    "-unchecked",
+    "-Xfatal-warnings",
+    "-Xfuture",
+    "-Xlint",
+    "-Yno-adapted-args",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-unused-import",
+    "-Ywarn-value-discard"
+  ),
+  scalacOptions in (Compile, console) -= "-Ywarn-unused-import",
+  scalacOptions in (Test, console) -= "-Ywarn-unused-import",
+  libraryDependencies ++= Seq(
+    "org.typelevel" %%% "cats-core" % catsVersion,
+    "org.typelevel" %%% "cats-laws" % catsVersion % "test",
+    "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
+  ),
+  initialCommands += s"""
+    import $rootPkg._
+    import $rootPkg.syntax._
+  """
+)
+
+lazy val scaladocSettings = Def.settings(
+  scalacOptions in (Compile, doc) ++= Seq(
+    "-doc-source-url",
+    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    "-sourcepath",
+    baseDirectory.in(LocalRootProject).value.getAbsolutePath
+  ),
+  autoAPIMappings := true
+)
+
+lazy val publishSettings = Def.settings(
+  publishMavenStyle := true,
+  pomIncludeRepository := { _ =>
+    false
+  },
+  pomExtra :=
+    <developers>
+      <developer>
+        <id>fthomas</id>
+        <name>Frank S. Thomas</name>
+        <url>https://github.com/fthomas</url>
+      </developer>
+    </developers>
+)
+
+lazy val noPublishSettings = Def.settings(
+  publish := (),
+  publishLocal := (),
+  publishArtifact := false
+)
+
+lazy val styleSettings = Def.settings(
+  reformatOnCompileSettings
+)
+
+/// commands
 
 val validateCommands = Seq(
   "clean",
   "scalafmtTest",
+  "coreJS/test",
   "coverage",
-  "compile",
-  "test",
+  "coreJVM/test",
   "coverageReport",
   "coverageOff",
   "doc"
