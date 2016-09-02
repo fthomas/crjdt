@@ -11,16 +11,13 @@ sealed trait Context extends Product with Serializable {
     op.cur match {
       case Cursor(Vector(), k) =>
         op.mut match {
-          // EMPTY-MAP
-          case AssignM(EmptyMap) =>
+          // EMPTY-MAP, EMPTY-LIST
+          case mut @ AssignM(EmptyMap | EmptyList) =>
             val ctx1 = this // TODO: clearElem
-            val tag = MapT(k)
+            val tag = if (mut.v == EmptyMap) MapT(k) else ListT(k)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
             ctx2.addCtx(tag, child)
-
-          // EMPTY-LIST
-          case AssignM(EmptyList) => ???
 
           // ASSIGN
           case AssignM(value) =>
