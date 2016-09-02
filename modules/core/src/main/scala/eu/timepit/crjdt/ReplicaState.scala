@@ -67,7 +67,7 @@ final case class ReplicaState(replicaId: ReplicaId,
 
       case Next(expr2) =>
         val cur = applyExpr(expr2)
-        ???
+        context.next(cur)
     }
 
   // APPLY-LOCAL

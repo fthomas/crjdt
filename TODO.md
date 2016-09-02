@@ -1,7 +1,6 @@
 # TODO
 
 Fig. 8:
-- NEXT1,2,3,4
 - KEYS1,2,3
 - VAL1,2,3
 

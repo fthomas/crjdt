@@ -10,6 +10,28 @@ import eu.timepit.crjdt.Tag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
+  def next(cur: Cursor): Cursor =
+    cur match {
+      case Cursor(Vector(), k) =>
+        val k1Ptr = getNextPtr(Ptr.fromKey(k))
+        k1Ptr match {
+          case TailP => cur
+          case _ =>
+            val cur1 = Cursor.withFinalKey(k1Ptr.toKey)
+            // NEXT2
+            if (getPres(k).nonEmpty) cur1
+            // NEXT3
+            else next(cur1)
+        }
+
+      // NEXT4
+      case Cursor(k1 +: _, _) =>
+        findChild(k1).fold(cur) { child =>
+          val cur1 = child.next(cur.dropFirst)
+          cur.copy(finalKey = cur1.finalKey)
+        }
+    }
+
   def applyOp(op: Operation): Context =
     op.cur match {
       case Cursor(Vector(), k) =>
@@ -32,7 +54,7 @@ sealed trait Context extends Product with Serializable {
 
           case InsertM(value) =>
             val prevPtr = Ptr.fromKey(k)
-            val nextPtr = getNext(prevPtr)
+            val nextPtr = getNextPtr(prevPtr)
             nextPtr match {
               // INSERT2
               case IdP(nextId) if op.id < nextId =>
@@ -44,7 +66,7 @@ sealed trait Context extends Product with Serializable {
                 val ctx1 = applyOp(
                   op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
                           mut = AssignM(value)))
-                ctx1.setNext(prevPtr, idPtr).setNext(idPtr, nextPtr)
+                ctx1.setNextPtr(prevPtr, idPtr).setNextPtr(idPtr, nextPtr)
             }
 
           // DELETE
@@ -177,13 +199,13 @@ sealed trait Context extends Product with Serializable {
       case _ => Set.empty
     }
 
-  def getNext(ptr: Ptr): Ptr =
+  def getNextPtr(ptr: Ptr): Ptr =
     this match {
       case l: ListCtx => l.order.getOrElse(ptr, TailP)
       case _ => TailP
     }
 
-  def setNext(src: Ptr, dst: Ptr): Context =
+  def setNextPtr(src: Ptr, dst: Ptr): Context =
     this match {
       case l: ListCtx => l.copy(order = l.order.updated(src, dst))
       case _ => this
@@ -204,7 +226,15 @@ object Context {
 
   ///
 
-  sealed trait Ptr extends Product with Serializable
+  sealed trait Ptr extends Product with Serializable {
+    def toKey: Key =
+      this match {
+        case IdP(id) => IdK(id)
+        case HeadP => HeadK
+        case _ => HeadK
+      }
+  }
+
   object Ptr {
     final case class IdP(id: Id) extends Ptr
     case object HeadP extends Ptr
