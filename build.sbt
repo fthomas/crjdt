@@ -16,6 +16,7 @@ scmInfo := Some(
   ScmInfo(homepage.value.get,
           s"scm:git:$gitPubUrl",
           Some(s"scm:git:$gitDevUrl")))
+bintrayPackageLabels := Seq("JSON", "CRDT", "Scala")
 
 scalaVersion := "2.11.8"
 scalacOptions ++= Seq(
