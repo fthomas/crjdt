@@ -67,11 +67,11 @@ sealed trait Context extends Product with Serializable {
     findChild(tag).getOrElse {
       tag match {
         // CHILD-MAP
-        case MapT(_) => MapCtx(Map.empty, Map.empty)
+        case _: MapT => MapCtx(Map.empty, Map.empty)
         // CHILD-LIST
-        case ListT(_) => ???
+        case _: ListT => ???
         // CHILD-REG
-        case RegT(_) => RegCtx(Map.empty)
+        case _: RegT => RegCtx(Map.empty)
       }
     }
 
@@ -80,7 +80,7 @@ sealed trait Context extends Product with Serializable {
     this match {
       case m: MapCtx => m.entries.get(tag)
       case l: ListCtx => ???
-      case r: RegCtx => None
+      case _: RegCtx => None
     }
 
   // PRESENCE1, PRESENCE2
@@ -88,14 +88,14 @@ sealed trait Context extends Product with Serializable {
     this match {
       case m: MapCtx => m.presSets.getOrElse(key, Set.empty)
       case l: ListCtx => ???
-      case r: RegCtx => Set.empty
+      case _: RegCtx => Set.empty
     }
 
   def setPres(key: Key, pres: Set[Id]): Context =
     this match {
       case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
       case l: ListCtx => ???
-      case r: RegCtx => r
+      case _: RegCtx => this
     }
 }
 
