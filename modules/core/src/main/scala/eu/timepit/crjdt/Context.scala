@@ -32,8 +32,8 @@ sealed trait Context extends Product with Serializable {
 
           case InsertM(value) =>
             val prevPtr = Ptr.fromKey(k)
-            val next = getNext(prevPtr)
-            next match {
+            val nextPtr = getNext(prevPtr)
+            nextPtr match {
               // INSERT2
               case IdP(nextId) if op.id < nextId =>
                 applyOp(op.copy(cur = Cursor.withFinalKey(IdK(nextId))))
@@ -44,7 +44,7 @@ sealed trait Context extends Product with Serializable {
                 val ctx1 = applyOp(
                   op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
                           mut = AssignM(value)))
-                ctx1.setNext(prevPtr, idPtr).setNext(idPtr, next)
+                ctx1.setNext(prevPtr, idPtr).setNext(idPtr, nextPtr)
             }
 
           // DELETE
