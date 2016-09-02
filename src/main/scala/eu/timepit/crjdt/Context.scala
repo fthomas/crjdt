@@ -25,7 +25,7 @@ sealed trait Context extends Product with Serializable {
             val (ctx1, _) = clear(op.deps, tag)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
-            ctx2.addCtx(tag, child.addValue(op.id, value))
+            ctx2.addCtx(tag, child.addRegValue(op.id, value))
 
           // INSERT1, INSERT2
           case InsertM(v) => ???
@@ -49,10 +49,16 @@ sealed trait Context extends Product with Serializable {
       case _: RegCtx => this
     }
 
-  def addValue(id: Id, value: Val): Context =
+  def addRegValue(id: Id, value: Val): Context =
     this match {
       case r: RegCtx => r.copy(values = r.values.updated(id, value))
       case _ => this
+    }
+
+  def getRegValues: Map[Id, Val] =
+    this match {
+      case r: RegCtx => r.values
+      case _ => Map.empty
     }
 
   def addId(tag: Tag, id: Id, mut: Mutation): Context =
@@ -70,13 +76,23 @@ sealed trait Context extends Product with Serializable {
       case Some(child) =>
         tag match {
           // CLEAR-REG
-          case r: RegT =>
+          case tag: RegT =>
             val concurrent = child.getRegValues.filterKeys(id => !deps(id))
-            (addCtx(r, RegCtx(concurrent)), concurrent.keySet)
+            (addCtx(tag, RegCtx(concurrent)), concurrent.keySet)
 
-          case _ => ???
+          // CLEAR-MAP1
+          case tag: MapT =>
+            val (cleared, pres) = child.clearMap(deps, Set.empty)
+            (addCtx(tag, cleared), pres)
+
+          // CLEAR-LIST1
+          case _: ListT =>
+            ???
         }
     }
+
+  def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) =
+    (this, Set.empty) // TODO
 
   def getChild(tag: Tag): Context =
     findChild(tag).getOrElse {
@@ -111,12 +127,6 @@ sealed trait Context extends Product with Serializable {
       case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
       case l: ListCtx => ???
       case _: RegCtx => this
-    }
-
-  def getRegValues: Map[Id, Val] =
-    this match {
-      case r: RegCtx => r.values
-      case _ => Map.empty
     }
 }
 
