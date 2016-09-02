@@ -69,6 +69,15 @@ sealed trait Context extends Product with Serializable {
       case _ => setPres(tag.key, getPres(tag.key) + id)
     }
 
+  // CLEAR-ANY
+  def clearAny(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+    val ctx0 = this
+    val (ctx1, pres1) = ctx0.clear(deps, MapT(key))
+    val (ctx2, pres2) = ctx1.clear(deps, ListT(key))
+    val (ctx3, pres3) = ctx2.clear(deps, RegT(key))
+    (ctx3, pres1 ++ pres2 ++ pres3)
+  }
+
   def clear(deps: Set[Id], tag: Tag): (Context, Set[Id]) =
     findChild(tag) match {
       // CLEAR-NONE
