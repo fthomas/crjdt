@@ -143,8 +143,9 @@ sealed trait Context extends Product with Serializable {
             (addCtx(tag, cleared), pres)
 
           // CLEAR-LIST1
-          case _: ListT =>
-            (this, Set.empty) // TODO
+          case tag: ListT =>
+            val (cleared, pres) = child.clearList(deps, HeadP)
+            (addCtx(tag, cleared), pres)
         }
     }
 
@@ -157,6 +158,17 @@ sealed trait Context extends Product with Serializable {
       (ctx2, pres1 ++ pres2)
     }
   }
+
+  def clearList(deps: Set[Id], ptr: Ptr): (Context, Set[Id]) =
+    // CLEAR-LIST3
+    if (ptr == TailP) (this, Set.empty)
+    // CLEAR-LIST2
+    else {
+      val nextPtr = getNextPtr(ptr)
+      val (ctx1, pres1) = clearElem(deps, ptr.toKey)
+      val (ctx2, pres2) = ctx1.clearList(deps, nextPtr)
+      (ctx2, pres1 ++ pres2)
+    }
 
   def getChild(tag: Tag): Context =
     findChild(tag).getOrElse {

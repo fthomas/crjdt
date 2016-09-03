@@ -9,6 +9,3 @@ Fig. 9:
 - SEND
 - RECV
 - YIELD
-
-Fig. 11:
-- CLEAR-LIST1,2,3
