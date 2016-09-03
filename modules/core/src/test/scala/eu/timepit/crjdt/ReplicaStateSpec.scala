@@ -42,4 +42,13 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
     println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
     true
   }
+
+  property("delete map") = secure {
+    val cmd = (doc := `{}`) `;`
+        (doc.downField("key1") := `{}`) `;`
+        (doc.downField("key1").downField("key2") := Val.Str("hallo")) `;`
+        doc.downField("key1").delete
+    println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
+    true
+  }
 }
