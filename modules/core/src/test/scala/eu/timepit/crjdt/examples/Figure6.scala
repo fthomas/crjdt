@@ -1,4 +1,5 @@
 package eu.timepit.crjdt
+package examples
 
 import eu.timepit.crjdt.syntax._
 import org.scalacheck.Prop._
