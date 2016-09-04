@@ -5,7 +5,6 @@ Fig. 8:
 - VAL1,2,3
 
 Fig. 9:
-- APPLY-REMOTE
 - SEND
 - RECV
 - YIELD

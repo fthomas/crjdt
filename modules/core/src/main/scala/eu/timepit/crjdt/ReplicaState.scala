@@ -12,7 +12,8 @@ final case class ReplicaState(replicaId: ReplicaId,
                               context: Context,
                               variables: Map[Var, Cursor],
                               processedOps: Set[Id],
-                              generatedOps: Vector[Operation]) {
+                              generatedOps: Vector[Operation],
+                              receivedOps: Vector[Operation]) {
 
   def applyCmd(cmd: Cmd): ReplicaState =
     cmd match {
@@ -76,6 +77,18 @@ final case class ReplicaState(replicaId: ReplicaId,
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
+  def applyRemote: ReplicaState = {
+    val remoteOp = receivedOps.find { op =>
+      !processedOps(op.id) && op.deps.subsetOf(processedOps)
+    }
+    remoteOp.fold(this) { op =>
+      val newCounter = if (op.id.c > opsCounter) op.id.c else opsCounter
+      copy(opsCounter = newCounter,
+           context = context.applyOp(op),
+           processedOps = processedOps + op.id)
+    }
+  }
+
   def currentId: Id =
     Id(opsCounter, replicaId)
 
@@ -97,5 +110,6 @@ object ReplicaState {
                  context = Context.emptyMap,
                  variables = Map.empty,
                  processedOps = Set.empty,
-                 generatedOps = Vector.empty)
+                 generatedOps = Vector.empty,
+                 receivedOps = Vector.empty)
 }

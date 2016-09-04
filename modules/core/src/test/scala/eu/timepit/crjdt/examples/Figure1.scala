@@ -7,8 +7,11 @@ import org.scalacheck.Properties
 
 object Figure1 extends Properties("Figure1") {
   property("convergence") = secure {
-    val p0 = ReplicaState.empty("p").applyCmd(doc.downField("key") := "A")
-    val q0 = p0.copy(replicaId = "q")
+    val init = doc.downField("key") := "A"
+    val p0 = ReplicaState.empty("p").applyCmd(init)
+    val q0 =
+      ReplicaState.empty("q").copy(receivedOps = p0.generatedOps).applyRemote
+    p0.context ?= q0.context
 
     // concurrent modifications
 
@@ -17,7 +20,9 @@ object Figure1 extends Properties("Figure1") {
 
     // network communication
 
-    //p1.context ?= q1.context
-    true
+    val p2 = p1.copy(receivedOps = q1.generatedOps).applyRemote
+    val q2 = q1.copy(receivedOps = p1.generatedOps).applyRemote
+
+    p2.context ?= q2.context
   }
 }
