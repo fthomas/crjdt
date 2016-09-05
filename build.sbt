@@ -115,6 +115,8 @@ lazy val noPublishSettings = Def.settings(
 )
 
 lazy val releaseSettings = {
+  import sbtrelease.ReleaseStateTransformations._
+
   lazy val updateVersionInReadme: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
     val newVersion = extracted.get(version)
@@ -131,7 +133,21 @@ lazy val releaseSettings = {
 
   Def.settings(
     releaseCrossBuild := true,
-    releasePublishArtifactsAction := PgpKeys.publishSigned.value
+    releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      updateVersionInReadme,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts,
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
   )
 }
 
