@@ -6,7 +6,7 @@
 
 This is an implementation of the data structures and algorithms described
 in the paper [A Conflict-Free Replicated JSON Datatype][paper] by
-*Martin Kleppmann and Alastair R. Beresford* in Scala.
+*Martin Kleppmann and Alastair R. Beresford*.
 
 ## Getting Started
 

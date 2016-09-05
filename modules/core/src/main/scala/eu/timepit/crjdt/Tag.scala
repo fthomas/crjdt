@@ -4,6 +4,10 @@ sealed trait Tag extends Product with Serializable {
   def key: Key
 }
 
+/** `RecTag` represents the typed components of a `[[Cursor]]`.
+  *
+  * The name is an abbreviation for ''recursive tag''.
+  */
 sealed trait RecTag extends Tag
 
 object Tag {

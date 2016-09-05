@@ -51,4 +51,14 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
     println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
     true
   }
+
+  property("delete list") = secure {
+    val cmd = (doc := `{}`) `;`
+        (doc.downField("key1") := `[]`) `;`
+        doc.downField("key1").iter.insert("item1") `;`
+        doc.downField("key1").iter.insert("item2") `;`
+        doc.downField("key1").delete
+    emptyState.applyCmd(cmd)
+    true
+  }
 }

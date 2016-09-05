@@ -263,11 +263,13 @@ object Context {
   ///
 
   def emptyMap: Context =
-    MapCtx(Map.empty, Map.empty)
+    MapCtx(entries = Map.empty, presSets = Map.empty)
 
   def emptyList: Context =
-    ListCtx(Map.empty, Map.empty, Map(HeadP -> TailP))
+    ListCtx(entries = Map.empty,
+            presSets = Map.empty,
+            order = Map(HeadP -> TailP))
 
   def emptyReg: Context =
-    RegCtx(Map.empty)
+    RegCtx(values = Map.empty)
 }

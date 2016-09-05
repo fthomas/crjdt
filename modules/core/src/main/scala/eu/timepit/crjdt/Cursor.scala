@@ -1,5 +1,6 @@
 package eu.timepit.crjdt
 
+/** `Cursor` identifies a position in a `[[Context]]`. */
 final case class Cursor(keys: Vector[RecTag], finalKey: Key) {
   def dropFirst: Cursor =
     copy(keys = keys.drop(1))
