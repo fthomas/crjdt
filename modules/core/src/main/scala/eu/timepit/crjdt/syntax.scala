@@ -29,5 +29,6 @@ object syntax {
     def next: Expr = Next(self)
   }
 
+  implicit def boolean2Val(b: Boolean): Val = if (b) True else False
   implicit def string2Val(s: String): Val = Str(s)
 }
