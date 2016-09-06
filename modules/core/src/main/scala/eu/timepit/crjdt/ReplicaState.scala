@@ -82,7 +82,7 @@ final case class ReplicaState(replicaId: ReplicaId,
       !processedOps(op.id) && op.deps.subsetOf(processedOps)
     }
     remoteOp.fold(this) { op =>
-      val newCounter = if (op.id.c > opsCounter) op.id.c else opsCounter
+      val newCounter = opsCounter max op.id.c
       copy(opsCounter = newCounter,
            context = context.applyOp(op),
            processedOps = processedOps + op.id)
