@@ -58,13 +58,13 @@ final case class ReplicaState(replicaId: ReplicaId,
           // It corresponds to the dubious EXPR `iter[key]` which should
           // be impossible to construct with the EXPR API.
           case HeadK => cur
-          case _ => cur.push(MapT.apply, StrK(key))
+          case _ => cur.append(MapT.apply, StrK(key))
         }
 
       // ITER
       case Iter(expr2) =>
         val cur = applyExpr(expr2)
-        cur.push(ListT.apply, HeadK)
+        cur.append(ListT.apply, HeadK)
 
       case Next(expr2) =>
         val cur = applyExpr(expr2)
