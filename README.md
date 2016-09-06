@@ -8,6 +8,9 @@ This is an implementation of the data structures and algorithms described
 in the paper [A Conflict-Free Replicated JSON Datatype][paper] by
 **[Martin Kleppmann][kleppmann]** and **[Alastair R. Beresford][beresford]**.
 
+The goal of this project is to provide a high-level API to the CRDT described
+in the paper that integrates well with other JSON libraries for Scala.
+
 ## Getting Started
 
 crjdt is currently available for Scala and [Scala.js][scala.js], version 2.11.
