@@ -6,7 +6,7 @@
 
 This is an implementation of the data structures and algorithms described
 in the paper [A Conflict-Free Replicated JSON Datatype][paper] by
-*[Martin Kleppmann][kleppmann] and [Alastair R. Beresford][beresford]*.
+**[Martin Kleppmann][kleppmann]** and **[Alastair R. Beresford][beresford]**.
 
 ## Getting Started
 
@@ -20,6 +20,19 @@ resolvers += Resolver.bintrayRepo("fthomas", "maven")
 libraryDependencies += "eu.timepit" %% "crjdt-core" % "0.0.2"
 ```
 
+## License
+
+crjdt is licensed under the [Apache License, Version 2.0][apache2]
+(the "License"); you may not use this software except in compliance with
+the License.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+[apache2]: http://www.apache.org/licenses/LICENSE-2.0
 [beresford]: https://www.cl.cam.ac.uk/~arb33/
 [kleppmann]: https://martin.kleppmann.com/
 [paper]: http://arxiv.org/pdf/1608.03960.pdf
