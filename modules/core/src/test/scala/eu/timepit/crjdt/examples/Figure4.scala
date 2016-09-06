@@ -10,12 +10,7 @@ object Figure4 extends Properties("Figure4") {
   val cmd = (todo.downField("title") := "buy milk") `;` (todo.downField("done") := false)
 
   val p0 = ReplicaState.empty("p").applyCmd(cmd)
-  val q0 =
-    ReplicaState
-      .empty("q")
-      .copy(receivedOps = p0.generatedOps)
-      .applyRemote
-      .applyRemote
+  val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
 
   property("initial state") = secure {
     p0.context ?= q0.context
@@ -28,8 +23,8 @@ object Figure4 extends Properties("Figure4") {
     p1.context != q1.context
   }
 
-  val p2 = p1.copy(receivedOps = q1.generatedOps).applyRemote
-  val q2 = q1.copy(receivedOps = p1.generatedOps).applyRemote
+  val p2 = p1.applyRemoteOps(q1.generatedOps)
+  val q2 = q1.applyRemoteOps(p1.generatedOps)
 
   property("convergence") = secure {
     p2.context ?= q2.context

@@ -6,6 +6,7 @@ import eu.timepit.crjdt.Key.{HeadK, StrK}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.TypeTag.{ListT, MapT}
+import scala.annotation.tailrec
 
 final case class ReplicaState(replicaId: ReplicaId,
                               opsCounter: BigInt,
@@ -77,17 +78,23 @@ final case class ReplicaState(replicaId: ReplicaId,
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
+  // APPLY-REMOTE
+  @tailrec
   def applyRemote: ReplicaState = {
-    val remoteOp = receivedOps.find { op =>
+    val applicableOp = receivedOps.find { op =>
       !processedOps(op.id) && op.deps.subsetOf(processedOps)
     }
-    remoteOp.fold(this) { op =>
-      val newCounter = opsCounter max op.id.c
-      copy(opsCounter = newCounter,
-           context = context.applyOp(op),
-           processedOps = processedOps + op.id)
+    applicableOp match {
+      case None => this
+      case Some(op) =>
+        copy(opsCounter = opsCounter max op.id.c,
+             context = context.applyOp(op),
+             processedOps = processedOps + op.id).applyRemote
     }
   }
+
+  def applyRemoteOps(ops: Vector[Operation]): ReplicaState =
+    copy(receivedOps = ops ++ receivedOps).applyRemote
 
   def currentId: Id =
     Id(opsCounter, replicaId)

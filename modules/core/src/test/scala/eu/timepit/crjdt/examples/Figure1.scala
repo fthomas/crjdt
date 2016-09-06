@@ -7,8 +7,7 @@ import org.scalacheck.Properties
 
 object Figure1 extends Properties("Figure1") {
   val p0 = ReplicaState.empty("p").applyCmd(doc.downField("key") := "A")
-  val q0 =
-    ReplicaState.empty("q").copy(receivedOps = p0.generatedOps).applyRemote
+  val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
 
   property("initial state") = secure {
     p0.context ?= q0.context
@@ -21,8 +20,8 @@ object Figure1 extends Properties("Figure1") {
     p1.context != q1.context
   }
 
-  val p2 = p1.copy(receivedOps = q1.generatedOps).applyRemote
-  val q2 = q1.copy(receivedOps = p1.generatedOps).applyRemote
+  val p2 = p1.applyRemoteOps(q1.generatedOps)
+  val q2 = q1.applyRemoteOps(p1.generatedOps)
 
   property("convergence") = secure {
     p2.context ?= q2.context

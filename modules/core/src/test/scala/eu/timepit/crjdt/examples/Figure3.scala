@@ -28,10 +28,8 @@ object Figure3 extends Properties("Figure3") {
     p1.context != q1.context
   }
 
-  val p2 =
-    p1.copy(receivedOps = q1.generatedOps).applyRemote.applyRemote.applyRemote
-  val q2 =
-    q1.copy(receivedOps = p1.generatedOps).applyRemote.applyRemote.applyRemote
+  val p2 = p1.applyRemoteOps(q1.generatedOps)
+  val q2 = q1.applyRemoteOps(p1.generatedOps)
 
   property("convergence") = secure {
     p2.context ?= q2.context
