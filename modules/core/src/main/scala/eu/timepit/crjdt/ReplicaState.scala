@@ -5,7 +5,7 @@ import eu.timepit.crjdt.Expr._
 import eu.timepit.crjdt.Key.{HeadK, StrK}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
-import eu.timepit.crjdt.Tag.{ListT, MapT}
+import eu.timepit.crjdt.TypeTag.{ListT, MapT}
 
 final case class ReplicaState(replicaId: ReplicaId,
                               opsCounter: BigInt,

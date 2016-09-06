@@ -1,8 +1,8 @@
 package eu.timepit.crjdt
 
 /** `Cursor` identifies a position in a `[[Context]]`. */
-final case class Cursor(keys: Vector[RecTag], finalKey: Key) {
-  def append(tag: Key => RecTag, newFinalKey: Key): Cursor =
+final case class Cursor(keys: Vector[BranchTag], finalKey: Key) {
+  def append(tag: Key => BranchTag, newFinalKey: Key): Cursor =
     Cursor(keys :+ tag(finalKey), newFinalKey)
 
   def dropFirst: Cursor =

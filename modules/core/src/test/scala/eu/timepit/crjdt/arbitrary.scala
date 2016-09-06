@@ -1,7 +1,7 @@
 package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Key.{DocK, HeadK, IdK, StrK}
-import eu.timepit.crjdt.Tag.{ListT, MapT}
+import eu.timepit.crjdt.TypeTag.{ListT, MapT, RegT}
 import org.scalacheck.{Arbitrary, Gen}
 
 object arbitrary {
@@ -21,16 +21,22 @@ object arbitrary {
     Arbitrary(Gen.oneOf(doc, head, id, str))
   }
 
-  implicit val recTagArbitrary: Arbitrary[RecTag] = {
+  implicit val branchTagArbitrary: Arbitrary[BranchTag] = {
     val gen = Arbitrary.arbitrary[Key].flatMap { key =>
       Gen.oneOf(MapT(key), ListT(key))
     }
     Arbitrary(gen)
   }
 
+  implicit val typeTagArbitrary: Arbitrary[TypeTag] = {
+    val gen = Gen.oneOf(Arbitrary.arbitrary[Key].map(RegT.apply),
+                        Arbitrary.arbitrary[BranchTag])
+    Arbitrary(gen)
+  }
+
   implicit val cursorArbitrary: Arbitrary[Cursor] = {
     val gen = for {
-      keys <- Arbitrary.arbitrary[Vector[RecTag]]
+      keys <- Arbitrary.arbitrary[Vector[BranchTag]]
       finalKey <- Arbitrary.arbitrary[Key]
     } yield Cursor(keys, finalKey)
     Arbitrary(gen)

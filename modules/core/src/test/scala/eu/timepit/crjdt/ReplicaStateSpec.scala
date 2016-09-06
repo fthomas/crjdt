@@ -1,7 +1,7 @@
 package eu.timepit.crjdt
 
 import eu.timepit.crjdt.Key.{DocK, HeadK, StrK}
-import eu.timepit.crjdt.Tag.{ListT, MapT}
+import eu.timepit.crjdt.TypeTag.{ListT, MapT}
 import eu.timepit.crjdt.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties

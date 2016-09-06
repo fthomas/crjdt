@@ -6,7 +6,7 @@ import eu.timepit.crjdt.Context.{ListCtx, MapCtx, Ptr, RegCtx}
 import eu.timepit.crjdt.Key.{HeadK, IdK}
 import eu.timepit.crjdt.Operation.Mutation
 import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
-import eu.timepit.crjdt.Tag.{ListT, MapT, RegT}
+import eu.timepit.crjdt.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
@@ -83,7 +83,7 @@ sealed trait Context extends Product with Serializable {
         ctx1.addCtx(k1, child1)
     }
 
-  def addCtx(tag: Tag, ctx: Context): Context =
+  def addCtx(tag: TypeTag, ctx: Context): Context =
     this match {
       case m: MapCtx => m.copy(entries = m.entries.updated(tag, ctx))
       case l: ListCtx => l.copy(entries = l.entries.updated(tag, ctx))
@@ -102,7 +102,7 @@ sealed trait Context extends Product with Serializable {
       case _ => Map.empty
     }
 
-  def addId(tag: Tag, id: Id, mut: Mutation): Context =
+  def addId(tag: TypeTag, id: Id, mut: Mutation): Context =
     mut match {
       // ADD-ID2
       case DeleteM => this
@@ -126,7 +126,7 @@ sealed trait Context extends Product with Serializable {
     (ctx3, pres1 ++ pres2 ++ pres3)
   }
 
-  def clear(deps: Set[Id], tag: Tag): (Context, Set[Id]) =
+  def clear(deps: Set[Id], tag: TypeTag): (Context, Set[Id]) =
     findChild(tag) match {
       // CLEAR-NONE
       case None => (this, Set.empty)
@@ -170,7 +170,7 @@ sealed trait Context extends Product with Serializable {
       (ctx2, pres1 ++ pres2)
     }
 
-  def getChild(tag: Tag): Context =
+  def getChild(tag: TypeTag): Context =
     findChild(tag).getOrElse {
       tag match {
         // CHILD-MAP
@@ -183,7 +183,7 @@ sealed trait Context extends Product with Serializable {
     }
 
   // CHILD-GET
-  def findChild(tag: Tag): Option[Context] =
+  def findChild(tag: TypeTag): Option[Context] =
     this match {
       case m: MapCtx => m.entries.get(tag)
       case l: ListCtx => l.entries.get(tag)
@@ -205,7 +205,7 @@ sealed trait Context extends Product with Serializable {
       case _: RegCtx => this
     }
 
-  def keySet: Set[Tag] =
+  def keySet: Set[TypeTag] =
     this match {
       case m: MapCtx => m.entries.keySet
       case _ => Set.empty
@@ -225,11 +225,11 @@ sealed trait Context extends Product with Serializable {
 }
 
 object Context {
-  final case class MapCtx(entries: Map[Tag, Context],
+  final case class MapCtx(entries: Map[TypeTag, Context],
                           presSets: Map[Key, Set[Id]])
       extends Context
 
-  final case class ListCtx(entries: Map[Tag, Context],
+  final case class ListCtx(entries: Map[TypeTag, Context],
                            presSets: Map[Key, Set[Id]],
                            order: Map[Ptr, Ptr])
       extends Context
