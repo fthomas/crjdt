@@ -41,4 +41,12 @@ object arbitrary {
     } yield Cursor(keys, finalKey)
     Arbitrary(gen)
   }
+
+  implicit val valArbitrary: Arbitrary[Val] = {
+    val numGen = Arbitrary.arbitrary[BigDecimal].map(Val.Num.apply)
+    val strGen = Arbitrary.arbitrary[String].map(Val.Str.apply)
+    val constantsGen =
+      Gen.oneOf(Val.True, Val.False, Val.Null, Val.EmptyList, Val.EmptyMap)
+    Arbitrary(Gen.oneOf(numGen, strGen, constantsGen))
+  }
 }
