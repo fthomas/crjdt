@@ -41,7 +41,7 @@ lazy val commonSettings = Def.settings(
 
 lazy val metadataSettings = Def.settings(
   name := projectName,
-  description := "A conflict-free replicated JSON datatype in Scala",
+  description := "A conflict-free replicated JSON datatype (CRDT) in Scala",
   organization := groupId,
   homepage := Some(url(s"https://github.com/fthomas/$projectName")),
   startYear := Some(2016),
