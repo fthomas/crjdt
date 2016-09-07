@@ -10,4 +10,7 @@ object Id {
       val rc = x.c compare y.c
       if (rc != 0) rc else x.p compareTo y.p
     }
+
+  implicit final val orderingId: Ordering[Id] =
+    Order[Id].toOrdering
 }
