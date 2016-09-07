@@ -1,6 +1,6 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
-import eu.timepit.crjdt.Operation.Mutation
+import eu.timepit.crjdt.core.Operation.Mutation
 
 final case class Operation(id: Id, deps: Set[Id], cur: Cursor, mut: Mutation)
 

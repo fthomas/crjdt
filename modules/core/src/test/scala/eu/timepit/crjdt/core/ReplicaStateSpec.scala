@@ -1,8 +1,8 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
-import eu.timepit.crjdt.Key.{DocK, HeadK, StrK}
-import eu.timepit.crjdt.TypeTag.{ListT, MapT}
-import eu.timepit.crjdt.syntax._
+import eu.timepit.crjdt.core.Key.{DocK, HeadK, StrK}
+import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
+import eu.timepit.crjdt.core.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 

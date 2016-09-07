@@ -1,4 +1,4 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 /** `Key` represents the untyped components of a `[[Cursor]]`. */
 sealed trait Key extends Product with Serializable

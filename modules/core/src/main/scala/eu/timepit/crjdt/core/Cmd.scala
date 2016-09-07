@@ -1,4 +1,4 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 sealed trait Cmd extends Product with Serializable
 

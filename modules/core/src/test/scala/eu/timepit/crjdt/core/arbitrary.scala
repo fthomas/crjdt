@@ -1,7 +1,7 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
-import eu.timepit.crjdt.Key.{DocK, HeadK, IdK, StrK}
-import eu.timepit.crjdt.TypeTag.{ListT, MapT, RegT}
+import eu.timepit.crjdt.core.Key.{DocK, HeadK, IdK, StrK}
+import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import org.scalacheck.{Arbitrary, Gen}
 
 object arbitrary {

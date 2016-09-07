@@ -1,4 +1,4 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 /** `TypeTag` tags a `[[Key]]` with the data type it refers to. */
 sealed trait TypeTag extends Product with Serializable {

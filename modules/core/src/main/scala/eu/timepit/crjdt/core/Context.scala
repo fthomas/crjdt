@@ -1,13 +1,13 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 import cats.syntax.order._
-import eu.timepit.crjdt.Context.Ptr.{HeadP, IdP, TailP}
-import eu.timepit.crjdt.Context.{ListCtx, MapCtx, Ptr, RegCtx}
-import eu.timepit.crjdt.Key.{HeadK, IdK}
-import eu.timepit.crjdt.Operation.Mutation
-import eu.timepit.crjdt.Operation.Mutation.{AssignM, DeleteM, InsertM}
-import eu.timepit.crjdt.TypeTag.{ListT, MapT, RegT}
-import eu.timepit.crjdt.Val.{EmptyList, EmptyMap}
+import eu.timepit.crjdt.core.Context.Ptr.{HeadP, IdP, TailP}
+import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, Ptr, RegCtx}
+import eu.timepit.crjdt.core.Key.{HeadK, IdK}
+import eu.timepit.crjdt.core.Operation.Mutation
+import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
+import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
+import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
   def next(cur: Cursor): Cursor =

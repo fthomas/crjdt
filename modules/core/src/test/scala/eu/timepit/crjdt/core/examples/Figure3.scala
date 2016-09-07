@@ -1,9 +1,9 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 package examples
 
+import eu.timepit.crjdt.core.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
-import syntax._
 
 object Figure3 extends Properties("Figure3") {
   val p0 = ReplicaState.empty("p")

@@ -1,7 +1,7 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 import cats.kernel.laws.OrderLaws
-import eu.timepit.crjdt.arbitrary._
+import eu.timepit.crjdt.core.arbitrary._
 import org.scalacheck.Properties
 
 object IdSpec extends Properties("Id") {

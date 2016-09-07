@@ -1,4 +1,4 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
 /** `Cursor` identifies a position in a `[[Context]]`. */
 final case class Cursor(keys: Vector[BranchTag], finalKey: Key) {

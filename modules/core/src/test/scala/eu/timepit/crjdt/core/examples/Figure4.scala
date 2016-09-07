@@ -1,7 +1,7 @@
-package eu.timepit.crjdt.examples
+package eu.timepit.crjdt.core
+package examples
 
-import eu.timepit.crjdt.ReplicaState
-import eu.timepit.crjdt.syntax._
+import eu.timepit.crjdt.core.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 

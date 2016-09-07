@@ -1,8 +1,8 @@
-package eu.timepit.crjdt
+package eu.timepit.crjdt.core
 
-import eu.timepit.crjdt.Cmd._
-import eu.timepit.crjdt.Expr._
-import eu.timepit.crjdt.Val._
+import eu.timepit.crjdt.core.Cmd._
+import eu.timepit.crjdt.core.Expr._
+import eu.timepit.crjdt.core.Val._
 
 object syntax {
   final class LetSyntax {
