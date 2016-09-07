@@ -4,11 +4,7 @@ import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Val._
 
-object syntax {
-  final class LetSyntax {
-    def update(x: Var, expr: Expr): Cmd = Let(x, expr)
-  }
-
+package object syntax {
   val doc: Expr = Doc
   val let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
