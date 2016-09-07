@@ -16,11 +16,11 @@ object arbitrary {
   }
 
   implicit val keyArbitrary: Arbitrary[Key] = {
-    val doc = Gen.const(DocK)
-    val head = Gen.const(HeadK)
-    val id = Arbitrary.arbitrary[Id].map(IdK.apply)
-    val str = Arbitrary.arbitrary[String].map(StrK.apply)
-    Arbitrary(Gen.oneOf(doc, head, id, str))
+    val docGen = Gen.const(DocK)
+    val headGen = Gen.const(HeadK)
+    val idGen = Arbitrary.arbitrary[Id].map(IdK.apply)
+    val strGen = Arbitrary.arbitrary[String].map(StrK.apply)
+    Arbitrary(Gen.oneOf(docGen, headGen, idGen, strGen))
   }
 
   implicit val branchTagArbitrary: Arbitrary[BranchTag] = {
