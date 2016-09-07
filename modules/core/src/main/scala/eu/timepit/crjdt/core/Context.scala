@@ -1,9 +1,9 @@
 package eu.timepit.crjdt.core
 
 import cats.syntax.order._
-import eu.timepit.crjdt.core.Context.Ptr.{HeadP, IdP, TailP}
-import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, Ptr, RegCtx}
-import eu.timepit.crjdt.core.Key.{HeadK, IdK}
+import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
+import eu.timepit.crjdt.core.Key.IdK
+import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
 import eu.timepit.crjdt.core.Operation.Mutation
 import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
@@ -13,11 +13,11 @@ sealed trait Context extends Product with Serializable {
   def next(cur: Cursor): Cursor =
     cur match {
       case Cursor(Vector(), k) =>
-        val k1Ptr = getNextPtr(Ptr.fromKey(k))
-        k1Ptr match {
-          case TailP => cur
+        val k1Ref = getNextRef(ListRef.fromKey(k))
+        k1Ref match {
+          case TailR => cur
           case _ =>
-            val cur1 = Cursor.withFinalKey(k1Ptr.toKey)
+            val cur1 = Cursor.withFinalKey(k1Ref.toKey)
             // NEXT2
             if (getPres(k).nonEmpty) cur1
             // NEXT3
@@ -53,20 +53,20 @@ sealed trait Context extends Product with Serializable {
             ctx2.addCtx(tag, child.addRegValue(op.id, value))
 
           case InsertM(value) =>
-            val prevPtr = Ptr.fromKey(k)
-            val nextPtr = getNextPtr(prevPtr)
-            nextPtr match {
+            val prevRef = ListRef.fromKey(k)
+            val nextRef = getNextRef(prevRef)
+            nextRef match {
               // INSERT2
-              case IdP(nextId) if op.id < nextId =>
+              case IdR(nextId) if op.id < nextId =>
                 applyOp(op.copy(cur = Cursor.withFinalKey(IdK(nextId))))
 
               // INSERT1
               case _ =>
-                val idPtr = IdP(op.id)
+                val idRef = IdR(op.id)
                 val ctx1 = applyOp(
                   op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
                           mut = AssignM(value)))
-                ctx1.setNextPtr(prevPtr, idPtr).setNextPtr(idPtr, nextPtr)
+                ctx1.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
             }
 
           // DELETE
@@ -144,7 +144,7 @@ sealed trait Context extends Product with Serializable {
 
           // CLEAR-LIST1
           case tag: ListT =>
-            val (cleared, pres) = child.clearList(deps, HeadP)
+            val (cleared, pres) = child.clearList(deps, HeadR)
             (addCtx(tag, cleared), pres)
         }
     }
@@ -159,14 +159,14 @@ sealed trait Context extends Product with Serializable {
     }
   }
 
-  def clearList(deps: Set[Id], ptr: Ptr): (Context, Set[Id]) =
+  def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
     // CLEAR-LIST3
-    if (ptr == TailP) (this, Set.empty)
+    if (ref == TailR) (this, Set.empty)
     // CLEAR-LIST2
     else {
-      val nextPtr = getNextPtr(ptr)
-      val (ctx1, pres1) = clearElem(deps, ptr.toKey)
-      val (ctx2, pres2) = ctx1.clearList(deps, nextPtr)
+      val nextRef = getNextRef(ref)
+      val (ctx1, pres1) = clearElem(deps, ref.toKey)
+      val (ctx2, pres2) = ctx1.clearList(deps, nextRef)
       (ctx2, pres1 ++ pres2)
     }
 
@@ -211,13 +211,13 @@ sealed trait Context extends Product with Serializable {
       case _ => Set.empty
     }
 
-  def getNextPtr(ptr: Ptr): Ptr =
+  def getNextRef(ref: ListRef): ListRef =
     this match {
-      case l: ListCtx => l.order.getOrElse(ptr, TailP)
-      case _ => TailP
+      case l: ListCtx => l.order.getOrElse(ref, TailR)
+      case _ => TailR
     }
 
-  def setNextPtr(src: Ptr, dst: Ptr): Context =
+  def setNextRef(src: ListRef, dst: ListRef): Context =
     this match {
       case l: ListCtx => l.copy(order = l.order.updated(src, dst))
       case _ => this
@@ -231,34 +231,10 @@ object Context {
 
   final case class ListCtx(entries: Map[TypeTag, Context],
                            presSets: Map[Key, Set[Id]],
-                           order: Map[Ptr, Ptr])
+                           order: Map[ListRef, ListRef])
       extends Context
 
   final case class RegCtx(values: RegValues) extends Context
-
-  ///
-
-  sealed trait Ptr extends Product with Serializable {
-    def toKey: Key =
-      this match {
-        case IdP(id) => IdK(id)
-        case HeadP => HeadK
-        case _ => HeadK
-      }
-  }
-
-  object Ptr {
-    final case class IdP(id: Id) extends Ptr
-    case object HeadP extends Ptr
-    case object TailP extends Ptr
-
-    def fromKey(key: Key): Ptr =
-      key match {
-        case HeadK => HeadP
-        case IdK(id) => IdP(id)
-        case _ => TailP
-      }
-  }
 
   ///
 
@@ -268,7 +244,7 @@ object Context {
   def emptyList: Context =
     ListCtx(entries = Map.empty,
             presSets = Map.empty,
-            order = Map(HeadP -> TailP))
+            order = Map(HeadR -> TailR))
 
   def emptyReg: Context =
     RegCtx(values = Map.empty)
