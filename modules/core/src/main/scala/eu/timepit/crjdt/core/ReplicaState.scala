@@ -31,9 +31,6 @@ final case class ReplicaState(replicaId: ReplicaId,
       case Delete(expr) => // MAKE-DELETE
         makeOp(applyExpr(expr), DeleteM)
 
-      case Yield =>
-        ???
-
       case Sequence(cmd1, cmd2) => // EXEC
         applyCmd(cmd1).applyCmd(cmd2)
     }
