@@ -77,24 +77,25 @@ final case class ReplicaState(replicaId: ReplicaId,
 
   // APPLY-REMOTE
   @tailrec
-  def applyRemote: ReplicaState = {
-    val applicableOp = receivedOps.find { op =>
-      !processedOps(op.id) && op.deps.subsetOf(processedOps)
-    }
-    applicableOp match {
+  def applyRemote: ReplicaState =
+    findApplicableRemoteOp match {
       case None => this
       case Some(op) =>
         copy(opsCounter = opsCounter max op.id.c,
              context = context.applyOp(op),
              processedOps = processedOps + op.id).applyRemote
     }
-  }
 
   def applyRemoteOps(ops: Vector[Operation]): ReplicaState =
     copy(receivedOps = ops ++ receivedOps).applyRemote
 
   def currentId: Id =
     Id(opsCounter, replicaId)
+
+  def findApplicableRemoteOp: Option[Operation] =
+    receivedOps.find { op =>
+      !processedOps(op.id) && op.deps.subsetOf(processedOps)
+    }
 
   def incrementCounter: ReplicaState =
     copy(opsCounter = opsCounter + 1)
