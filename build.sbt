@@ -159,6 +159,10 @@ lazy val miscSettings = Def.settings(
   initialCommands += s"""
     import $rootPkg.core._
     import $rootPkg.core.syntax._
+  """,
+  initialCommands in Test += s"""
+    import $rootPkg.core.arbitrary._
+    import org.scalacheck.Arbitrary
   """
 )
 
