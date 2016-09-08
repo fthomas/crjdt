@@ -16,7 +16,10 @@ lazy val root = project
   .aggregate(coreJVM, coreJS)
   .settings(commonSettings)
   .settings(noPublishSettings)
-  .settings(console := console.in(coreJVM, Compile).value)
+  .settings(
+    console := console.in(coreJVM, Compile).value,
+    console.in(Test) := console.in(coreJVM, Test).value
+  )
 
 lazy val core = crossProject
   .crossType(CrossType.Pure)
