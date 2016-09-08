@@ -1,5 +1,6 @@
 package eu.timepit.crjdt.core
 
+import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{DocK, HeadK, IdK, StrK}
 import eu.timepit.crjdt.core.Operation.Mutation
 import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
@@ -57,5 +58,17 @@ object arbitrary {
     val insertGen = Arbitrary.arbitrary[Val].map(InsertM.apply)
     val deleteGen = Gen.const(DeleteM)
     Arbitrary(Gen.oneOf(assignGen, insertGen, deleteGen))
+  }
+
+  implicit val exprArbitrary: Arbitrary[Expr] = {
+    val docGen = Gen.const(Doc)
+    val varGen = Arbitrary.arbitrary[String].map(Var.apply)
+    val downFieldGen = Gen.lzy(for {
+      expr <- Arbitrary.arbitrary[Expr]
+      key <- Arbitrary.arbitrary[String]
+    } yield DownField(expr, key))
+    val iterGen = Gen.lzy(Arbitrary.arbitrary[Expr].map(Iter.apply))
+    val nextGen = Gen.lzy(Arbitrary.arbitrary[Expr].map(Next.apply))
+    Arbitrary(Gen.oneOf(docGen, varGen, downFieldGen, iterGen, nextGen))
   }
 }

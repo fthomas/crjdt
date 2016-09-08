@@ -157,8 +157,8 @@ lazy val styleSettings = Def.settings(
 
 lazy val miscSettings = Def.settings(
   initialCommands += s"""
-    import $rootPkg._
-    import $rootPkg.syntax._
+    import $rootPkg.core._
+    import $rootPkg.core.syntax._
   """
 )
 
