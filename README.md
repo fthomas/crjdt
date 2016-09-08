@@ -23,6 +23,12 @@ resolvers += Resolver.bintrayRepo("fthomas", "maven")
 libraryDependencies += "eu.timepit" %% "crjdt-core" % "0.0.2"
 ```
 
+## Participation
+
+The crjdt project supports the [Typelevel][typelevel] [code of conduct][typelevel-coc]
+and wants all of its channels (Gitter, GitHub, etc.) to be welcoming environments for
+everyone.
+
 ## License
 
 crjdt is licensed under the [Apache License, Version 2.0][apache2]
@@ -40,3 +46,5 @@ limitations under the License.
 [kleppmann]: https://martin.kleppmann.com/
 [paper]: http://arxiv.org/pdf/1608.03960.pdf
 [scala.js]: http://www.scala-js.org/
+[typelevel]: http://typelevel.org/
+[typelevel-coc]: http://typelevel.org/conduct.html
