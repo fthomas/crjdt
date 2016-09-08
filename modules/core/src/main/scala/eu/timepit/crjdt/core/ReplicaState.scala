@@ -107,7 +107,7 @@ final case class ReplicaState(replicaId: ReplicaId,
 }
 
 object ReplicaState {
-  def empty(replicaId: ReplicaId): ReplicaState =
+  final def empty(replicaId: ReplicaId): ReplicaState =
     ReplicaState(replicaId = replicaId,
                  opsCounter = 0,
                  context = Context.emptyMap,

@@ -17,7 +17,7 @@ object ListRef {
   case object HeadR extends ListRef
   case object TailR extends ListRef
 
-  def fromKey(key: Key): ListRef =
+  final def fromKey(key: Key): ListRef =
     key match {
       case IdK(id) => IdR(id)
       case HeadK => HeadR

@@ -10,7 +10,7 @@ import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
 
 sealed trait Context extends Product with Serializable {
-  def next(cur: Cursor): Cursor =
+  final def next(cur: Cursor): Cursor =
     cur match {
       case Cursor(Vector(), k) =>
         val k1Ref = getNextRef(ListRef.fromKey(k))
@@ -32,7 +32,7 @@ sealed trait Context extends Product with Serializable {
         }
     }
 
-  def applyOp(op: Operation): Context =
+  final def applyOp(op: Operation): Context =
     op.cur match {
       case Cursor(Vector(), k) =>
         op.mut match {
@@ -83,26 +83,26 @@ sealed trait Context extends Product with Serializable {
         ctx1.addCtx(k1, child1)
     }
 
-  def addCtx(tag: TypeTag, ctx: Context): Context =
+  final def addCtx(tag: TypeTag, ctx: Context): Context =
     this match {
       case m: MapCtx => m.copy(entries = m.entries.updated(tag, ctx))
       case l: ListCtx => l.copy(entries = l.entries.updated(tag, ctx))
       case _: RegCtx => this
     }
 
-  def addRegValue(id: Id, value: Val): Context =
+  final def addRegValue(id: Id, value: Val): Context =
     this match {
       case r: RegCtx => r.copy(values = r.values.updated(id, value))
       case _ => this
     }
 
-  def getRegValues: RegValues =
+  final def getRegValues: RegValues =
     this match {
       case r: RegCtx => r.values
       case _ => Map.empty
     }
 
-  def addId(tag: TypeTag, id: Id, mut: Mutation): Context =
+  final def addId(tag: TypeTag, id: Id, mut: Mutation): Context =
     mut match {
       // ADD-ID2
       case DeleteM => this
@@ -110,7 +110,7 @@ sealed trait Context extends Product with Serializable {
       case _ => setPres(tag.key, getPres(tag.key) + id)
     }
 
-  def clearElem(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+  final def clearElem(deps: Set[Id], key: Key): (Context, Set[Id]) = {
     val (ctx1, pres1) = clearAny(deps, key)
     val pres2 = ctx1.getPres(key)
     val pres3 = (pres1 ++ pres2) -- deps
@@ -118,7 +118,7 @@ sealed trait Context extends Product with Serializable {
   }
 
   // CLEAR-ANY
-  def clearAny(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+  final def clearAny(deps: Set[Id], key: Key): (Context, Set[Id]) = {
     val ctx0 = this
     val (ctx1, pres1) = ctx0.clear(deps, MapT(key))
     val (ctx2, pres2) = ctx1.clear(deps, ListT(key))
@@ -126,7 +126,7 @@ sealed trait Context extends Product with Serializable {
     (ctx3, pres1 ++ pres2 ++ pres3)
   }
 
-  def clear(deps: Set[Id], tag: TypeTag): (Context, Set[Id]) =
+  final def clear(deps: Set[Id], tag: TypeTag): (Context, Set[Id]) =
     findChild(tag) match {
       // CLEAR-NONE
       case None => (this, Set.empty)
@@ -150,7 +150,7 @@ sealed trait Context extends Product with Serializable {
     }
 
   // CLEAR-MAP2, CLEAR-MAP3
-  def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) = {
+  final def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) = {
     val keys = keySet.map(_.key)
     (keys -- done).headOption.fold((this, Set.empty[Id])) { k =>
       val (ctx1, pres1) = clearElem(deps, k)
@@ -159,7 +159,7 @@ sealed trait Context extends Product with Serializable {
     }
   }
 
-  def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
+  final def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
     // CLEAR-LIST3
     if (ref == TailR) (this, Set.empty)
     // CLEAR-LIST2
@@ -170,7 +170,7 @@ sealed trait Context extends Product with Serializable {
       (ctx2, pres1 ++ pres2)
     }
 
-  def getChild(tag: TypeTag): Context =
+  final def getChild(tag: TypeTag): Context =
     findChild(tag).getOrElse {
       tag match {
         // CHILD-MAP
@@ -183,7 +183,7 @@ sealed trait Context extends Product with Serializable {
     }
 
   // CHILD-GET
-  def findChild(tag: TypeTag): Option[Context] =
+  final def findChild(tag: TypeTag): Option[Context] =
     this match {
       case m: MapCtx => m.entries.get(tag)
       case l: ListCtx => l.entries.get(tag)
@@ -191,33 +191,33 @@ sealed trait Context extends Product with Serializable {
     }
 
   // PRESENCE1, PRESENCE2
-  def getPres(key: Key): Set[Id] =
+  final def getPres(key: Key): Set[Id] =
     this match {
       case m: MapCtx => m.presSets.getOrElse(key, Set.empty)
       case l: ListCtx => l.presSets.getOrElse(key, Set.empty)
       case _: RegCtx => Set.empty
     }
 
-  def setPres(key: Key, pres: Set[Id]): Context =
+  final def setPres(key: Key, pres: Set[Id]): Context =
     this match {
       case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
       case l: ListCtx => l.copy(presSets = l.presSets.updated(key, pres))
       case _: RegCtx => this
     }
 
-  def keySet: Set[TypeTag] =
+  final def keySet: Set[TypeTag] =
     this match {
       case m: MapCtx => m.entries.keySet
       case _ => Set.empty
     }
 
-  def getNextRef(ref: ListRef): ListRef =
+  final def getNextRef(ref: ListRef): ListRef =
     this match {
       case l: ListCtx => l.order.getOrElse(ref, TailR)
       case _ => TailR
     }
 
-  def setNextRef(src: ListRef, dst: ListRef): Context =
+  final def setNextRef(src: ListRef, dst: ListRef): Context =
     this match {
       case l: ListCtx => l.copy(order = l.order.updated(src, dst))
       case _ => this
@@ -238,14 +238,14 @@ object Context {
 
   ///
 
-  def emptyMap: Context =
+  final def emptyMap: Context =
     MapCtx(entries = Map.empty, presSets = Map.empty)
 
-  def emptyList: Context =
+  final def emptyList: Context =
     ListCtx(entries = Map.empty,
             presSets = Map.empty,
             order = Map(HeadR -> TailR))
 
-  def emptyReg: Context =
+  final def emptyReg: Context =
     RegCtx(values = Map.empty)
 }
