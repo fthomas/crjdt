@@ -14,3 +14,10 @@ script:
 - sbt ++$TRAVIS_SCALA_VERSION validate
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+notifications:
+  webhooks:
+    urls:
+    - https://webhooks.gitter.im/e/caaa79076d3c42eb4262
+    on_success: change
+    on_failure: always
+    on_start: never
