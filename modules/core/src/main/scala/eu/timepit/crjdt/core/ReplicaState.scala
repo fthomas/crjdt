@@ -37,19 +37,17 @@ final case class ReplicaState(replicaId: ReplicaId,
 
   def applyExpr(expr: Expr): Cursor =
     expr match {
-      // DOC
-      case Doc => Cursor.doc
+      case Doc => // DOC
+        Cursor.doc
 
-      // VAR
-      case v @ Var(_) =>
+      case v @ Var(_) => // VAR
         variables.get(v) match {
           case Some(cur) => cur
           // This case violates VAR's precondition x elem dom(A_p).
           case None => Cursor.doc
         }
 
-      // GET
-      case DownField(expr2, key) =>
+      case DownField(expr2, key) => // GET
         val cur = applyExpr(expr2)
         cur.finalKey match {
           // This case violates GET's precondition k_n != head.
@@ -59,12 +57,11 @@ final case class ReplicaState(replicaId: ReplicaId,
           case _ => cur.append(MapT.apply, StrK(key))
         }
 
-      // ITER
-      case Iter(expr2) =>
+      case Iter(expr2) => // ITER
         val cur = applyExpr(expr2)
         cur.append(ListT.apply, HeadK)
 
-      case Next(expr2) =>
+      case Next(expr2) => // NEXT1
         val cur = applyExpr(expr2)
         context.next(cur)
     }
@@ -75,7 +72,7 @@ final case class ReplicaState(replicaId: ReplicaId,
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
-  // APPLY-REMOTE
+  // APPLY-REMOTE, YIELD
   @tailrec
   def applyRemote: ReplicaState =
     findApplicableRemoteOp match {
@@ -86,6 +83,7 @@ final case class ReplicaState(replicaId: ReplicaId,
              processedOps = processedOps + op.id).applyRemote
     }
 
+  // RECV, YIELD
   def applyRemoteOps(ops: Vector[Operation]): ReplicaState =
     copy(receivedOps = ops ++ receivedOps).applyRemote
 
