@@ -35,6 +35,13 @@ final case class ReplicaState(replicaId: ReplicaId,
         applyCmd(cmd1).applyCmd(cmd2)
     }
 
+  @tailrec
+  def applyCmds(cmds: List[Cmd]): ReplicaState =
+    cmds match {
+      case x :: xs => applyCmd(x).applyCmds(xs)
+      case Nil => this
+    }
+
   def applyExpr(expr: Expr): Cursor =
     expr match {
       case Doc => // DOC

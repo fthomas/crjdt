@@ -47,7 +47,7 @@ object arbitrary {
   }
 
   implicit val arbitraryVal: Arbitrary[Val] = {
-    val genNum = Arbitrary.arbitrary[BigDecimal].map(Val.Num.apply)
+    val genNum = Arbitrary.arbitrary[Double].map(d => Val.Num.apply(d))
     val genStr = Arbitrary.arbitrary[String].map(Val.Str.apply)
     val genConstants =
       Gen.oneOf(Val.True, Val.False, Val.Null, Val.EmptyList, Val.EmptyMap)

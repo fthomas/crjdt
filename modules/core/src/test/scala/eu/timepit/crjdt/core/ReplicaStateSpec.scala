@@ -1,64 +1,25 @@
 package eu.timepit.crjdt.core
 
-import eu.timepit.crjdt.core.Key.{DocK, HeadK, StrK}
-import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
-import eu.timepit.crjdt.core.syntax._
+import eu.timepit.crjdt.core.arbitrary._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object ReplicaStateSpec extends Properties("ReplicaState") {
-  val emptyState = ReplicaState.empty("")
+  property("applyRemoteOps: convergence") = forAll { (cmds: List[Cmd]) =>
+    val p = ReplicaState.empty("p").applyCmds(cmds)
+    val q = ReplicaState.empty("q")
 
-  property("""applyExpr doc["shopping"]""") = secure {
-    val shopping = "shopping"
-    val cur = emptyState.applyExpr(doc.downField(shopping))
-    cur ?= Cursor(Vector(MapT(DocK)), StrK(shopping))
+    val ops = p.generatedOps
+    p.context ?= q.applyRemoteOps(ops).context
   }
 
-  property("""applyExpr doc["shopping"].iter""") = secure {
-    val shopping = "shopping"
-    val cur = emptyState.applyExpr(doc.downField(shopping).iter)
-    cur ?= Cursor(Vector(MapT(DocK), ListT(StrK(shopping))), HeadK)
-  }
+  property("applyRemoteOps: commutativity") = forAll { (cmds: List[Cmd]) =>
+    val p = ReplicaState.empty("p").applyCmds(cmds)
+    val q = ReplicaState.empty("q")
 
-  property("""applyExpr doc["key1"]["key2"]""") = secure {
-    val (key1, key2) = ("key1", "key2")
-    val cur = emptyState.applyExpr(doc.downField(key1).downField(key2))
-    cur ?= Cursor(Vector(MapT(DocK), MapT(StrK(key1))), StrK(key2))
-  }
-
-  property("""applyCmd let(x) := doc["key"]""") = secure {
-    val x = v("x")
-    val key = "key"
-    val cmd = let(x) = doc.downField(key)
-    val state = emptyState.applyCmd(cmd)
-    state.applyExpr(x) ?= Cursor(Vector(MapT(DocK)), StrK(key))
-  }
-
-  property("applyCmd doc := {}") = secure {
-    val cmd = (doc := `{}`) `;`
-        (doc.downField("key1") := Val.Str("hallo")) `;`
-        doc.downField("key1").delete
-    println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
-    true
-  }
-
-  property("delete map") = secure {
-    val cmd = (doc := `{}`) `;`
-        (doc.downField("key1") := `{}`) `;`
-        (doc.downField("key1").downField("key2") := Val.Str("hallo")) `;`
-        doc.downField("key1").delete
-    println(emptyState.applyCmd(cmd).context) //?= emptyState.ctx
-    true
-  }
-
-  property("delete list") = secure {
-    val cmd = (doc := `{}`) `;`
-        (doc.downField("key1") := `[]`) `;`
-        doc.downField("key1").iter.insert("item1") `;`
-        doc.downField("key1").iter.insert("item2") `;`
-        doc.downField("key1").delete
-    emptyState.applyCmd(cmd)
-    true
+    // If we check all permutations, this test runs forever.
+    p.generatedOps.permutations.take(5).forall { ops =>
+      p.context == q.applyRemoteOps(ops).context
+    }
   }
 }
