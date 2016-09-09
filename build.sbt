@@ -27,6 +27,7 @@ lazy val core = crossProject
   .settings(moduleName := s"$projectName-core")
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
+  .jsSettings(commonJsSettings: _*)
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
@@ -40,6 +41,10 @@ lazy val commonSettings = Def.settings(
   releaseSettings,
   styleSettings,
   miscSettings
+)
+
+lazy val commonJsSettings = Def.settings(
+  scalaJSUseRhino in Global := false
 )
 
 lazy val metadataSettings = Def.settings(
