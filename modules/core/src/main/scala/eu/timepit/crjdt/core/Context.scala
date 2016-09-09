@@ -200,8 +200,12 @@ sealed trait Context extends Product with Serializable {
 
   final def setPres(key: Key, pres: Set[Id]): Context =
     this match {
-      case m: MapCtx => m.copy(presSets = m.presSets.updated(key, pres))
-      case l: ListCtx => l.copy(presSets = l.presSets.updated(key, pres))
+      case m: MapCtx =>
+        if (pres.isEmpty) m.copy(presSets = m.presSets - key)
+        else m.copy(presSets = m.presSets.updated(key, pres))
+      case l: ListCtx =>
+        if (pres.isEmpty) l.copy(presSets = l.presSets - key)
+        else l.copy(presSets = l.presSets.updated(key, pres))
       case _: RegCtx => this
     }
 

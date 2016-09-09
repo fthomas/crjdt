@@ -5,7 +5,7 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object ReplicaStateSpec extends Properties("ReplicaState") {
-  property("applyRemoteOps: convergence") = forAll { (cmds: List[Cmd]) =>
+  property("convergence 1") = forAll { (cmds: List[Cmd]) =>
     val p = ReplicaState.empty("p").applyCmds(cmds)
     val q = ReplicaState.empty("q")
 
@@ -13,7 +13,17 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
     p.context ?= q.applyRemoteOps(ops).context
   }
 
-  property("applyRemoteOps: commutativity") = forAll { (cmds: List[Cmd]) =>
+  property("convergence 2") = forAll { (cmds1: List[Cmd], cmds2: List[Cmd]) =>
+    val p0 = ReplicaState.empty("p").applyCmds(cmds1)
+    val q0 = ReplicaState.empty("q").applyCmds(cmds2)
+
+    val p1 = p0.applyRemoteOps(q0.generatedOps)
+    val q1 = q0.applyRemoteOps(p0.generatedOps)
+
+    p1.context ?= q1.context
+  }
+
+  property("commutativity") = forAll { (cmds: List[Cmd]) =>
     val p = ReplicaState.empty("p").applyCmds(cmds)
     val q = ReplicaState.empty("q")
 
