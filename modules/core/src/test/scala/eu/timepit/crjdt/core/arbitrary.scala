@@ -18,11 +18,11 @@ object arbitrary {
   }
 
   implicit val arbitraryKey: Arbitrary[Key] = {
-    val docGen = Gen.const(DocK)
-    val headGen = Gen.const(HeadK)
-    val idGen = Arbitrary.arbitrary[Id].map(IdK.apply)
-    val strGen = Arbitrary.arbitrary[String].map(StrK.apply)
-    Arbitrary(Gen.oneOf(docGen, headGen, idGen, strGen))
+    val genDocK = Gen.const(DocK)
+    val genHeadK = Gen.const(HeadK)
+    val genIdK = Arbitrary.arbitrary[Id].map(IdK.apply)
+    val genStrK = Arbitrary.arbitrary[String].map(StrK.apply)
+    Arbitrary(Gen.oneOf(genDocK, genHeadK, genIdK, genStrK))
   }
 
   implicit val arbitraryBranchTag: Arbitrary[BranchTag] = {
@@ -47,53 +47,53 @@ object arbitrary {
   }
 
   implicit val arbitraryVal: Arbitrary[Val] = {
-    val numGen = Arbitrary.arbitrary[BigDecimal].map(Val.Num.apply)
-    val strGen = Arbitrary.arbitrary[String].map(Val.Str.apply)
-    val constantsGen =
+    val genNum = Arbitrary.arbitrary[BigDecimal].map(Val.Num.apply)
+    val genStr = Arbitrary.arbitrary[String].map(Val.Str.apply)
+    val genConstants =
       Gen.oneOf(Val.True, Val.False, Val.Null, Val.EmptyList, Val.EmptyMap)
-    Arbitrary(Gen.oneOf(numGen, strGen, constantsGen))
+    Arbitrary(Gen.oneOf(genNum, genStr, genConstants))
   }
 
   implicit val arbitraryMutation: Arbitrary[Mutation] = {
-    val assignGen = Arbitrary.arbitrary[Val].map(AssignM.apply)
-    val insertGen = Arbitrary.arbitrary[Val].map(InsertM.apply)
-    val deleteGen = Gen.const(DeleteM)
-    Arbitrary(Gen.oneOf(assignGen, insertGen, deleteGen))
+    val genAssignM = Arbitrary.arbitrary[Val].map(AssignM.apply)
+    val genInsertM = Arbitrary.arbitrary[Val].map(InsertM.apply)
+    val genDeleteM = Gen.const(DeleteM)
+    Arbitrary(Gen.oneOf(genAssignM, genInsertM, genDeleteM))
   }
 
   implicit val arbitraryVar: Arbitrary[Var] =
     Arbitrary(Arbitrary.arbitrary[String].map(Var.apply))
 
   implicit val arbitraryExpr: Arbitrary[Expr] = {
-    val docGen = Gen.const(Doc)
-    val varGen = Arbitrary.arbitrary[Var]
-    val downFieldGen = Gen.lzy(for {
+    val genDoc = Gen.const(Doc)
+    val genVar = Arbitrary.arbitrary[Var]
+    val genDownField = Gen.lzy(for {
       expr <- Arbitrary.arbitrary[Expr]
       key <- Arbitrary.arbitrary[String]
     } yield DownField(expr, key))
-    val iterGen = Gen.lzy(Arbitrary.arbitrary[Expr].map(Iter.apply))
-    val nextGen = Gen.lzy(Arbitrary.arbitrary[Expr].map(Next.apply))
-    Arbitrary(Gen.oneOf(docGen, varGen, downFieldGen, iterGen, nextGen))
+    val genIter = Gen.lzy(Arbitrary.arbitrary[Expr].map(Iter.apply))
+    val genNext = Gen.lzy(Arbitrary.arbitrary[Expr].map(Next.apply))
+    Arbitrary(Gen.oneOf(genDoc, genVar, genDownField, genIter, genNext))
   }
 
   implicit val arbitraryCmd: Arbitrary[Cmd] = {
-    val letGen = for {
+    val genLet = for {
       v <- Arbitrary.arbitrary[Var]
       expr <- Arbitrary.arbitrary[Expr]
     } yield Let(v, expr)
-    val assignGen = for {
+    val genAssign = for {
       expr <- Arbitrary.arbitrary[Expr]
       value <- Arbitrary.arbitrary[Val]
     } yield Assign(expr, value)
-    val insertGen = for {
+    val genInsert = for {
       expr <- Arbitrary.arbitrary[Expr]
       value <- Arbitrary.arbitrary[Val]
     } yield Insert(expr, value)
-    val deleteGen = Arbitrary.arbitrary[Expr].map(Delete.apply)
-    val sequenceGen = Gen.lzy(for {
+    val genDelete = Arbitrary.arbitrary[Expr].map(Delete.apply)
+    val genSequence = Gen.lzy(for {
       cmd1 <- Arbitrary.arbitrary[Cmd]
       cmd2 <- Arbitrary.arbitrary[Cmd]
     } yield Sequence(cmd1, cmd2))
-    Arbitrary(Gen.oneOf(letGen, assignGen, insertGen, deleteGen, sequenceGen))
+    Arbitrary(Gen.oneOf(genLet, genAssign, genInsert, genDelete, genSequence))
   }
 }
