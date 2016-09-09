@@ -9,7 +9,7 @@ import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import org.scalacheck.{Arbitrary, Gen}
 
 object arbitrary {
-  implicit val idArbitrary: Arbitrary[Id] = {
+  implicit val arbitraryId: Arbitrary[Id] = {
     val gen = for {
       c <- Arbitrary.arbitrary[BigInt]
       p <- Arbitrary.arbitrary[String]
@@ -17,7 +17,7 @@ object arbitrary {
     Arbitrary(gen)
   }
 
-  implicit val keyArbitrary: Arbitrary[Key] = {
+  implicit val arbitraryKey: Arbitrary[Key] = {
     val docGen = Gen.const(DocK)
     val headGen = Gen.const(HeadK)
     val idGen = Arbitrary.arbitrary[Id].map(IdK.apply)
@@ -25,20 +25,20 @@ object arbitrary {
     Arbitrary(Gen.oneOf(docGen, headGen, idGen, strGen))
   }
 
-  implicit val branchTagArbitrary: Arbitrary[BranchTag] = {
+  implicit val arbitraryBranchTag: Arbitrary[BranchTag] = {
     val gen = Arbitrary.arbitrary[Key].flatMap { key =>
       Gen.oneOf(MapT(key), ListT(key))
     }
     Arbitrary(gen)
   }
 
-  implicit val typeTagArbitrary: Arbitrary[TypeTag] = {
+  implicit val arbitraryTypeTag: Arbitrary[TypeTag] = {
     val gen = Gen.oneOf(Arbitrary.arbitrary[Key].map(RegT.apply),
                         Arbitrary.arbitrary[BranchTag])
     Arbitrary(gen)
   }
 
-  implicit val cursorArbitrary: Arbitrary[Cursor] = {
+  implicit val arbitraryCursor: Arbitrary[Cursor] = {
     val gen = for {
       keys <- Arbitrary.arbitrary[Vector[BranchTag]]
       finalKey <- Arbitrary.arbitrary[Key]
@@ -46,7 +46,7 @@ object arbitrary {
     Arbitrary(gen)
   }
 
-  implicit val valArbitrary: Arbitrary[Val] = {
+  implicit val arbitraryVal: Arbitrary[Val] = {
     val numGen = Arbitrary.arbitrary[BigDecimal].map(Val.Num.apply)
     val strGen = Arbitrary.arbitrary[String].map(Val.Str.apply)
     val constantsGen =
@@ -54,17 +54,17 @@ object arbitrary {
     Arbitrary(Gen.oneOf(numGen, strGen, constantsGen))
   }
 
-  implicit val mutationArbitrary: Arbitrary[Mutation] = {
+  implicit val arbitraryMutation: Arbitrary[Mutation] = {
     val assignGen = Arbitrary.arbitrary[Val].map(AssignM.apply)
     val insertGen = Arbitrary.arbitrary[Val].map(InsertM.apply)
     val deleteGen = Gen.const(DeleteM)
     Arbitrary(Gen.oneOf(assignGen, insertGen, deleteGen))
   }
 
-  implicit val varArbitrary: Arbitrary[Var] =
+  implicit val arbitraryVar: Arbitrary[Var] =
     Arbitrary(Arbitrary.arbitrary[String].map(Var.apply))
 
-  implicit val exprArbitrary: Arbitrary[Expr] = {
+  implicit val arbitraryExpr: Arbitrary[Expr] = {
     val docGen = Gen.const(Doc)
     val varGen = Arbitrary.arbitrary[Var]
     val downFieldGen = Gen.lzy(for {
@@ -76,7 +76,7 @@ object arbitrary {
     Arbitrary(Gen.oneOf(docGen, varGen, downFieldGen, iterGen, nextGen))
   }
 
-  implicit val cmdArbitrary: Arbitrary[Cmd] = {
+  implicit val arbitraryCmd: Arbitrary[Cmd] = {
     val letGen = for {
       v <- Arbitrary.arbitrary[Var]
       expr <- Arbitrary.arbitrary[Expr]
