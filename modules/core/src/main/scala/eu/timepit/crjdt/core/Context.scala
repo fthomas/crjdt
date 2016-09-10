@@ -1,5 +1,6 @@
 package eu.timepit.crjdt.core
 
+import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
 import eu.timepit.crjdt.core.Key.IdK
@@ -8,6 +9,7 @@ import eu.timepit.crjdt.core.Operation.Mutation
 import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
+import eu.timepit.crjdt.core.util.removeOrUpdate
 
 sealed trait Context extends Product with Serializable {
   final def next(cur: Cursor): Cursor =
@@ -201,9 +203,9 @@ sealed trait Context extends Product with Serializable {
   final def setPres(key: Key, pres: Set[Id]): Context =
     this match {
       case m: MapCtx =>
-        m.copy(presSets = util.deleteOrUpdate(m.presSets, key, pres))
+        m.copy(presSets = removeOrUpdate(m.presSets, key, pres))
       case l: ListCtx =>
-        l.copy(presSets = util.deleteOrUpdate(l.presSets, key, pres))
+        l.copy(presSets = removeOrUpdate(l.presSets, key, pres))
       case _: RegCtx =>
         this
     }
