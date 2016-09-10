@@ -201,8 +201,10 @@ val validateCommands = Seq(
   "clean",
   "scalafmtTest",
   "coreJS/test",
+  "circeJS/test",
   "coverage",
   "coreJVM/test",
+  "circeJVM/test",
   "coverageReport",
   "coverageOff",
   "doc"
