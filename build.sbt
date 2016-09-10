@@ -5,15 +5,17 @@ val projectName = "crjdt"
 val rootPkg = s"$groupId.$projectName"
 val gitPubUrl = s"https://github.com/fthomas/$projectName.git"
 val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
+val modulesDir = "modules"
 
 val catsVersion = "0.7.2"
+val circeVersion = "0.5.1"
 val scalaCheckVersion = "1.12.5"
 
 /// projects
 
 lazy val root = project
   .in(file("."))
-  .aggregate(coreJVM, coreJS)
+  .aggregate(coreJVM, coreJS, circeJVM, circeJS)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
@@ -23,7 +25,7 @@ lazy val root = project
 
 lazy val core = crossProject
   .crossType(CrossType.Pure)
-  .in(file("modules/core"))
+  .in(file(s"$modulesDir/core"))
   .settings(moduleName := s"$projectName-core")
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
@@ -31,6 +33,20 @@ lazy val core = crossProject
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
+
+lazy val circe = crossProject
+  .crossType(CrossType.Pure)
+  .in(file(s"$modulesDir/circe"))
+  .settings(moduleName := s"$projectName-circe")
+  .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
+  .jsSettings(commonJsSettings: _*)
+  .settings(
+    libraryDependencies += "io.circe" %%% "circe-core" % circeVersion
+  )
+
+lazy val circeJVM = circe.jvm
+lazy val circeJS = circe.js
 
 /// settings
 
