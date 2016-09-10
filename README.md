@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/fthomas/crjdt.svg?branch=master)](https://travis-ci.org/fthomas/crjdt)
 [![codecov](https://codecov.io/gh/fthomas/crjdt/branch/master/graph/badge.svg)](https://codecov.io/gh/fthomas/crjdt)
 [![Join the chat at https://gitter.im/fthomas/crjdt](https://badges.gitter.im/fthomas/crjdt.svg)](https://gitter.im/fthomas/crjdt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Scaladex](https://index.scala-lang.org/fthomas/crjdt/crjdt-core/latest.svg?color=brightgreen)](https://index.scala-lang.org/fthomas/crjdt/crjdt-core)
+[![Scaladex](https://index.scala-lang.org/fthomas/crjdt/crjdt-core/latest.svg?color=brightgreen)][scaladex]
 
 This is an implementation of the data structures and algorithms described
 in the paper [A Conflict-Free Replicated JSON Datatype][paper] by
@@ -22,6 +22,9 @@ resolvers += Resolver.bintrayRepo("fthomas", "maven")
 
 libraryDependencies += "eu.timepit" %% "crjdt-core" % "0.0.2"
 ```
+
+Instructions for Maven and other build tools are available on the
+[Scaladex][scaladex] page.
 
 ## Participation
 
@@ -46,5 +49,6 @@ limitations under the License.
 [kleppmann]: https://martin.kleppmann.com/
 [paper]: http://arxiv.org/pdf/1608.03960.pdf
 [scala.js]: http://www.scala-js.org/
+[scaladex]: https://index.scala-lang.org/fthomas/crjdt/crjdt-core
 [typelevel]: http://typelevel.org/
 [typelevel-coc]: http://typelevel.org/conduct.html
