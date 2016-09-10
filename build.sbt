@@ -30,6 +30,13 @@ lazy val core = crossProject
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .jsSettings(commonJsSettings: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion % "test",
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
+    )
+  )
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
@@ -41,8 +48,11 @@ lazy val circe = crossProject
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .jsSettings(commonJsSettings: _*)
+  .dependsOn(core)
   .settings(
-    libraryDependencies += "io.circe" %%% "circe-core" % circeVersion
+    libraryDependencies ++= Seq(
+      "io.circe" %%% "circe-core" % circeVersion
+    )
   )
 
 lazy val circeJVM = circe.jvm
@@ -99,12 +109,7 @@ lazy val compileSettings = Def.settings(
     "-Ywarn-value-discard"
   ),
   scalacOptions in (Compile, console) -= "-Ywarn-unused-import",
-  scalacOptions in (Test, console) -= "-Ywarn-unused-import",
-  libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core" % catsVersion,
-    "org.typelevel" %%% "cats-laws" % catsVersion % "test",
-    "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
-  )
+  scalacOptions in (Test, console) -= "-Ywarn-unused-import"
 )
 
 lazy val scaladocSettings = Def.settings(
