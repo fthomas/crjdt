@@ -36,13 +36,31 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
       (p1.context ?= q1.context) && (q1.context ?= r1.context)
   }
 
-  property("commutativity") = forAll { (cmds: List[Cmd]) =>
+  def randomPermutation[A](xs: Vector[A]): Vector[A] = {
+    val permutations = xs.permutations.toStream
+    val index = scala.util.Random.nextInt(10)
+    permutations
+      .lift(index)
+      .orElse(permutations.lastOption)
+      .getOrElse(Vector.empty)
+  }
+
+  property("commutativity 1") = forAll { (cmds: List[Cmd]) =>
     val p = ReplicaState.empty("p").applyCmds(cmds)
     val q = ReplicaState.empty("q")
 
-    // If we check all permutations, this test runs forever.
-    p.generatedOps.permutations.take(5).forall { ops =>
-      p.context == q.applyRemoteOps(ops).context
-    }
+    val ops = randomPermutation(p.generatedOps)
+    p.context == q.applyRemoteOps(ops).context
+  }
+
+  property("commutativity 2") = forAll {
+    (cmds1: List[Cmd], cmds2: List[Cmd]) =>
+      val p0 = ReplicaState.empty("p").applyCmds(cmds1)
+      val q0 = ReplicaState.empty("q").applyCmds(cmds2)
+
+      val p1 = p0.applyRemoteOps(randomPermutation(q0.generatedOps))
+      val q1 = q0.applyRemoteOps(randomPermutation(p0.generatedOps))
+
+      p1.context ?= q1.context
   }
 }
