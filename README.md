@@ -26,7 +26,9 @@ libraryDependencies += "eu.timepit" %% "crjdt-core" % "0.0.2"
 Instructions for Maven and other build tools are available on the
 [Scaladex][scaladex] page.
 
-## Participation
+## Contributors and participation
+
+crjdt is currently maintained by [Frank Thomas][fst9000].
 
 The crjdt project supports the [Typelevel][typelevel] [code of conduct][typelevel-coc]
 and wants all of its channels (Gitter, GitHub, etc.) to be welcoming environments for
@@ -46,6 +48,7 @@ limitations under the License.
 
 [apache2]: http://www.apache.org/licenses/LICENSE-2.0
 [beresford]: https://www.cl.cam.ac.uk/~arb33/
+[fst9000]: https://twitter.com/fst9000
 [kleppmann]: https://martin.kleppmann.com/
 [paper]: http://arxiv.org/pdf/1608.03960.pdf
 [scala.js]: http://www.scala-js.org/
