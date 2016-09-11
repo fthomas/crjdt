@@ -5,8 +5,7 @@ import cats.syntax.order._
 import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
 import eu.timepit.crjdt.core.Key.IdK
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
-import eu.timepit.crjdt.core.Operation.Mutation
-import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
 import eu.timepit.crjdt.core.util.removeOrUpdate

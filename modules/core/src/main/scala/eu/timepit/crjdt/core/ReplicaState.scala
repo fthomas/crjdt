@@ -3,9 +3,9 @@ package eu.timepit.crjdt.core
 import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
-import eu.timepit.crjdt.core.Operation.Mutation
-import eu.timepit.crjdt.core.Operation.Mutation.{AssignM, DeleteM, InsertM}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
+
 import scala.annotation.tailrec
 
 final case class ReplicaState(replicaId: ReplicaId,
