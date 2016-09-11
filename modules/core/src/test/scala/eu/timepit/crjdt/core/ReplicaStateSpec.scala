@@ -79,4 +79,12 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
 
       (p1.context ?= q1.context) && (q1.context ?= r1.context)
   }
+
+  property("idempotence") = forAll { (cmd: Cmd) =>
+    val p0 = ReplicaState.empty("p").applyCmd(cmd)
+    val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
+    val q1 = q0.applyRemoteOps(p0.generatedOps)
+
+    (p0.context ?= q0.context) && (q0.context ?= q1.context)
+  }
 }
