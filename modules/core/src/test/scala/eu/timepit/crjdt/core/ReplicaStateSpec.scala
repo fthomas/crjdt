@@ -1,6 +1,7 @@
 package eu.timepit.crjdt.core
 
 import eu.timepit.crjdt.core.arbitrary._
+import eu.timepit.crjdt.core.testUtil.randomPermutation
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
@@ -34,15 +35,6 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
       val r1 = r0.applyRemoteOps(p0.generatedOps ++ q0.generatedOps)
 
       (p1.context ?= q1.context) && (q1.context ?= r1.context)
-  }
-
-  def randomPermutation[A](xs: Vector[A]): Vector[A] = {
-    val permutations = xs.permutations.toStream
-    val index = scala.util.Random.nextInt(10)
-    permutations
-      .lift(index)
-      .orElse(permutations.lastOption)
-      .getOrElse(Vector.empty)
   }
 
   property("commutativity 1") = forAll { (cmds: List[Cmd]) =>
