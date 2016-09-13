@@ -30,12 +30,4 @@ object EvalExprSpec extends Properties("ReplicaState.evalExpr") {
   property("doc.iter.next") = secure {
     state.evalExpr(doc.iter.next) ?= Cursor(Vector(ListT(DocK)), HeadK)
   }
-
-  property("stack safety") = secure {
-    val count = 50000
-    val expr = Iterator.iterate(doc)(_.downField("k")).drop(count).next()
-    //val cur = state.evalExpr(expr)
-    //cur.keys.size ?= count
-    true
-  }
 }
