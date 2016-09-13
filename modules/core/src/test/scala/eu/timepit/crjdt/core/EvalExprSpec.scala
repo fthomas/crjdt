@@ -32,7 +32,7 @@ object EvalExprSpec extends Properties("ReplicaState.evalExpr") {
   }
 
   property("stack safety") = secure {
-    val count = 100000
+    val count = 50000
     val expr = Iterator.iterate(doc)(_.downField("k")).drop(count).next()
     val cur = ReplicaState.empty("").evalExpr(expr)
     cur.keys.size ?= count
