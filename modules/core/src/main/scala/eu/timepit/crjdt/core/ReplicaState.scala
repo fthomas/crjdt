@@ -97,6 +97,10 @@ final case class ReplicaState(replicaId: ReplicaId,
         context.next(cur)
     }
 
+  /** Finds an `[[Operation]]` in `[[receivedOps]]` that has not
+    * already been processed and whose causal dependencies are
+    * satisfied.
+    */
   def findApplicableRemoteOp: Option[Operation] =
     receivedOps.find { op =>
       !processedOps(op.id) && op.deps.subsetOf(processedOps)
