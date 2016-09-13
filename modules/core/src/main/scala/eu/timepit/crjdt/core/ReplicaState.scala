@@ -1,5 +1,6 @@
 package eu.timepit.crjdt.core
 
+import cats.Eval
 import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
@@ -66,36 +67,41 @@ final case class ReplicaState(replicaId: ReplicaId,
   def currentId: Id =
     Id(opsCounter, replicaId)
 
-  def evalExpr(expr: Expr): Cursor =
-    expr match {
-      case Doc => // DOC
-        Cursor.doc
+  def evalExpr(expr: Expr): Cursor = {
+    def go(expr: Expr): Eval[Cursor] =
+      expr match {
+        case Doc => // DOC
+          Eval.now(Cursor.doc)
 
-      case v @ Var(_) => // VAR
-        variables.get(v) match {
-          case Some(cur) => cur
-          // This case violates VAR's precondition x elem dom(A_p).
-          case None => Cursor.doc
-        }
+        case v @ Var(_) => // VAR
+          variables.get(v) match {
+            case Some(cur) => Eval.now(cur)
+            // This case violates VAR's precondition x elem dom(A_p).
+            case None => Eval.now(Cursor.doc)
+          }
 
-      case DownField(expr2, key) => // GET
-        val cur = evalExpr(expr2)
-        cur.finalKey match {
-          // This case violates GET's precondition k_n != head.
-          // It corresponds to the dubious EXPR `iter[key]` which should
-          // be impossible to construct with the EXPR API.
-          case HeadK => cur
-          case _ => cur.append(MapT.apply, StrK(key))
-        }
+        case DownField(expr2, key) => // GET
+          val cur = Eval.defer(go(expr2))
+          cur.map { c =>
+            c.finalKey match {
+              // This case violates GET's precondition k_n != head.
+              // It corresponds to the dubious EXPR `iter[key]` which should
+              // be impossible to construct with the EXPR API.
+              case HeadK => c
+              case _ => c.append(MapT.apply, StrK(key))
+            }
+          }
 
-      case Iter(expr2) => // ITER
-        val cur = evalExpr(expr2)
-        cur.append(ListT.apply, HeadK)
+        case Iter(expr2) => // ITER
+          val cur = Eval.defer(go(expr2))
+          cur.map(_.append(ListT.apply, HeadK))
 
-      case Next(expr2) => // NEXT1
-        val cur = evalExpr(expr2)
-        context.next(cur)
-    }
+        case Next(expr2) => // NEXT1
+          val cur = Eval.defer(go(expr2))
+          cur.map(context.next)
+      }
+    go(expr).value
+  }
 
   /** Finds an `[[Operation]]` in `[[receivedOps]]` that has not
     * already been processed and whose causal dependencies are
