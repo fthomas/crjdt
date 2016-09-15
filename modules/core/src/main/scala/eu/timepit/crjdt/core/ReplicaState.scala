@@ -111,20 +111,21 @@ object ReplicaState {
         cmd match {
           case Let(x, expr) => // LET
             val cur = state.evalExpr(expr)
-            val next = state.copy(variables = state.variables.updated(x, cur))
-            applyCmds(next, rest)
+            val newState =
+              state.copy(variables = state.variables.updated(x, cur))
+            applyCmds(newState, rest)
 
           case Assign(expr, value) => // MAKE-ASSIGN
-            val next = state.makeOp(state.evalExpr(expr), AssignM(value))
-            applyCmds(next, rest)
+            val newState = state.makeOp(state.evalExpr(expr), AssignM(value))
+            applyCmds(newState, rest)
 
           case Insert(expr, value) => // MAKE-INSERT
-            val next = state.makeOp(state.evalExpr(expr), InsertM(value))
-            applyCmds(next, rest)
+            val newState = state.makeOp(state.evalExpr(expr), InsertM(value))
+            applyCmds(newState, rest)
 
           case Delete(expr) => // MAKE-DELETE
-            val next = state.makeOp(state.evalExpr(expr), DeleteM)
-            applyCmds(next, rest)
+            val newState = state.makeOp(state.evalExpr(expr), DeleteM)
+            applyCmds(newState, rest)
 
           case Sequence(cmd1, cmd2) => // EXEC
             applyCmds(state, cmd1 :: cmd2 :: rest)
