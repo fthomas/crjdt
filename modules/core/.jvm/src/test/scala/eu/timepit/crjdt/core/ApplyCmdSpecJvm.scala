@@ -4,7 +4,7 @@ import eu.timepit.crjdt.core.syntax._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
-class ApplyCmdSpecJvm extends Properties("ReplicaState.applyCmd") {
+object ApplyCmdSpecJvm extends Properties("ReplicaState.applyCmd") {
   val state = ReplicaState.empty("p")
 
   property("stack safety") = secure {
