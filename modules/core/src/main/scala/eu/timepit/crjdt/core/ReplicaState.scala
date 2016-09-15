@@ -18,30 +18,10 @@ final case class ReplicaState(replicaId: ReplicaId,
                               receivedOps: Vector[Operation]) {
 
   def applyCmd(cmd: Cmd): ReplicaState =
-    cmd match {
-      case Let(x, expr) => // LET
-        val cur = evalExpr(expr)
-        copy(variables = variables.updated(x, cur))
+    ReplicaState.applyCmds(this, List(cmd))
 
-      case Assign(expr, value) => // MAKE-ASSIGN
-        makeOp(evalExpr(expr), AssignM(value))
-
-      case Insert(expr, value) => // MAKE-INSERT
-        makeOp(evalExpr(expr), InsertM(value))
-
-      case Delete(expr) => // MAKE-DELETE
-        makeOp(evalExpr(expr), DeleteM)
-
-      case Sequence(cmd1, cmd2) => // EXEC
-        applyCmd(cmd1).applyCmd(cmd2)
-    }
-
-  @tailrec
   def applyCmds(cmds: List[Cmd]): ReplicaState =
-    cmds match {
-      case x :: xs => applyCmd(x).applyCmds(xs)
-      case Nil => this
-    }
+    ReplicaState.applyCmds(this, cmds)
 
   // APPLY-LOCAL
   def applyLocal(op: Operation): ReplicaState =
@@ -124,6 +104,34 @@ final case class ReplicaState(replicaId: ReplicaId,
 }
 
 object ReplicaState {
+  @tailrec
+  final def applyCmds(state: ReplicaState, cmds: List[Cmd]): ReplicaState =
+    cmds match {
+      case cmd :: rest =>
+        cmd match {
+          case Let(x, expr) => // LET
+            val cur = state.evalExpr(expr)
+            val next = state.copy(variables = state.variables.updated(x, cur))
+            applyCmds(next, rest)
+
+          case Assign(expr, value) => // MAKE-ASSIGN
+            val next = state.makeOp(state.evalExpr(expr), AssignM(value))
+            applyCmds(next, rest)
+
+          case Insert(expr, value) => // MAKE-INSERT
+            val next = state.makeOp(state.evalExpr(expr), InsertM(value))
+            applyCmds(next, rest)
+
+          case Delete(expr) => // MAKE-DELETE
+            val next = state.makeOp(state.evalExpr(expr), DeleteM)
+            applyCmds(next, rest)
+
+          case Sequence(cmd1, cmd2) => // EXEC
+            applyCmds(state, cmd1 :: cmd2 :: rest)
+        }
+      case Nil => state
+    }
+
   final def empty(replicaId: ReplicaId): ReplicaState =
     ReplicaState(replicaId = replicaId,
                  opsCounter = 0,

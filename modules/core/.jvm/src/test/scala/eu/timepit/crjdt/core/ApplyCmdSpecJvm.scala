@@ -8,9 +8,9 @@ object ApplyCmdSpecJvm extends Properties("ReplicaState.applyCmd") {
   val state = ReplicaState.empty("p")
 
   property("stack safety") = secure {
-    val cmd = doc := `{}`
-    val many = Iterator.iterate(cmd)(_ `;` cmd).drop(10000).next()
-    //state.applyCmd(many)
-    true
+    val count = 100000
+    val cmd = let(v("x")) = doc
+    val many = Iterator.iterate(cmd)(_ `;` cmd).drop(count).next()
+    state.applyCmd(many).variables.get(v("x")) ?= Some(Cursor.doc)
   }
 }
