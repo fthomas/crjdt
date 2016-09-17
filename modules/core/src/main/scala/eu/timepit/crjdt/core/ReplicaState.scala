@@ -1,11 +1,12 @@
 package eu.timepit.crjdt.core
 
-import cats.Eval
+import cats.instances.list._
 import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
+import eu.timepit.crjdt.core.util.applyAllLeft
 
 import scala.annotation.tailrec
 
@@ -48,39 +49,39 @@ final case class ReplicaState(replicaId: ReplicaId,
     Id(opsCounter, replicaId)
 
   def evalExpr(expr: Expr): Cursor = {
-    def go(expr: Expr): Eval[Cursor] =
+    @tailrec
+    def go(expr: Expr, fs: List[Cursor => Cursor]): Cursor =
       expr match {
         case Doc => // DOC
-          Eval.now(Cursor.doc)
+          applyAllLeft(fs, Cursor.doc)
 
         case v @ Var(_) => // VAR
           variables.get(v) match {
-            case Some(cur) => Eval.now(cur)
+            case Some(cur) => applyAllLeft(fs, cur)
             // This case violates VAR's precondition x elem dom(A_p).
-            case None => Eval.now(Cursor.doc)
+            case None => applyAllLeft(fs, Cursor.doc)
           }
 
         case DownField(expr2, key) => // GET
-          val cur = Eval.defer(go(expr2))
-          cur.map { c =>
+          val f = (c: Cursor) =>
             c.finalKey match {
               // This case violates GET's precondition k_n != head.
               // It corresponds to the dubious EXPR `iter[key]` which should
               // be impossible to construct with the EXPR API.
               case HeadK => c
               case _ => c.append(MapT.apply, StrK(key))
-            }
           }
+          go(expr2, f :: fs)
 
         case Iter(expr2) => // ITER
-          val cur = Eval.defer(go(expr2))
-          cur.map(_.append(ListT.apply, HeadK))
+          val f = (c: Cursor) => c.append(ListT.apply, HeadK)
+          go(expr2, f :: fs)
 
         case Next(expr2) => // NEXT1
-          val cur = Eval.defer(go(expr2))
-          cur.map(context.next)
+          val f = context.next _
+          go(expr2, f :: fs)
       }
-    go(expr).value
+    go(expr, List.empty)
   }
 
   /** Finds an `[[Operation]]` in `[[receivedOps]]` that has not

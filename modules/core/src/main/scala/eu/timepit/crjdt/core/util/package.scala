@@ -3,6 +3,9 @@ package eu.timepit.crjdt.core
 import cats.Foldable
 
 package object util {
+  final def applyAllLeft[F[_], A](fs: F[A => A], init: A)(
+      implicit F: Foldable[F]): A =
+    F.foldLeft(fs, init) { case (a, f) => f(a) }
 
   /** Removes `key` from `map` if `value` is empty or else adds the
     * key-value pair to `map`.
