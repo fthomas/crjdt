@@ -8,7 +8,7 @@ val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
 val modulesDir = "modules"
 
 val catsVersion = "0.7.2"
-val circeVersion = "0.5.1"
+val circeVersion = "0.5.2"
 val scalaCheckVersion = "1.12.5"
 
 /// projects
