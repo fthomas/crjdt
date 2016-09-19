@@ -36,6 +36,8 @@ everyone.
 
 ## License
 
+Copyright 2016 Frank Thomas
+
 crjdt is licensed under the [Apache License, Version 2.0][apache2]
 (the "License"); you may not use this software except in compliance with
 the License.
