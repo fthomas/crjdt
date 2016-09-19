@@ -1,82 +1,84 @@
 package eu.timepit.crjdt.core
 
 import eu.timepit.crjdt.core.arbitrary._
-import eu.timepit.crjdt.core.testUtil.randomPermutation
+import eu.timepit.crjdt.core.testUtil._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object ReplicaStateSpec extends Properties("ReplicaState") {
-  property("convergence 1") = forAll { (cmds: List[Cmd]) =>
-    val p = ReplicaState.empty("p").applyCmds(cmds)
-    val q = ReplicaState.empty("q")
+  val p0 = ReplicaState.empty("p")
+  val q0 = ReplicaState.empty("q")
+  val r0 = ReplicaState.empty("r")
 
-    val ops = p.generatedOps
-    p.context ?= q.applyRemoteOps(ops).context
+  property("convergence 1") = forAll { (cmds: List[Cmd]) =>
+    val p1 = p0.applyCmds(cmds)
+    val q1 = q0.applyRemoteOps(p1.generatedOps)
+
+    converged(p1, q1)
   }
 
   property("convergence 2") = forAll { (cmds1: List[Cmd], cmds2: List[Cmd]) =>
-    val p0 = ReplicaState.empty("p").applyCmds(cmds1)
-    val q0 = ReplicaState.empty("q").applyCmds(cmds2)
+    val p1 = p0.applyCmds(cmds1)
+    val q1 = q0.applyCmds(cmds2)
 
-    val p1 = p0.applyRemoteOps(q0.generatedOps)
-    val q1 = q0.applyRemoteOps(p0.generatedOps)
+    val p2 = p1.applyRemoteOps(q1.generatedOps)
+    val q2 = q1.applyRemoteOps(p1.generatedOps)
 
-    p1.context ?= q1.context
+    converged(p2, q2)
   }
 
   property("convergence 3") = forAll {
     (cmds1: List[Cmd], cmds2: List[Cmd], cmds3: List[Cmd]) =>
-      val p0 = ReplicaState.empty("p").applyCmds(cmds1)
-      val q0 = ReplicaState.empty("q").applyCmds(cmds2)
-      val r0 = ReplicaState.empty("r").applyCmds(cmds3)
+      val p1 = p0.applyCmds(cmds1)
+      val q1 = q0.applyCmds(cmds2)
+      val r1 = r0.applyCmds(cmds3)
 
-      val p1 = p0.applyRemoteOps(q0.generatedOps ++ r0.generatedOps)
-      val q1 = q0.applyRemoteOps(p0.generatedOps ++ r0.generatedOps)
-      val r1 = r0.applyRemoteOps(p0.generatedOps ++ q0.generatedOps)
+      val p2 = p1.applyRemoteOps(q1.generatedOps ++ r1.generatedOps)
+      val q2 = q1.applyRemoteOps(p1.generatedOps ++ r1.generatedOps)
+      val r2 = r1.applyRemoteOps(p1.generatedOps ++ q1.generatedOps)
 
-      (p1.context ?= q1.context) && (q1.context ?= r1.context)
+      converged(p2, q2) && converged(q2, r2)
   }
 
   property("commutativity 1") = forAll { (cmds: List[Cmd]) =>
-    val p = ReplicaState.empty("p").applyCmds(cmds)
-    val q = ReplicaState.empty("q")
+    val p1 = p0.applyCmds(cmds)
+    val q1 = q0.applyRemoteOps(randomPermutation(p1.generatedOps))
 
-    val ops = randomPermutation(p.generatedOps)
-    p.context == q.applyRemoteOps(ops).context
+    converged(p1, q1)
   }
 
   property("commutativity 2") = forAll {
     (cmds1: List[Cmd], cmds2: List[Cmd]) =>
-      val p0 = ReplicaState.empty("p").applyCmds(cmds1)
-      val q0 = ReplicaState.empty("q").applyCmds(cmds2)
+      val p1 = p0.applyCmds(cmds1)
+      val q1 = q0.applyCmds(cmds2)
 
-      val p1 = p0.applyRemoteOps(randomPermutation(q0.generatedOps))
-      val q1 = q0.applyRemoteOps(randomPermutation(p0.generatedOps))
+      val p2 = p1.applyRemoteOps(randomPermutation(q1.generatedOps))
+      val q2 = q1.applyRemoteOps(randomPermutation(p1.generatedOps))
 
-      p1.context ?= q1.context
+      converged(p2, q2)
   }
 
   property("commutativity 3") = forAll {
     (cmds1: List[Cmd], cmds2: List[Cmd], cmds3: List[Cmd]) =>
-      val p0 = ReplicaState.empty("p").applyCmds(cmds1)
-      val q0 = ReplicaState.empty("q").applyCmds(cmds2)
-      val r0 = ReplicaState.empty("r").applyCmds(cmds3)
+      val p1 = p0.applyCmds(cmds1)
+      val q1 = q0.applyCmds(cmds2)
+      val r1 = r0.applyCmds(cmds3)
 
-      val p1 = p0.applyRemoteOps(
-        randomPermutation(q0.generatedOps ++ r0.generatedOps))
-      val q1 = q0.applyRemoteOps(
-        randomPermutation(p0.generatedOps ++ r0.generatedOps))
-      val r1 = r0.applyRemoteOps(
-        randomPermutation(p0.generatedOps ++ q0.generatedOps))
+      val p2 = p1.applyRemoteOps(
+        randomPermutation(q1.generatedOps ++ r1.generatedOps))
+      val q2 = q1.applyRemoteOps(
+        randomPermutation(p1.generatedOps ++ r1.generatedOps))
+      val r2 = r1.applyRemoteOps(
+        randomPermutation(p1.generatedOps ++ q1.generatedOps))
 
-      (p1.context ?= q1.context) && (q1.context ?= r1.context)
+      converged(p2, q2) && converged(q2, r2)
   }
 
   property("idempotence") = forAll { (cmd: Cmd) =>
-    val p0 = ReplicaState.empty("p").applyCmd(cmd)
-    val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
-    val q1 = q0.applyRemoteOps(p0.generatedOps)
+    val p1 = p0.applyCmd(cmd)
+    val q1 = q0.applyRemoteOps(p1.generatedOps)
+    val q2 = q1.applyRemoteOps(p1.generatedOps)
 
-    (p0.context ?= q0.context) && (q0.context ?= q1.context)
+    converged(p1, q1) && converged(q1, q2)
   }
 }
