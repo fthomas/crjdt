@@ -9,6 +9,9 @@ object testUtil {
   def converged(a: ReplicaState, b: ReplicaState): Prop =
     (a.processedOps ?= b.processedOps) && (a.context ?= b.context)
 
+  def diverged(a: ReplicaState, b: ReplicaState): Prop =
+    (a.processedOps != b.processedOps) && (a.context != b.context)
+
   def randomPermutation[A](xs: Vector[A]): Vector[A] = {
     val permutations = xs.permutations.toStream.take(12)
     val index = Random.nextInt(permutations.size)
