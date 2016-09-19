@@ -5,8 +5,8 @@
 [![Scaladex](https://index.scala-lang.org/fthomas/crjdt/crjdt-core/latest.svg?color=blue)][scaladex]
 
 This is an implementation of the data structures and algorithms described
-in the paper [A Conflict-Free Replicated JSON Datatype][paper] by
-**[Martin Kleppmann][kleppmann]** and **[Alastair R. Beresford][beresford]**.
+in the paper [A Conflict-Free Replicated JSON Datatype][paper.abs] ([PDF][paper.pdf])
+by **[Martin Kleppmann][kleppmann]** and **[Alastair R. Beresford][beresford]**.
 
 The goal of this project is to provide a high-level API to the CRDT described
 in the paper that integrates well with other JSON libraries for Scala.
@@ -52,7 +52,8 @@ limitations under the License.
 [beresford]: https://www.cl.cam.ac.uk/~arb33/
 [fst9000]: https://twitter.com/fst9000
 [kleppmann]: https://martin.kleppmann.com/
-[paper]: http://arxiv.org/pdf/1608.03960.pdf
+[paper.abs]: http://arxiv.org/abs/1608.03960
+[paper.pdf]: http://arxiv.org/pdf/1608.03960.pdf
 [scala.js]: http://www.scala-js.org/
 [scaladex]: https://index.scala-lang.org/fthomas/crjdt/crjdt-core
 [typelevel]: http://typelevel.org/
