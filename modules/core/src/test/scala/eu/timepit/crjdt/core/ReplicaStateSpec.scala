@@ -1,5 +1,6 @@
 package eu.timepit.crjdt.core
 
+import eu.timepit.crjdt.core.Cmd.Assign
 import eu.timepit.crjdt.core.arbitrary._
 import eu.timepit.crjdt.core.testUtil._
 import org.scalacheck.Prop._
@@ -15,6 +16,16 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
     val q1 = merge(q0, p1)
 
     converged(p1, q1)
+  }
+
+  property("Lemma 7") = forAll { (assign: Assign, cmd: Cmd) =>
+    val p1 = p0.applyCmd(assign)
+    val q1 = q0.applyCmd(cmd)
+
+    val p2 = merge(p1, q1)
+    val q2 = merge(q1, p1)
+
+    converged(p2, q2)
   }
 
   property("convergence 2") = forAll { (cmds1: List[Cmd], cmds2: List[Cmd]) =>

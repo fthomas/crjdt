@@ -75,15 +75,20 @@ object arbitrary {
     Arbitrary(Gen.oneOf(genDoc, genVar, genDownField, genIter, genNext))
   }
 
+  implicit val arbitraryAssign: Arbitrary[Assign] = {
+    val genAssign = for {
+      expr <- Arbitrary.arbitrary[Expr]
+      value <- Arbitrary.arbitrary[Val]
+    } yield Assign(expr, value)
+    Arbitrary(genAssign)
+  }
+
   implicit val arbitraryCmd: Arbitrary[Cmd] = {
     val genLet = for {
       v <- Arbitrary.arbitrary[Var]
       expr <- Arbitrary.arbitrary[Expr]
     } yield Let(v, expr)
-    val genAssign = for {
-      expr <- Arbitrary.arbitrary[Expr]
-      value <- Arbitrary.arbitrary[Val]
-    } yield Assign(expr, value)
+    val genAssign = Arbitrary.arbitrary[Assign]
     val genInsert = for {
       expr <- Arbitrary.arbitrary[Expr]
       value <- Arbitrary.arbitrary[Val]
