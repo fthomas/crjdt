@@ -14,7 +14,7 @@ object Figure2 extends Properties("Figure2") {
   val colors = doc.downField("colors")
   val p0 =
     ReplicaState.empty("p").applyCmd(colors.downField("blue") := "#0000ff")
-  val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
+  val q0 = merge(ReplicaState.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)
@@ -29,8 +29,8 @@ object Figure2 extends Properties("Figure2") {
     diverged(p1, q1)
   }
 
-  val p2 = p1.applyRemoteOps(q1.generatedOps)
-  val q2 = q1.applyRemoteOps(p1.generatedOps)
+  val p2 = merge(p1, q1)
+  val q2 = merge(q1, p1)
 
   property("convergence") = secure {
     converged(p2, q2)

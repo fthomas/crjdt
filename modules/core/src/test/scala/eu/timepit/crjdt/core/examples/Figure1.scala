@@ -12,7 +12,7 @@ import org.scalacheck.Properties
 
 object Figure1 extends Properties("Figure1") {
   val p0 = ReplicaState.empty("p").applyCmd(doc.downField("key") := "A")
-  val q0 = ReplicaState.empty("q").applyRemoteOps(p0.generatedOps)
+  val q0 = merge(ReplicaState.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)
@@ -25,8 +25,8 @@ object Figure1 extends Properties("Figure1") {
     diverged(p1, q1)
   }
 
-  val p2 = p1.applyRemoteOps(q1.generatedOps)
-  val q2 = q1.applyRemoteOps(p1.generatedOps)
+  val p2 = merge(p1, q1)
+  val q2 = merge(q1, p1)
 
   property("convergence") = secure {
     converged(p2, q2)

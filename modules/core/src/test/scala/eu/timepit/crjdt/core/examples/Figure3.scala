@@ -34,8 +34,8 @@ object Figure3 extends Properties("Figure3") {
     diverged(p1, q1)
   }
 
-  val p2 = p1.applyRemoteOps(q1.generatedOps)
-  val q2 = q1.applyRemoteOps(p1.generatedOps)
+  val p2 = merge(p1, q1)
+  val q2 = merge(q1, p1)
 
   property("convergence") = secure {
     converged(p2, q2)
