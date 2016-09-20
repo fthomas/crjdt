@@ -12,7 +12,7 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
 
   property("convergence 1") = forAll { (cmds: List[Cmd]) =>
     val p1 = p0.applyCmds(cmds)
-    val q1 = q0.applyRemoteOps(p1.generatedOps)
+    val q1 = merge(q0, p1)
 
     converged(p1, q1)
   }
@@ -21,8 +21,8 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
     val p1 = p0.applyCmds(cmds1)
     val q1 = q0.applyCmds(cmds2)
 
-    val p2 = p1.applyRemoteOps(q1.generatedOps)
-    val q2 = q1.applyRemoteOps(p1.generatedOps)
+    val p2 = merge(p1, q1)
+    val q2 = merge(q1, p1)
 
     converged(p2, q2)
   }
@@ -33,11 +33,11 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
       val q1 = q0.applyCmds(cmds2)
       val r1 = r0.applyCmds(cmds3)
 
-      val p2 = p1.applyRemoteOps(q1.generatedOps ++ r1.generatedOps)
-      val q2 = q1.applyRemoteOps(p1.generatedOps ++ r1.generatedOps)
-      val r2 = r1.applyRemoteOps(p1.generatedOps ++ q1.generatedOps)
+      val p2 = merge(merge(p1, q1), r1)
+      val q2 = merge(merge(q1, p1), r1)
+      val r2 = merge(merge(r1, p1), q1)
 
-      converged(p2, q2) && converged(q2, r2)
+      converged(p2, q2, r2)
   }
 
   property("commutativity 1") = forAll { (cmds: List[Cmd]) =>
@@ -71,14 +71,14 @@ object ReplicaStateSpec extends Properties("ReplicaState") {
       val r2 = r1.applyRemoteOps(
         randomPermutation(p1.generatedOps ++ q1.generatedOps))
 
-      converged(p2, q2) && converged(q2, r2)
+      converged(p2, q2, r2)
   }
 
   property("idempotence") = forAll { (cmd: Cmd) =>
     val p1 = p0.applyCmd(cmd)
-    val q1 = q0.applyRemoteOps(p1.generatedOps)
-    val q2 = q1.applyRemoteOps(p1.generatedOps)
+    val q1 = merge(q0, p1)
+    val q2 = merge(q1, p1)
 
-    converged(p1, q1) && converged(q1, q2)
+    converged(p1, q1, q2)
   }
 }
