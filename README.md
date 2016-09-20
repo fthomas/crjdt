@@ -28,7 +28,7 @@ Instructions for Maven and other build tools are available on the
 
 ## Contributors and participation
 
-crjdt is currently maintained by [Frank Thomas][fst9000].
+crjdt is currently maintained by [Frank S. Thomas][fst9000].
 
 The crjdt project supports the [Typelevel][typelevel] [code of conduct][typelevel-coc]
 and wants all of its channels (Gitter, GitHub, etc.) to be welcoming environments for
@@ -36,7 +36,7 @@ everyone.
 
 ## License
 
-Copyright 2016 Frank Thomas
+Copyright 2016 Frank S. Thomas
 
 crjdt is licensed under the [Apache License, Version 2.0][apache2]
 (the "License"); you may not use this software except in compliance with
