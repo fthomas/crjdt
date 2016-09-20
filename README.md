@@ -34,6 +34,13 @@ The crjdt project supports the [Typelevel][typelevel] [code of conduct][typeleve
 and wants all of its channels (Gitter, GitHub, etc.) to be welcoming environments for
 everyone.
 
+## Other implementations
+
+Currently crjdt is the only public implementation of the JSON CRDT.
+We will list other implementations here as soon as they become available.
+
+If you know an implementation that is not listed here, please submit a PR!
+
 ## License
 
 Copyright 2016 Frank S. Thomas
