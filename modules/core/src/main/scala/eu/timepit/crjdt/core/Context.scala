@@ -17,8 +17,8 @@ sealed trait Context extends Product with Serializable {
         val k1Ref = getNextRef(ListRef.fromKey(k))
         k1Ref match {
           case TailR => cur
-          case _ =>
-            val cur1 = Cursor.withFinalKey(k1Ref.toKey)
+          case keyRef: KeyRef =>
+            val cur1 = Cursor.withFinalKey(keyRef.toKey)
             // NEXT2
             if (getPres(k).nonEmpty) cur1
             // NEXT3
@@ -161,14 +161,14 @@ sealed trait Context extends Product with Serializable {
   }
 
   final def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
-    // CLEAR-LIST3
-    if (ref == TailR) (this, Set.empty)
-    // CLEAR-LIST2
-    else {
-      val nextRef = getNextRef(ref)
-      val (ctx1, pres1) = clearElem(deps, ref.toKey)
-      val (ctx2, pres2) = ctx1.clearList(deps, nextRef)
-      (ctx2, pres1 ++ pres2)
+    ref match {
+      case TailR => // CLEAR-LIST3
+        (this, Set.empty)
+      case keyRef: KeyRef => // CLEAR-LIST2
+        val nextRef = getNextRef(ref)
+        val (ctx1, pres1) = clearElem(deps, keyRef.toKey)
+        val (ctx2, pres2) = ctx1.clearList(deps, nextRef)
+        (ctx2, pres1 ++ pres2)
     }
 
   final def getChild(tag: TypeTag): Context =
