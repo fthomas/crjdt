@@ -83,6 +83,9 @@ object arbitrary {
     Arbitrary(genAssign)
   }
 
+  implicit val arbitraryDelete: Arbitrary[Delete] =
+    Arbitrary(Arbitrary.arbitrary[Expr].map(Delete.apply))
+
   implicit val arbitraryCmd: Arbitrary[Cmd] = {
     val genLet = for {
       v <- Arbitrary.arbitrary[Var]
@@ -93,7 +96,7 @@ object arbitrary {
       expr <- Arbitrary.arbitrary[Expr]
       value <- Arbitrary.arbitrary[Val]
     } yield Insert(expr, value)
-    val genDelete = Arbitrary.arbitrary[Expr].map(Delete.apply)
+    val genDelete = Arbitrary.arbitrary[Delete]
     val genSequence = Gen.lzy(for {
       cmd1 <- Arbitrary.arbitrary[Cmd]
       cmd2 <- Arbitrary.arbitrary[Cmd]
