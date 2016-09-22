@@ -60,6 +60,8 @@ object Figure4 extends Properties("Figure4") {
 
   property("keys") = secure {
     (p2.keys(doc) ?= Set("todo")) &&
-    (p2.keys(todo.next) ?= Set("done"))
+    (p2.keys(todo.next) ?= Set("done")) &&
+    (p2.keys(todo) ?= Set.empty) &&
+    (p2.keys(todo.next.downField("done")) ?= Set.empty)
   }
 }
