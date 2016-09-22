@@ -183,9 +183,10 @@ sealed trait Context extends Product with Serializable {
 
   final def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
     ref match {
-      case TailR => // CLEAR-LIST3
-        (this, Set.empty)
-      case keyRef: KeyRef => // CLEAR-LIST2
+      // CLEAR-LIST3
+      case TailR => (this, Set.empty)
+      // CLEAR-LIST2
+      case keyRef: KeyRef =>
         val nextRef = getNextRef(ref)
         val (ctx1, pres1) = clearElem(deps, keyRef.toKey)
         val (ctx2, pres2) = ctx1.clearList(deps, nextRef)

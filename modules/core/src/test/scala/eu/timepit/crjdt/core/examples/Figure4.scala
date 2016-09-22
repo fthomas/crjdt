@@ -62,6 +62,6 @@ object Figure4 extends Properties("Figure4") {
     (p2.keys(doc) ?= Set("todo")) &&
     (p2.keys(todo.next) ?= Set("done")) &&
     (p2.keys(todo) ?= Set.empty) &&
-    (p2.keys(todo.next.downField("foo")) ?= Set.empty)
+    (p2.keys(doc.downField("foo").next) ?= Set.empty)
   }
 }
