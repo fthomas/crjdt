@@ -3,12 +3,14 @@ package eu.timepit.crjdt.core
 import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
-import eu.timepit.crjdt.core.Key.IdK
+import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
 import eu.timepit.crjdt.core.util.removeOrUpdate
+
+import scala.annotation.tailrec
 
 sealed trait Context extends Product with Serializable {
   final def next(cur: Cursor): Cursor =
@@ -30,6 +32,25 @@ sealed trait Context extends Product with Serializable {
         findChild(k1).fold(cur) { child =>
           val cur1 = child.next(cur.dropFirst)
           cur.copy(finalKey = cur1.finalKey)
+        }
+    }
+
+  @tailrec
+  final def keys(cur: Cursor): Set[String] =
+    cur match {
+      // KEYS2
+      case Cursor(Vector(), k) =>
+        findChild(MapT(k)) match {
+          case Some(map: MapCtx) =>
+            map.presSets.collect { case (StrK(key), v) if v.nonEmpty => key }.toSet
+          case _ => Set.empty
+        }
+
+      // KEYS3
+      case Cursor(k1 +: _, _) =>
+        findChild(k1) match {
+          case Some(child) => child.keys(cur.dropFirst)
+          case None => Set.empty
         }
     }
 

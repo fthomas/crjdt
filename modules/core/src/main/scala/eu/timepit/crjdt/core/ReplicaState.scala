@@ -96,6 +96,10 @@ final case class ReplicaState(replicaId: ReplicaId,
   def incrementCounter: ReplicaState =
     copy(opsCounter = opsCounter + 1)
 
+  // KEYS1
+  def keys(expr: Expr): Set[String] =
+    context.keys(evalExpr(expr))
+
   // MAKE-OP
   def makeOp(cur: Cursor, mut: Mutation): ReplicaState = {
     val newState = incrementCounter

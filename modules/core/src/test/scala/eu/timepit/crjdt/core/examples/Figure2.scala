@@ -53,4 +53,9 @@ object Figure2 extends Properties("Figure2") {
             Map(StrK("colors") -> Set(Id(2, "p"), Id(2, "q"), Id(3, "q"))))),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"), Id(3, "q"))))
   }
+
+  property("keys") = secure {
+    (p2.keys(doc) ?= Set("colors")) &&
+    (p2.keys(colors) ?= Set("red", "green"))
+  }
 }

@@ -57,4 +57,9 @@ object Figure4 extends Properties("Figure4") {
                                                    Id(4, "q"))))),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q"))))
   }
+
+  property("keys") = secure {
+    (p2.keys(doc) ?= Set("todo")) &&
+    (p2.keys(todo.next) ?= Set("done"))
+  }
 }
