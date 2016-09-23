@@ -15,6 +15,7 @@ val scalaCheckVersion = "1.12.5"
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(MicrositesPlugin)
   .aggregate(coreJVM, coreJS, circeJVM, circeJS)
   .settings(commonSettings)
   .settings(noPublishSettings)
