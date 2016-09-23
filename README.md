@@ -21,8 +21,8 @@ To get started with sbt, add the following to your `build.sbt` file:
 resolvers += Resolver.bintrayRepo("fthomas", "maven")
 
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "crjdt-core"  % "0.0.3",
-  "eu.timepit" %% "crjdt-circe" % "0.0.3" // optional
+  "eu.timepit" %% "crjdt-core"  % "0.0.4",
+  "eu.timepit" %% "crjdt-circe" % "0.0.4" // optional
 )
 ```
 
