@@ -54,6 +54,24 @@ sealed trait Context extends Product with Serializable {
         }
     }
 
+  @tailrec
+  final def values(cur: Cursor): List[Val] =
+    cur match {
+      // VAL2
+      case Cursor(Vector(), k) =>
+        findChild(RegT(k)) match {
+          case Some(reg: RegCtx) => reg.values.values.toList
+          case _ => List.empty
+        }
+
+      // VAL3
+      case Cursor(k1 +: _, _) =>
+        findChild(k1) match {
+          case Some(child) => child.values(cur.dropFirst)
+          case None => List.empty
+        }
+    }
+
   final def applyOp(op: Operation): Context =
     op.cur match {
       case Cursor(Vector(), k) =>

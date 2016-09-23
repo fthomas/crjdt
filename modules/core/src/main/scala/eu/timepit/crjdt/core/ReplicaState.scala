@@ -106,6 +106,10 @@ final case class ReplicaState(replicaId: ReplicaId,
     val op = Operation(newState.currentId, newState.processedOps, cur, mut)
     newState.applyLocal(op)
   }
+
+  // VAL1
+  def values(expr: Expr): List[Val] =
+    context.values(evalExpr(expr))
 }
 
 object ReplicaState {
