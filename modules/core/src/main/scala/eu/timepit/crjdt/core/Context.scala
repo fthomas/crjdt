@@ -14,8 +14,8 @@ import scala.annotation.tailrec
 
 sealed trait Context extends Product with Serializable {
   final def next(cur: Cursor): Cursor =
-    cur match {
-      case Cursor(Vector(), k) =>
+    cur.view match {
+      case Cursor.Leaf(k) =>
         val k1Ref = getNextRef(ListRef.fromKey(k))
         k1Ref match {
           case TailR => cur
@@ -28,18 +28,18 @@ sealed trait Context extends Product with Serializable {
         }
 
       // NEXT4
-      case Cursor(k1 +: _, _) =>
+      case Cursor.Branch(k1, cur1) =>
         findChild(k1).fold(cur) { child =>
-          val cur1 = child.next(cur.dropFirst)
-          cur.copy(finalKey = cur1.finalKey)
+          val cur2 = child.next(cur1)
+          cur.copy(finalKey = cur2.finalKey)
         }
     }
 
   @tailrec
   final def keys(cur: Cursor): Set[String] =
-    cur match {
+    cur.view match {
       // KEYS2
-      case Cursor(Vector(), k) =>
+      case Cursor.Leaf(k) =>
         findChild(MapT(k)) match {
           case Some(map: MapCtx) =>
             map.presSets.collect { case (StrK(key), v) if v.nonEmpty => key }.toSet
@@ -47,34 +47,34 @@ sealed trait Context extends Product with Serializable {
         }
 
       // KEYS3
-      case Cursor(k1 +: _, _) =>
+      case Cursor.Branch(k1, cur1) =>
         findChild(k1) match {
-          case Some(child) => child.keys(cur.dropFirst)
+          case Some(child) => child.keys(cur1)
           case None => Set.empty
         }
     }
 
   @tailrec
   final def values(cur: Cursor): List[Val] =
-    cur match {
+    cur.view match {
       // VAL2
-      case Cursor(Vector(), k) =>
+      case Cursor.Leaf(k) =>
         findChild(RegT(k)) match {
           case Some(reg: RegCtx) => reg.values.values.toList
           case _ => List.empty
         }
 
       // VAL3
-      case Cursor(k1 +: _, _) =>
+      case Cursor.Branch(k1, cur1) =>
         findChild(k1) match {
-          case Some(child) => child.values(cur.dropFirst)
+          case Some(child) => child.values(cur1)
           case None => List.empty
         }
     }
 
   final def applyOp(op: Operation): Context =
-    op.cur match {
-      case Cursor(Vector(), k) =>
+    op.cur.view match {
+      case Cursor.Leaf(k) =>
         op.mut match {
           // EMPTY-MAP, EMPTY-LIST
           case mut @ AssignM(EmptyMap | EmptyList) =>
@@ -116,9 +116,9 @@ sealed trait Context extends Product with Serializable {
         }
 
       // DESCEND
-      case Cursor(k1 +: _, _) =>
+      case Cursor.Branch(k1, cur1) =>
         val child0 = getChild(k1)
-        val child1 = child0.applyOp(op.copy(cur = op.cur.dropFirst))
+        val child1 = child0.applyOp(op.copy(cur = cur1))
         val ctx1 = addId(k1, op.id, op.mut)
         ctx1.addCtx(k1, child1)
     }
