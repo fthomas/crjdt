@@ -3,8 +3,9 @@
 val groupId = "eu.timepit"
 val projectName = "crjdt"
 val rootPkg = s"$groupId.$projectName"
-val gitPubUrl = s"https://github.com/fthomas/$projectName.git"
-val gitDevUrl = s"git@github.com:fthomas/$projectName.git"
+val gitHubOwner = "fthomas"
+val gitPubUrl = s"https://github.com/$gitHubOwner/$projectName.git"
+val gitDevUrl = s"git@github.com:$gitHubOwner/$projectName.git"
 val modulesDir = "modules"
 
 val catsVersion = "0.7.2"
@@ -67,6 +68,7 @@ lazy val commonSettings = Def.settings(
   scaladocSettings,
   releaseSettings,
   styleSettings,
+  siteSettings,
   miscSettings
 )
 
@@ -78,7 +80,7 @@ lazy val metadataSettings = Def.settings(
   name := projectName,
   description := "A conflict-free replicated JSON datatype (CRDT) in Scala",
   organization := groupId,
-  homepage := Some(url(s"https://github.com/fthomas/$projectName")),
+  homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
   startYear := Some(2016),
   licenses := Seq(
     "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
@@ -183,6 +185,11 @@ lazy val releaseSettings = {
 
 lazy val styleSettings = Def.settings(
   reformatOnCompileSettings
+)
+
+lazy val siteSettings = Def.settings(
+  micrositeGithubOwner := gitHubOwner,
+  micrositeGithubRepo := projectName
 )
 
 lazy val miscSettings = Def.settings(
