@@ -189,7 +189,8 @@ lazy val styleSettings = Def.settings(
 
 lazy val siteSettings = Def.settings(
   micrositeGithubOwner := gitHubOwner,
-  micrositeGithubRepo := projectName
+  micrositeGithubRepo := projectName,
+  micrositeExtraMdFiles := Map(file("README.md") -> "index.md")
 )
 
 lazy val miscSettings = Def.settings(
