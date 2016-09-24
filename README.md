@@ -18,8 +18,6 @@ crjdt is currently available for Scala and [Scala.js][scala.js], version 2.11.
 To get started with sbt, add the following to your `build.sbt` file:
 
 ```sbt
-resolvers += Resolver.bintrayRepo("fthomas", "maven")
-
 libraryDependencies ++= Seq(
   "eu.timepit" %% "crjdt-core"  % "0.0.4",
   "eu.timepit" %% "crjdt-circe" % "0.0.4" // optional

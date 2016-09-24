@@ -11,6 +11,10 @@ val catsVersion = "0.7.2"
 val circeVersion = "0.5.2"
 val scalaCheckVersion = "1.12.5"
 
+val allSubprojects = List("core", "circe")
+val allSubprojectsJVM = allSubprojects.map(_ + "JVM")
+val allSubprojectsJS = allSubprojects.map(_ + "JS")
+
 /// projects
 
 lazy val root = project
@@ -210,3 +214,7 @@ val validateCommands = Seq(
   "doc"
 )
 addCommandAlias("validate", validateCommands.mkString(";", ";", ""))
+
+addCommandAlias(
+  "syncMavenCentral",
+  allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral").mkString(";", ";", ""))
