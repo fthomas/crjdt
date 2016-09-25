@@ -12,7 +12,7 @@ val catsVersion = "0.7.2"
 val circeVersion = "0.5.2"
 val scalaCheckVersion = "1.12.5"
 
-val allSubprojects = List("core", "circe")
+val allSubprojects = Seq("core", "circe")
 val allSubprojectsJVM = allSubprojects.map(_ + "JVM")
 val allSubprojectsJS = allSubprojects.map(_ + "JS")
 
@@ -202,23 +202,22 @@ lazy val miscSettings = Def.settings(
 
 /// commands
 
-def concatCmds(cmds: Seq[String]): String =
-  cmds.mkString(";", ";", "")
+def addCommandsAlias(name: String, cmds: Seq[String]) =
+  addCommandAlias(name, cmds.mkString(";", ";", ""))
 
-val validateCommands = Seq(
-  "clean",
-  "scalafmtTest",
-  "coreJS/test",
-  "circeJS/test",
-  "coverage",
-  "coreJVM/test",
-  "circeJVM/test",
-  "coverageReport",
-  "coverageOff",
-  "doc"
-)
-addCommandAlias("validate", concatCmds(validateCommands))
+addCommandsAlias("validate",
+                 Seq(
+                   "clean",
+                   "scalafmtTest",
+                   "coreJS/test",
+                   "circeJS/test",
+                   "coverage",
+                   "coreJVM/test",
+                   "circeJVM/test",
+                   "coverageReport",
+                   "coverageOff",
+                   "doc"
+                 ))
 
-addCommandAlias(
-  "syncMavenCentral",
-  concatCmds(allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral")))
+addCommandsAlias("syncMavenCentral",
+                 allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral"))
