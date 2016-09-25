@@ -202,6 +202,9 @@ lazy val miscSettings = Def.settings(
 
 /// commands
 
+def concatCmds(cmds: Seq[String]): String =
+  cmds.mkString(";", ";", "")
+
 val validateCommands = Seq(
   "clean",
   "scalafmtTest",
@@ -214,8 +217,8 @@ val validateCommands = Seq(
   "coverageOff",
   "doc"
 )
-addCommandAlias("validate", validateCommands.mkString(";", ";", ""))
+addCommandAlias("validate", concatCmds(validateCommands))
 
 addCommandAlias(
   "syncMavenCentral",
-  allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral").mkString(";", ";", ""))
+  concatCmds(allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral")))
