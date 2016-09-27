@@ -1,22 +1,31 @@
 package eu.timepit.crjdt.core.free
 
-import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Val._
-import eu.timepit.crjdt.core.{Expr, Val}
+import eu.timepit.crjdt.core.{Cursor, Val}
 
 object syntax {
-  val doc: Expr = Doc
+  val doc: Cmd[Cursor] = Cmd.doc
   val `{}`: Val = EmptyMap
   val `[]`: Val = EmptyList
 
-  implicit final class ExprOps(val self: Expr) extends AnyVal {
-    def :=(value: Val): Cmd[Unit] = Cmd.assign(self, value)
-    def insert(value: Val): Cmd[Unit] = Cmd.insert(self, value)
-    def delete: Cmd[Unit] = Cmd.delete(self)
+  implicit final class CursorOps(val self: Cmd[Cursor]) extends AnyVal {
+    def :=(value: Val): Cmd[Unit] =
+      self.flatMap(Cmd.assign(_, value))
 
-    def downField(key: String): Expr = DownField(self, key)
-    def iter: Expr = Iter(self)
-    def next: Expr = Next(self)
+    def insert(value: Val): Cmd[Unit] =
+      self.flatMap(Cmd.insert(_, value))
+
+    def delete: Cmd[Unit] =
+      self.flatMap(Cmd.delete)
+
+    def downField(key: String): Cmd[Cursor] =
+      self.flatMap(Cmd.downField(_, key))
+
+    def iter: Cmd[Cursor] =
+      self.flatMap(Cmd.iter)
+
+    def next: Cmd[Cursor] =
+      self.flatMap(Cmd.next)
   }
 
   implicit def boolean2Val(b: Boolean): Val = if (b) True else False
