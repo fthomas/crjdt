@@ -5,7 +5,7 @@ import cats.arrow.FunctionK
 import cats.data.State
 import cats.free.Free
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
-import eu.timepit.crjdt.core.Mutation.{AssignM, InsertM}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
 import eu.timepit.crjdt.core.free.CmdOp._
 
@@ -35,22 +35,40 @@ object CmdOp {
         case Assign(cursor, value) =>
           State.modify(_.makeOp(cursor, AssignM(value)))
 
+        // MAKE-INSERT
         case Insert(cursor, value) =>
           State.modify(_.makeOp(cursor, InsertM(value)))
 
+        // MAKE-DELETE
+        case Delete(cursor) =>
+          State.modify(_.makeOp(cursor, DeleteM))
+
+        // DOC
         case Doc =>
           State.pure(Cursor.doc)
 
+        // GET
         case DownField(cursor, key) =>
           cursor.finalKey match {
             case HeadK => State.pure(cursor)
             case _ => State.pure(cursor.append(MapT.apply, StrK(key)))
           }
 
+        // ITER
         case Iter(cursor) =>
           State.pure(cursor.append(ListT.apply, HeadK))
 
-        case _ => ???
+        // NEXT1
+        case Next(cursor) =>
+          State.inspect(_.context.next(cursor))
+
+        // KEYS1
+        case Keys(cursor) =>
+          State.inspect(_.context.keys(cursor))
+
+        // VAL1
+        case Values(cursor) =>
+          State.inspect(_.context.values(cursor))
       }
   }
 
