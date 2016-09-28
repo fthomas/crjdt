@@ -40,6 +40,6 @@ object Figure6 extends Properties("Figure6") {
           Map(StrK("shopping") -> Set(Id(2, ""), Id(3, ""), Id(4, ""))))),
       Map(DocK -> Set(Id(1, ""), Id(2, ""), Id(3, ""), Id(4, ""))))
 
-    ReplicaState.empty("").applyCmd(cmd).context ?= rootCtx
+    Replica.empty("").applyCmd(cmd).context ?= rootCtx
   }
 }

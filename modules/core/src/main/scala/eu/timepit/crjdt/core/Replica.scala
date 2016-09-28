@@ -10,29 +10,29 @@ import eu.timepit.crjdt.core.util.applyAllLeft
 
 import scala.annotation.tailrec
 
-final case class ReplicaState(replicaId: ReplicaId,
-                              opsCounter: BigInt,
-                              context: Context,
-                              variables: Map[Var, Cursor],
-                              processedOps: Set[Id],
-                              generatedOps: Vector[Operation],
-                              receivedOps: Vector[Operation]) {
+final case class Replica(replicaId: ReplicaId,
+                         opsCounter: BigInt,
+                         context: Context,
+                         variables: Map[Var, Cursor],
+                         processedOps: Set[Id],
+                         generatedOps: Vector[Operation],
+                         receivedOps: Vector[Operation]) {
 
-  def applyCmd(cmd: Cmd): ReplicaState =
-    ReplicaState.applyCmds(this, List(cmd))
+  def applyCmd(cmd: Cmd): Replica =
+    Replica.applyCmds(this, List(cmd))
 
-  def applyCmds(cmds: List[Cmd]): ReplicaState =
-    ReplicaState.applyCmds(this, cmds)
+  def applyCmds(cmds: List[Cmd]): Replica =
+    Replica.applyCmds(this, cmds)
 
   // APPLY-LOCAL
-  def applyLocal(op: Operation): ReplicaState =
+  def applyLocal(op: Operation): Replica =
     copy(context = context.applyOp(op),
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
   // APPLY-REMOTE, YIELD
   @tailrec
-  def applyRemote: ReplicaState =
+  def applyRemote: Replica =
     findApplicableRemoteOp match {
       case None => this
       case Some(op) =>
@@ -42,7 +42,7 @@ final case class ReplicaState(replicaId: ReplicaId,
     }
 
   // RECV, YIELD
-  def applyRemoteOps(ops: Vector[Operation]): ReplicaState =
+  def applyRemoteOps(ops: Vector[Operation]): Replica =
     copy(receivedOps = ops ++ receivedOps).applyRemote
 
   def currentId: Id =
@@ -52,17 +52,19 @@ final case class ReplicaState(replicaId: ReplicaId,
     @tailrec
     def go(expr: Expr, fs: List[Cursor => Cursor]): Cursor =
       expr match {
-        case Doc => // DOC
-          applyAllLeft(fs, Cursor.doc)
+        // DOC
+        case Doc => applyAllLeft(fs, Cursor.doc)
 
-        case v @ Var(_) => // VAR
+        // VAR
+        case v @ Var(_) =>
           variables.get(v) match {
             case Some(cur) => applyAllLeft(fs, cur)
             // This case violates VAR's precondition x elem dom(A_p).
             case None => applyAllLeft(fs, Cursor.doc)
           }
 
-        case DownField(expr2, key) => // GET
+        // GET
+        case DownField(expr2, key) =>
           val f = (c: Cursor) =>
             c.finalKey match {
               // This case violates GET's precondition k_n != head.
@@ -73,11 +75,13 @@ final case class ReplicaState(replicaId: ReplicaId,
           }
           go(expr2, f :: fs)
 
-        case Iter(expr2) => // ITER
+        // ITER
+        case Iter(expr2) =>
           val f = (c: Cursor) => c.append(ListT.apply, HeadK)
           go(expr2, f :: fs)
 
-        case Next(expr2) => // NEXT1
+        // NEXT1
+        case Next(expr2) =>
           val f = context.next _
           go(expr2, f :: fs)
       }
@@ -93,7 +97,7 @@ final case class ReplicaState(replicaId: ReplicaId,
       !processedOps(op.id) && op.deps.subsetOf(processedOps)
     }
 
-  def incrementCounter: ReplicaState =
+  def incrementCounter: Replica =
     copy(opsCounter = opsCounter + 1)
 
   // KEYS1
@@ -101,10 +105,10 @@ final case class ReplicaState(replicaId: ReplicaId,
     context.keys(evalExpr(expr))
 
   // MAKE-OP
-  def makeOp(cur: Cursor, mut: Mutation): ReplicaState = {
-    val newState = incrementCounter
-    val op = Operation(newState.currentId, newState.processedOps, cur, mut)
-    newState.applyLocal(op)
+  def makeOp(cur: Cursor, mut: Mutation): Replica = {
+    val newReplica = incrementCounter
+    val op = Operation(newReplica.currentId, newReplica.processedOps, cur, mut)
+    newReplica.applyLocal(op)
   }
 
   // VAL1
@@ -112,42 +116,49 @@ final case class ReplicaState(replicaId: ReplicaId,
     context.values(evalExpr(expr))
 }
 
-object ReplicaState {
+object Replica {
   @tailrec
-  final def applyCmds(state: ReplicaState, cmds: List[Cmd]): ReplicaState =
+  final def applyCmds(replica: Replica, cmds: List[Cmd]): Replica =
     cmds match {
       case cmd :: rest =>
         cmd match {
-          case Let(x, expr) => // LET
-            val cur = state.evalExpr(expr)
-            val newState =
-              state.copy(variables = state.variables.updated(x, cur))
-            applyCmds(newState, rest)
+          // LET
+          case Let(x, expr) =>
+            val cur = replica.evalExpr(expr)
+            val newReplica =
+              replica.copy(variables = replica.variables.updated(x, cur))
+            applyCmds(newReplica, rest)
 
-          case Assign(expr, value) => // MAKE-ASSIGN
-            val newState = state.makeOp(state.evalExpr(expr), AssignM(value))
-            applyCmds(newState, rest)
+          // MAKE-ASSIGN
+          case Assign(expr, value) =>
+            val newReplica =
+              replica.makeOp(replica.evalExpr(expr), AssignM(value))
+            applyCmds(newReplica, rest)
 
-          case Insert(expr, value) => // MAKE-INSERT
-            val newState = state.makeOp(state.evalExpr(expr), InsertM(value))
-            applyCmds(newState, rest)
+          // MAKE-INSERT
+          case Insert(expr, value) =>
+            val newReplica =
+              replica.makeOp(replica.evalExpr(expr), InsertM(value))
+            applyCmds(newReplica, rest)
 
-          case Delete(expr) => // MAKE-DELETE
-            val newState = state.makeOp(state.evalExpr(expr), DeleteM)
-            applyCmds(newState, rest)
+          // MAKE-DELETE
+          case Delete(expr) =>
+            val newReplica = replica.makeOp(replica.evalExpr(expr), DeleteM)
+            applyCmds(newReplica, rest)
 
-          case Sequence(cmd1, cmd2) => // EXEC
-            applyCmds(state, cmd1 :: cmd2 :: rest)
+          // EXEC
+          case Sequence(cmd1, cmd2) =>
+            applyCmds(replica, cmd1 :: cmd2 :: rest)
         }
-      case Nil => state
+      case Nil => replica
     }
 
-  final def empty(replicaId: ReplicaId): ReplicaState =
-    ReplicaState(replicaId = replicaId,
-                 opsCounter = 0,
-                 context = Context.emptyMap,
-                 variables = Map.empty,
-                 processedOps = Set.empty,
-                 generatedOps = Vector.empty,
-                 receivedOps = Vector.empty)
+  final def empty(replicaId: ReplicaId): Replica =
+    Replica(replicaId = replicaId,
+            opsCounter = 0,
+            context = Context.emptyMap,
+            variables = Map.empty,
+            processedOps = Set.empty,
+            generatedOps = Vector.empty,
+            receivedOps = Vector.empty)
 }

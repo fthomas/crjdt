@@ -12,8 +12,8 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object Figure3 extends Properties("Figure3") {
-  val p0 = ReplicaState.empty("p")
-  val q0 = ReplicaState.empty("q")
+  val p0 = Replica.empty("p")
+  val q0 = Replica.empty("q")
 
   property("initial state") = secure {
     converged(p0, q0)

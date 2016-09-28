@@ -11,8 +11,8 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object Figure1 extends Properties("Figure1") {
-  val p0 = ReplicaState.empty("p").applyCmd(doc.downField("key") := "A")
-  val q0 = merge(ReplicaState.empty("q"), p0)
+  val p0 = Replica.empty("p").applyCmd(doc.downField("key") := "A")
+  val q0 = merge(Replica.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)

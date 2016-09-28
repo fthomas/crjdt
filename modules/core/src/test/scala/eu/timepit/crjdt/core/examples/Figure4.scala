@@ -16,8 +16,8 @@ object Figure4 extends Properties("Figure4") {
       (todo.next.downField("title") := "buy milk") `;`
       (todo.next.downField("done") := false)
 
-  val p0 = ReplicaState.empty("p").applyCmd(cmd)
-  val q0 = merge(ReplicaState.empty("q"), p0)
+  val p0 = Replica.empty("p").applyCmd(cmd)
+  val q0 = merge(Replica.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)

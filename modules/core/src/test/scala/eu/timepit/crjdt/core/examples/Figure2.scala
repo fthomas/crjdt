@@ -13,8 +13,8 @@ import org.scalacheck.Properties
 object Figure2 extends Properties("Figure2") {
   val colors = doc.downField("colors")
   val p0 =
-    ReplicaState.empty("p").applyCmd(colors.downField("blue") := "#0000ff")
-  val q0 = merge(ReplicaState.empty("q"), p0)
+    Replica.empty("p").applyCmd(colors.downField("blue") := "#0000ff")
+  val q0 = merge(Replica.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)

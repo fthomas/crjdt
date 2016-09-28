@@ -6,10 +6,10 @@ import eu.timepit.crjdt.core.testUtil._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
-object ReplicaStateSpec extends Properties("ReplicaState") {
-  val p0 = ReplicaState.empty("p")
-  val q0 = ReplicaState.empty("q")
-  val r0 = ReplicaState.empty("r")
+object ReplicaSpec extends Properties("Replica") {
+  val p0 = Replica.empty("p")
+  val q0 = Replica.empty("q")
+  val r0 = Replica.empty("r")
 
   property("convergence 1") = forAll { (cmds: List[Cmd]) =>
     val p1 = p0.applyCmds(cmds)

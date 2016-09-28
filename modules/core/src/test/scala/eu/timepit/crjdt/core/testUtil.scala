@@ -6,16 +6,16 @@ import org.scalacheck.Prop._
 import scala.util.Random
 
 object testUtil {
-  def converged(a: ReplicaState, b: ReplicaState): Prop =
+  def converged(a: Replica, b: Replica): Prop =
     (a.processedOps ?= b.processedOps) && (a.context ?= b.context)
 
-  def converged(a: ReplicaState, b: ReplicaState, c: ReplicaState): Prop =
+  def converged(a: Replica, b: Replica, c: Replica): Prop =
     converged(a, b) && converged(b, c)
 
-  def diverged(a: ReplicaState, b: ReplicaState): Prop =
+  def diverged(a: Replica, b: Replica): Prop =
     (a.processedOps != b.processedOps) && (a.context != b.context)
 
-  def merge(a: ReplicaState, b: ReplicaState): ReplicaState =
+  def merge(a: Replica, b: Replica): Replica =
     a.applyRemoteOps(b.generatedOps)
 
   def randomPermutation[A](xs: Vector[A]): Vector[A] = {
