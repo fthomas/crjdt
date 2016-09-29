@@ -64,4 +64,10 @@ object Figure4 extends Properties("Figure4") {
     (p2.keys(todo) ?= Set.empty) &&
     (p2.keys(doc.downField("foo").iter) ?= Set.empty)
   }
+
+  property("values") = secure {
+    (p2.values(todo.next.downField("done")) ?= List(Val.True)) &&
+    (p2.values(todo) ?= List.empty) &&
+    (p2.values(doc.downField("foo").iter) ?= List.empty)
+  }
 }

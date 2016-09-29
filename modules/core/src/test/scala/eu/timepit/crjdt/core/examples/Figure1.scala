@@ -45,4 +45,8 @@ object Figure1 extends Properties("Figure1") {
   property("keys") = secure {
     p2.keys(doc) ?= Set("key")
   }
+
+  property("values") = secure {
+    p2.values(doc.downField("key")) ?= List("B", "C")
+  }
 }
