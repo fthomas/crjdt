@@ -136,12 +136,6 @@ sealed trait Node extends Product with Serializable {
       case _ => this
     }
 
-  final def getRegValues: RegValues =
-    this match {
-      case r: RegNode => r.values
-      case _ => Map.empty
-    }
-
   final def addId(tag: TypeTag, id: Id, mut: Mutation): Node =
     mut match {
       // ADD-ID2
@@ -170,32 +164,32 @@ sealed trait Node extends Product with Serializable {
     findChild(tag) match {
       // CLEAR-NONE
       case None => (this, Set.empty)
-      case Some(child) =>
-        tag match {
-          // CLEAR-REG
-          case tag: RegT =>
-            val concurrent = child.getRegValues.filterKeys(id => !deps(id))
-            (addNode(tag, RegNode(concurrent)), concurrent.keySet)
 
-          // CLEAR-MAP1
-          case tag: MapT =>
-            val (cleared, pres) = child.clearMap(deps, Set.empty)
-            (addNode(tag, cleared), pres)
+      // CLEAR-REG
+      case Some(child: RegNode) =>
+        val concurrent = child.values.filterKeys(id => !deps(id))
+        (addNode(tag, RegNode(concurrent)), concurrent.keySet)
 
-          // CLEAR-LIST1
-          case tag: ListT =>
-            val (cleared, pres) = child.clearList(deps, HeadR)
-            (addNode(tag, cleared), pres)
-        }
+      // CLEAR-MAP1
+      case Some(child: MapNode) =>
+        val (cleared, pres) = child.clearMap(deps, Set.empty)
+        (addNode(tag, cleared), pres)
+
+      // CLEAR-LIST1
+      case Some(child: ListNode) =>
+        val (cleared, pres) = child.clearList(deps, HeadR)
+        (addNode(tag, cleared), pres)
     }
 
   // CLEAR-MAP2, CLEAR-MAP3
   final def clearMap(deps: Set[Id], done: Set[Key]): (Node, Set[Id]) = {
     val keys = keySet.map(_.key)
-    (keys -- done).headOption.fold((this, Set.empty[Id])) { k =>
-      val (ctx1, pres1) = clearElem(deps, k)
-      val (ctx2, pres2) = ctx1.clearMap(deps, done + k)
-      (ctx2, pres1 ++ pres2)
+    (keys -- done).headOption match {
+      case None => (this, Set.empty)
+      case Some(key) =>
+        val (ctx1, pres1) = clearElem(deps, key)
+        val (ctx2, pres2) = ctx1.clearMap(deps, done + key)
+        (ctx2, pres1 ++ pres2)
     }
   }
 
