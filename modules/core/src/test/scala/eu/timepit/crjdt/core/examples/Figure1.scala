@@ -1,8 +1,8 @@
 package eu.timepit.crjdt.core
 package examples
 
-import eu.timepit.crjdt.core.Context.{MapCtx, RegCtx}
 import eu.timepit.crjdt.core.Key.{DocK, StrK}
+import eu.timepit.crjdt.core.Node.{MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{MapT, RegT}
 import eu.timepit.crjdt.core.Val.Str
 import eu.timepit.crjdt.core.syntax._
@@ -33,11 +33,11 @@ object Figure1 extends Properties("Figure1") {
   }
 
   property("content") = secure {
-    p2.context ?= MapCtx(
+    p2.document ?= MapNode(
       Map(
-        MapT(DocK) -> MapCtx(
+        MapT(DocK) -> MapNode(
           Map(RegT(StrK("key")) ->
-            RegCtx(Map(Id(2, "p") -> Str("B"), Id(2, "q") -> Str("C")))),
+            RegNode(Map(Id(2, "p") -> Str("B"), Id(2, "q") -> Str("C")))),
           Map(StrK("key") -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"))))),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"))))
   }

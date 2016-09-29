@@ -2,7 +2,7 @@ package eu.timepit.crjdt.core
 
 import cats.instances.set._
 import cats.syntax.order._
-import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
+import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
@@ -12,7 +12,7 @@ import eu.timepit.crjdt.core.util.removeOrUpdate
 
 import scala.annotation.tailrec
 
-sealed trait Context extends Product with Serializable {
+sealed trait Node extends Product with Serializable {
   final def next(cur: Cursor): Cursor =
     cur.view match {
       case Cursor.Leaf(k) =>
@@ -41,7 +41,7 @@ sealed trait Context extends Product with Serializable {
       // KEYS2
       case Cursor.Leaf(k) =>
         findChild(MapT(k)) match {
-          case Some(map: MapCtx) =>
+          case Some(map: MapNode) =>
             map.presSets.collect { case (StrK(key), v) if v.nonEmpty => key }.toSet
           case _ => Set.empty
         }
@@ -60,7 +60,7 @@ sealed trait Context extends Product with Serializable {
       // VAL2
       case Cursor.Leaf(k) =>
         findChild(RegT(k)) match {
-          case Some(reg: RegCtx) => reg.values.values.toList
+          case Some(reg: RegNode) => reg.values.values.toList
           case _ => List.empty
         }
 
@@ -72,7 +72,7 @@ sealed trait Context extends Product with Serializable {
         }
     }
 
-  final def applyOp(op: Operation): Context =
+  final def applyOp(op: Operation): Node =
     op.cur.view match {
       case Cursor.Leaf(k) =>
         op.mut match {
@@ -82,7 +82,7 @@ sealed trait Context extends Product with Serializable {
             val (ctx1, _) = clearElem(op.deps, k)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
-            ctx2.addCtx(tag, child)
+            ctx2.addNode(tag, child)
 
           // ASSIGN
           case AssignM(value) =>
@@ -90,7 +90,7 @@ sealed trait Context extends Product with Serializable {
             val (ctx1, _) = clear(op.deps, tag)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
-            ctx2.addCtx(tag, child.addRegValue(op.id, value))
+            ctx2.addNode(tag, child.addRegValue(op.id, value))
 
           case InsertM(value) =>
             val prevRef = ListRef.fromKey(k)
@@ -120,29 +120,29 @@ sealed trait Context extends Product with Serializable {
         val child0 = getChild(k1)
         val child1 = child0.applyOp(op.copy(cur = cur1))
         val ctx1 = addId(k1, op.id, op.mut)
-        ctx1.addCtx(k1, child1)
+        ctx1.addNode(k1, child1)
     }
 
-  final def addCtx(tag: TypeTag, ctx: Context): Context =
+  final def addNode(tag: TypeTag, node: Node): Node =
     this match {
-      case m: MapCtx => m.copy(entries = m.entries.updated(tag, ctx))
-      case l: ListCtx => l.copy(entries = l.entries.updated(tag, ctx))
-      case _: RegCtx => this
+      case m: MapNode => m.copy(entries = m.entries.updated(tag, node))
+      case l: ListNode => l.copy(entries = l.entries.updated(tag, node))
+      case _: RegNode => this
     }
 
-  final def addRegValue(id: Id, value: Val): Context =
+  final def addRegValue(id: Id, value: Val): Node =
     this match {
-      case r: RegCtx => r.copy(values = r.values.updated(id, value))
+      case r: RegNode => r.copy(values = r.values.updated(id, value))
       case _ => this
     }
 
   final def getRegValues: RegValues =
     this match {
-      case r: RegCtx => r.values
+      case r: RegNode => r.values
       case _ => Map.empty
     }
 
-  final def addId(tag: TypeTag, id: Id, mut: Mutation): Context =
+  final def addId(tag: TypeTag, id: Id, mut: Mutation): Node =
     mut match {
       // ADD-ID2
       case DeleteM => this
@@ -150,7 +150,7 @@ sealed trait Context extends Product with Serializable {
       case _ => setPres(tag.key, getPres(tag.key) + id)
     }
 
-  final def clearElem(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+  final def clearElem(deps: Set[Id], key: Key): (Node, Set[Id]) = {
     val (ctx1, pres1) = clearAny(deps, key)
     val pres2 = ctx1.getPres(key)
     val pres3 = (pres1 ++ pres2) -- deps
@@ -158,7 +158,7 @@ sealed trait Context extends Product with Serializable {
   }
 
   // CLEAR-ANY
-  final def clearAny(deps: Set[Id], key: Key): (Context, Set[Id]) = {
+  final def clearAny(deps: Set[Id], key: Key): (Node, Set[Id]) = {
     val ctx0 = this
     val (ctx1, pres1) = ctx0.clear(deps, MapT(key))
     val (ctx2, pres2) = ctx1.clear(deps, ListT(key))
@@ -166,7 +166,7 @@ sealed trait Context extends Product with Serializable {
     (ctx3, pres1 ++ pres2 ++ pres3)
   }
 
-  final def clear(deps: Set[Id], tag: TypeTag): (Context, Set[Id]) =
+  final def clear(deps: Set[Id], tag: TypeTag): (Node, Set[Id]) =
     findChild(tag) match {
       // CLEAR-NONE
       case None => (this, Set.empty)
@@ -175,22 +175,22 @@ sealed trait Context extends Product with Serializable {
           // CLEAR-REG
           case tag: RegT =>
             val concurrent = child.getRegValues.filterKeys(id => !deps(id))
-            (addCtx(tag, RegCtx(concurrent)), concurrent.keySet)
+            (addNode(tag, RegNode(concurrent)), concurrent.keySet)
 
           // CLEAR-MAP1
           case tag: MapT =>
             val (cleared, pres) = child.clearMap(deps, Set.empty)
-            (addCtx(tag, cleared), pres)
+            (addNode(tag, cleared), pres)
 
           // CLEAR-LIST1
           case tag: ListT =>
             val (cleared, pres) = child.clearList(deps, HeadR)
-            (addCtx(tag, cleared), pres)
+            (addNode(tag, cleared), pres)
         }
     }
 
   // CLEAR-MAP2, CLEAR-MAP3
-  final def clearMap(deps: Set[Id], done: Set[Key]): (Context, Set[Id]) = {
+  final def clearMap(deps: Set[Id], done: Set[Key]): (Node, Set[Id]) = {
     val keys = keySet.map(_.key)
     (keys -- done).headOption.fold((this, Set.empty[Id])) { k =>
       val (ctx1, pres1) = clearElem(deps, k)
@@ -199,7 +199,7 @@ sealed trait Context extends Product with Serializable {
     }
   }
 
-  final def clearList(deps: Set[Id], ref: ListRef): (Context, Set[Id]) =
+  final def clearList(deps: Set[Id], ref: ListRef): (Node, Set[Id]) =
     ref match {
       // CLEAR-LIST3
       case TailR => (this, Set.empty)
@@ -211,85 +211,85 @@ sealed trait Context extends Product with Serializable {
         (ctx2, pres1 ++ pres2)
     }
 
-  final def getChild(tag: TypeTag): Context =
+  final def getChild(tag: TypeTag): Node =
     findChild(tag).getOrElse {
       tag match {
         // CHILD-MAP
-        case _: MapT => Context.emptyMap
+        case _: MapT => Node.emptyMap
         // CHILD-LIST
-        case _: ListT => Context.emptyList
+        case _: ListT => Node.emptyList
         // CHILD-REG
-        case _: RegT => Context.emptyReg
+        case _: RegT => Node.emptyReg
       }
     }
 
   // CHILD-GET
-  final def findChild(tag: TypeTag): Option[Context] =
+  final def findChild(tag: TypeTag): Option[Node] =
     this match {
-      case m: MapCtx => m.entries.get(tag)
-      case l: ListCtx => l.entries.get(tag)
-      case _: RegCtx => None
+      case m: MapNode => m.entries.get(tag)
+      case l: ListNode => l.entries.get(tag)
+      case _: RegNode => None
     }
 
   // PRESENCE1, PRESENCE2
   final def getPres(key: Key): Set[Id] =
     this match {
-      case m: MapCtx => m.presSets.getOrElse(key, Set.empty)
-      case l: ListCtx => l.presSets.getOrElse(key, Set.empty)
-      case _: RegCtx => Set.empty
+      case m: MapNode => m.presSets.getOrElse(key, Set.empty)
+      case l: ListNode => l.presSets.getOrElse(key, Set.empty)
+      case _: RegNode => Set.empty
     }
 
-  final def setPres(key: Key, pres: Set[Id]): Context =
+  final def setPres(key: Key, pres: Set[Id]): Node =
     this match {
-      case m: MapCtx =>
+      case m: MapNode =>
         m.copy(presSets = removeOrUpdate(m.presSets, key, pres))
-      case l: ListCtx =>
+      case l: ListNode =>
         l.copy(presSets = removeOrUpdate(l.presSets, key, pres))
-      case _: RegCtx =>
+      case _: RegNode =>
         this
     }
 
   final def keySet: Set[TypeTag] =
     this match {
-      case m: MapCtx => m.entries.keySet
+      case m: MapNode => m.entries.keySet
       case _ => Set.empty
     }
 
   final def getNextRef(ref: ListRef): ListRef =
     this match {
-      case l: ListCtx => l.order.getOrElse(ref, TailR)
+      case l: ListNode => l.order.getOrElse(ref, TailR)
       case _ => TailR
     }
 
-  final def setNextRef(src: ListRef, dst: ListRef): Context =
+  final def setNextRef(src: ListRef, dst: ListRef): Node =
     this match {
-      case l: ListCtx => l.copy(order = l.order.updated(src, dst))
+      case l: ListNode => l.copy(order = l.order.updated(src, dst))
       case _ => this
     }
 }
 
-object Context {
-  final case class MapCtx(entries: Map[TypeTag, Context],
-                          presSets: Map[Key, Set[Id]])
-      extends Context
+object Node {
+  final case class MapNode(entries: Map[TypeTag, Node],
+                           presSets: Map[Key, Set[Id]])
+      extends Node
 
-  final case class ListCtx(entries: Map[TypeTag, Context],
-                           presSets: Map[Key, Set[Id]],
-                           order: Map[ListRef, ListRef])
-      extends Context
+  final case class ListNode(entries: Map[TypeTag, Node],
+                            presSets: Map[Key, Set[Id]],
+                            order: Map[ListRef, ListRef])
+      extends Node
 
-  final case class RegCtx(values: RegValues) extends Context
+  final case class RegNode(values: RegValues) extends Node
 
   ///
 
-  final def emptyMap: Context =
-    MapCtx(entries = Map.empty, presSets = Map.empty)
+  final def emptyMap: Node =
+    MapNode(entries = Map.empty, presSets = Map.empty)
 
-  final def emptyList: Context =
-    ListCtx(entries = Map.empty,
-            presSets = Map.empty,
-            order = Map(HeadR -> TailR))
+  final def emptyList: Node =
+    ListNode(entries = Map.empty,
+             presSets = Map.empty,
+             order = Map(HeadR -> TailR))
 
-  final def emptyReg: Context =
-    RegCtx(values = Map.empty)
+  final def emptyReg: Node =
+    RegNode(values = Map.empty)
 }

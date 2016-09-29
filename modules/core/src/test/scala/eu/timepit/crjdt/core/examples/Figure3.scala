@@ -1,9 +1,9 @@
 package eu.timepit.crjdt.core
 package examples
 
-import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
 import eu.timepit.crjdt.core.Key.{DocK, IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
+import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.Str
 import eu.timepit.crjdt.core.syntax._
@@ -42,11 +42,11 @@ object Figure3 extends Properties("Figure3") {
   }
 
   property("content") = secure {
-    val groceryList = ListCtx(
-      Map(RegT(IdK(Id(2, "q"))) -> RegCtx(Map(Id(2, "q") -> Str("milk"))),
-          RegT(IdK(Id(3, "q"))) -> RegCtx(Map(Id(3, "q") -> Str("flour"))),
-          RegT(IdK(Id(2, "p"))) -> RegCtx(Map(Id(2, "p") -> Str("eggs"))),
-          RegT(IdK(Id(3, "p"))) -> RegCtx(Map(Id(3, "p") -> Str("ham")))),
+    val groceryList = ListNode(
+      Map(RegT(IdK(Id(2, "q"))) -> RegNode(Map(Id(2, "q") -> Str("milk"))),
+          RegT(IdK(Id(3, "q"))) -> RegNode(Map(Id(3, "q") -> Str("flour"))),
+          RegT(IdK(Id(2, "p"))) -> RegNode(Map(Id(2, "p") -> Str("eggs"))),
+          RegT(IdK(Id(3, "p"))) -> RegNode(Map(Id(3, "p") -> Str("ham")))),
       Map(IdK(Id(2, "p")) -> Set(Id(2, "p")),
           IdK(Id(3, "p")) -> Set(Id(3, "p")),
           IdK(Id(2, "q")) -> Set(Id(2, "q")),
@@ -63,10 +63,10 @@ object Figure3 extends Properties("Figure3") {
                    Id(3, "p"),
                    Id(1, "p"))
 
-    p2.context ?= MapCtx(
+    p2.document ?= MapNode(
       Map(
-        MapT(DocK) -> MapCtx(Map(ListT(StrK("grocery")) -> groceryList),
-                             Map(StrK("grocery") -> pres))),
+        MapT(DocK) -> MapNode(Map(ListT(StrK("grocery")) -> groceryList),
+                              Map(StrK("grocery") -> pres))),
       Map(DocK -> pres))
   }
 }

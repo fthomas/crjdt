@@ -12,7 +12,7 @@ import scala.annotation.tailrec
 
 final case class Replica(replicaId: ReplicaId,
                          opsCounter: BigInt,
-                         context: Context,
+                         document: Node,
                          variables: Map[Var, Cursor],
                          processedOps: Set[Id],
                          generatedOps: Vector[Operation],
@@ -26,7 +26,7 @@ final case class Replica(replicaId: ReplicaId,
 
   // APPLY-LOCAL
   def applyLocal(op: Operation): Replica =
-    copy(context = context.applyOp(op),
+    copy(document = document.applyOp(op),
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
@@ -37,7 +37,7 @@ final case class Replica(replicaId: ReplicaId,
       case None => this
       case Some(op) =>
         copy(opsCounter = opsCounter max op.id.c,
-             context = context.applyOp(op),
+             document = document.applyOp(op),
              processedOps = processedOps + op.id).applyRemote
     }
 
@@ -82,7 +82,7 @@ final case class Replica(replicaId: ReplicaId,
 
         // NEXT1
         case Next(expr2) =>
-          val f = context.next _
+          val f = document.next _
           go(expr2, f :: fs)
       }
     go(expr, List.empty)
@@ -102,7 +102,7 @@ final case class Replica(replicaId: ReplicaId,
 
   // KEYS1
   def keys(expr: Expr): Set[String] =
-    context.keys(evalExpr(expr))
+    document.keys(evalExpr(expr))
 
   // MAKE-OP
   def makeOp(cur: Cursor, mut: Mutation): Replica = {
@@ -113,7 +113,7 @@ final case class Replica(replicaId: ReplicaId,
 
   // VAL1
   def values(expr: Expr): List[Val] =
-    context.values(evalExpr(expr))
+    document.values(evalExpr(expr))
 }
 
 object Replica {
@@ -156,7 +156,7 @@ object Replica {
   final def empty(replicaId: ReplicaId): Replica =
     Replica(replicaId = replicaId,
             opsCounter = 0,
-            context = Context.emptyMap,
+            document = Node.emptyMap,
             variables = Map.empty,
             processedOps = Set.empty,
             generatedOps = Vector.empty,

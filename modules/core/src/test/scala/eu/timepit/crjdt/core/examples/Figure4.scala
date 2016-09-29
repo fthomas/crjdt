@@ -1,9 +1,9 @@
 package eu.timepit.crjdt.core
 package examples
 
-import eu.timepit.crjdt.core.Context.{ListCtx, MapCtx, RegCtx}
 import eu.timepit.crjdt.core.Key.{DocK, IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
+import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.syntax._
 import eu.timepit.crjdt.core.testUtil._
@@ -38,23 +38,23 @@ object Figure4 extends Properties("Figure4") {
   }
 
   property("content") = secure {
-    val todoLists = ListCtx(
+    val todoLists = ListNode(
       Map(
-        MapT(IdK(Id(1, "p"))) -> MapCtx(
-          Map(RegT(StrK("title")) -> RegCtx(Map()),
-              RegT(StrK("done")) -> RegCtx(Map(Id(4, "q") -> Val.True))),
+        MapT(IdK(Id(1, "p"))) -> MapNode(
+          Map(RegT(StrK("title")) -> RegNode(Map()),
+              RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
           Map(StrK("done") -> Set(Id(4, "q"))))),
       Map(IdK(Id(1, "p")) -> Set(Id(4, "q"))),
       Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR))
 
-    p2.context ?= MapCtx(
+    p2.document ?= MapNode(
       Map(
-        MapT(DocK) -> MapCtx(Map(ListT(StrK("todo")) -> todoLists),
-                             Map(
-                               StrK("todo") -> Set(Id(1, "p"),
-                                                   Id(2, "p"),
-                                                   Id(3, "p"),
-                                                   Id(4, "q"))))),
+        MapT(DocK) -> MapNode(Map(ListT(StrK("todo")) -> todoLists),
+                              Map(
+                                StrK("todo") -> Set(Id(1, "p"),
+                                                    Id(2, "p"),
+                                                    Id(3, "p"),
+                                                    Id(4, "q"))))),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q"))))
   }
 
