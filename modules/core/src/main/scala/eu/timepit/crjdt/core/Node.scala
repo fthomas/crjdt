@@ -2,10 +2,10 @@ package eu.timepit.crjdt.core
 
 import cats.instances.set._
 import cats.syntax.order._
-import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
+import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
 import eu.timepit.crjdt.core.util.removeOrUpdate
