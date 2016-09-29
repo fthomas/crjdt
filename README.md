@@ -20,8 +20,8 @@ To get started with sbt, add the following to your `build.sbt` file:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "crjdt-core"  % "0.0.4",
-  "eu.timepit" %% "crjdt-circe" % "0.0.4" // optional
+  "eu.timepit" %% "crjdt-core"  % "0.0.5",
+  "eu.timepit" %% "crjdt-circe" % "0.0.5" // optional
 )
 ```
 
