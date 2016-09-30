@@ -186,7 +186,8 @@ lazy val releaseSettings = {
 }
 
 lazy val styleSettings = Def.settings(
-  reformatOnCompileSettings
+  reformatOnCompileSettings,
+  scalafmtConfig := Some(file(".scalafmt.conf"))
 )
 
 lazy val miscSettings = Def.settings(
