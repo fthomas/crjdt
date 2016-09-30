@@ -209,6 +209,7 @@ addCommandsAlias("validate",
                  Seq(
                    "clean",
                    "scalafmtTest",
+                   "test:scalafmtTest",
                    "coreJS/test",
                    "circeJS/test",
                    "coverage",
