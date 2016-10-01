@@ -20,9 +20,10 @@ sealed trait Node extends Product with Serializable {
         k1Ref match {
           case TailR => cur
           case keyRef: KeyRef =>
-            val cur1 = Cursor.withFinalKey(keyRef.toKey)
+            val k1 = keyRef.toKey
+            val cur1 = Cursor.withFinalKey(k1)
             // NEXT2
-            if (getPres(k).nonEmpty) cur1
+            if (getPres(k1).nonEmpty) cur1
             // NEXT3
             else next(cur1)
         }
