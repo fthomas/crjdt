@@ -24,11 +24,11 @@ object CmdOp {
   final case class Keys(cursor: Cursor) extends CmdOp[Set[String]]
   final case class Values(cursor: Cursor) extends CmdOp[List[Val]]
 
-  // interpreter
+  // interpreters
 
-  type ReplicaM[A] = State[ReplicaState, A]
+  type ReplicaM[A] = State[Replica, A]
 
-  new FunctionK[CmdOp, ReplicaM] {
+  val interpreter = new FunctionK[CmdOp, ReplicaM] {
     override def apply[A](fa: CmdOp[A]): ReplicaM[A] =
       fa match {
         // MAKE-ASSIGN
