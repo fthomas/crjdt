@@ -60,15 +60,15 @@ object CmdOp {
 
         // NEXT1
         case Next(cursor) =>
-          State.inspect(_.context.next(cursor))
+          State.inspect(_.document.next(cursor))
 
         // KEYS1
         case Keys(cursor) =>
-          State.inspect(_.context.keys(cursor))
+          State.inspect(_.document.keys(cursor))
 
         // VAL1
         case Values(cursor) =>
-          State.inspect(_.context.values(cursor))
+          State.inspect(_.document.values(cursor))
       }
   }
 
