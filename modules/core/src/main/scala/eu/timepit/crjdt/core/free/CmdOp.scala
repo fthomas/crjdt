@@ -12,93 +12,93 @@ import eu.timepit.crjdt.core.free.CmdOp._
 sealed trait CmdOp[A] extends Product with Serializable
 
 object CmdOp {
-  final case class Assign(cursor: Cursor, value: Val) extends CmdOp[Unit]
-  final case class Insert(cursor: Cursor, value: Val) extends CmdOp[Unit]
-  final case class Delete(cursor: Cursor) extends CmdOp[Unit]
+  final case class Assign(cur: Cursor, value: Val) extends CmdOp[Unit]
+  final case class Insert(cur: Cursor, value: Val) extends CmdOp[Unit]
+  final case class Delete(cur: Cursor) extends CmdOp[Unit]
 
   case object Doc extends CmdOp[Cursor]
-  final case class DownField(cursor: Cursor, key: String) extends CmdOp[Cursor]
-  final case class Iter(cursor: Cursor) extends CmdOp[Cursor]
-  final case class Next(cursor: Cursor) extends CmdOp[Cursor]
+  final case class DownField(cur: Cursor, key: String) extends CmdOp[Cursor]
+  final case class Iter(cur: Cursor) extends CmdOp[Cursor]
+  final case class Next(cur: Cursor) extends CmdOp[Cursor]
 
-  final case class Keys(cursor: Cursor) extends CmdOp[Set[String]]
-  final case class Values(cursor: Cursor) extends CmdOp[List[Val]]
+  final case class Keys(cur: Cursor) extends CmdOp[Set[String]]
+  final case class Values(cur: Cursor) extends CmdOp[List[Val]]
 
   // interpreters
 
-  type ReplicaM[A] = State[Replica, A]
+  type ReplicaState[A] = State[Replica, A]
 
-  val interpreter = new FunctionK[CmdOp, ReplicaM] {
-    override def apply[A](fa: CmdOp[A]): ReplicaM[A] =
+  val interpreter = new FunctionK[CmdOp, ReplicaState] {
+    override def apply[A](fa: CmdOp[A]): ReplicaState[A] =
       fa match {
         // MAKE-ASSIGN
-        case Assign(cursor, value) =>
-          State.modify(_.makeOp(cursor, AssignM(value)))
+        case Assign(cur, value) =>
+          State.modify(_.makeOp(cur, AssignM(value)))
 
         // MAKE-INSERT
-        case Insert(cursor, value) =>
-          State.modify(_.makeOp(cursor, InsertM(value)))
+        case Insert(cur, value) =>
+          State.modify(_.makeOp(cur, InsertM(value)))
 
         // MAKE-DELETE
-        case Delete(cursor) =>
-          State.modify(_.makeOp(cursor, DeleteM))
+        case Delete(cur) =>
+          State.modify(_.makeOp(cur, DeleteM))
 
         // DOC
         case Doc =>
           State.pure(Cursor.doc)
 
         // GET
-        case DownField(cursor, key) =>
-          cursor.finalKey match {
-            case HeadK => State.pure(cursor)
-            case _ => State.pure(cursor.append(MapT.apply, StrK(key)))
+        case DownField(cur, key) =>
+          cur.finalKey match {
+            case HeadK => State.pure(cur)
+            case _ => State.pure(cur.append(MapT.apply, StrK(key)))
           }
 
         // ITER
-        case Iter(cursor) =>
-          State.pure(cursor.append(ListT.apply, HeadK))
+        case Iter(cur) =>
+          State.pure(cur.append(ListT.apply, HeadK))
 
         // NEXT1
-        case Next(cursor) =>
-          State.inspect(_.document.next(cursor))
+        case Next(cur) =>
+          State.inspect(_.document.next(cur))
 
         // KEYS1
-        case Keys(cursor) =>
-          State.inspect(_.document.keys(cursor))
+        case Keys(cur) =>
+          State.inspect(_.document.keys(cur))
 
         // VAL1
-        case Values(cursor) =>
-          State.inspect(_.document.values(cursor))
+        case Values(cur) =>
+          State.inspect(_.document.values(cur))
       }
   }
 
 }
 
 object CmdCompanion {
-  def assign(cursor: Cursor, value: Val): Cmd[Unit] =
-    Free.liftF(Assign(cursor, value))
+  def assign(cur: Cursor, value: Val): Cmd[Unit] =
+    Free.liftF(Assign(cur, value))
 
-  def insert(cursor: Cursor, value: Val): Cmd[Unit] =
-    Free.liftF(Insert(cursor, value))
+  def insert(cur: Cursor, value: Val): Cmd[Unit] =
+    Free.liftF(Insert(cur, value))
 
-  def delete(cursor: Cursor): Cmd[Unit] =
-    Free.liftF(Delete(cursor))
+  def delete(cur: Cursor): Cmd[Unit] =
+    Free.liftF(Delete(cur))
 
   def doc: Cmd[Cursor] =
     Free.liftF(Doc)
 
-  def downField(cursor: Cursor, key: String): Cmd[Cursor] =
-    Free.liftF(DownField(cursor, key))
+  def downField(cur: Cursor, key: String): Cmd[Cursor] =
+    Free.liftF(DownField(cur, key))
 
-  def iter(cursor: Cursor): Cmd[Cursor] =
-    Free.liftF(Iter(cursor))
+  def iter(cur: Cursor): Cmd[Cursor] =
+    Free.liftF(Iter(cur))
 
-  def next(cursor: Cursor): Cmd[Cursor] =
-    Free.liftF(Next(cursor))
+  def next(cur: Cursor): Cmd[Cursor] =
+    Free.liftF(Next(cur))
 
-  def keys(cursor: Cursor): Cmd[Set[String]] =
-    Free.liftF(Keys(cursor))
+  def keys(cur: Cursor): Cmd[Set[String]] =
+    Free.liftF(Keys(cur))
 
-  def values(cursor: Cursor): Cmd[List[Val]] =
-    Free.liftF(Values(cursor))
+  def values(cur: Cursor): Cmd[List[Val]] =
+    Free.liftF(Values(cur))
 }
