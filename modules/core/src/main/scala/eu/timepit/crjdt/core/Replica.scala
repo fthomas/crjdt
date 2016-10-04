@@ -112,7 +112,7 @@ final case class Replica(replicaId: ReplicaId,
   }
 
   // VAL1
-  def values(expr: Expr): List[Val] =
+  def values(expr: Expr): List[LeafVal] =
     document.values(evalExpr(expr))
 }
 

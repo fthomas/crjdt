@@ -7,7 +7,7 @@ import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
-import eu.timepit.crjdt.core.Val.{EmptyList, EmptyMap}
+import eu.timepit.crjdt.core.Val.EmptyMap
 import eu.timepit.crjdt.core.util.removeOrUpdate
 
 import scala.annotation.tailrec
@@ -56,7 +56,7 @@ sealed trait Node extends Product with Serializable {
     }
 
   @tailrec
-  final def values(cur: Cursor): List[Val] =
+  final def values(cur: Cursor): List[LeafVal] =
     cur.view match {
       // VAL2
       case Cursor.Leaf(k) =>
@@ -78,15 +78,15 @@ sealed trait Node extends Product with Serializable {
       case Cursor.Leaf(k) =>
         op.mut match {
           // EMPTY-MAP, EMPTY-LIST
-          case mut @ AssignM(EmptyMap | EmptyList) =>
-            val tag = if (mut.value == EmptyMap) MapT(k) else ListT(k)
+          case AssignM(value: BranchVal) =>
+            val tag = if (value == EmptyMap) MapT(k) else ListT(k)
             val (ctx1, _) = clearElem(op.deps, k)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
             val child = ctx2.getChild(tag)
             ctx2.addNode(tag, child)
 
           // ASSIGN
-          case AssignM(value) =>
+          case AssignM(value: LeafVal) =>
             val tag = RegT(k)
             val (ctx1, _) = clear(op.deps, tag)
             val ctx2 = ctx1.addId(tag, op.id, op.mut)
@@ -131,7 +131,7 @@ sealed trait Node extends Product with Serializable {
       case _: RegNode => this
     }
 
-  final def addRegValue(id: Id, value: Val): Node =
+  final def addRegValue(id: Id, value: LeafVal): Node =
     this match {
       case r: RegNode => r.copy(values = r.values.updated(id, value))
       case _ => this

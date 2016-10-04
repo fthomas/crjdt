@@ -8,8 +8,8 @@ package object syntax {
   val doc: Expr = Doc
   val let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
-  val `{}`: Val = EmptyMap
-  val `[]`: Val = EmptyList
+  val `{}`: BranchVal = EmptyMap
+  val `[]`: BranchVal = EmptyList
 
   implicit final class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
@@ -25,6 +25,6 @@ package object syntax {
     def next: Expr = Next(self)
   }
 
-  implicit def boolean2Val(b: Boolean): Val = if (b) True else False
-  implicit def string2Val(s: String): Val = Str(s)
+  implicit def boolean2Val(b: Boolean): LeafVal = if (b) True else False
+  implicit def string2Val(s: String): LeafVal = Str(s)
 }

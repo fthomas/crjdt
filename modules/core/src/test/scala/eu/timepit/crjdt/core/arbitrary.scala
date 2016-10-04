@@ -45,12 +45,17 @@ object arbitrary {
     Arbitrary(gen)
   }
 
-  implicit val arbitraryVal: Arbitrary[Val] = {
+  implicit val arbitraryLeafVal: Arbitrary[LeafVal] = {
     val genNum = Arbitrary.arbitrary[Double].map(d => Val.Num.apply(d))
     val genStr = Arbitrary.arbitrary[String].map(Val.Str.apply)
-    val genConstants =
-      Gen.oneOf(Val.True, Val.False, Val.Null, Val.EmptyList, Val.EmptyMap)
+    val genConstants = Gen.oneOf(Val.True, Val.False, Val.Null)
     Arbitrary(Gen.oneOf(genNum, genStr, genConstants))
+  }
+
+  implicit val arbitraryVal: Arbitrary[Val] = {
+    val genLeafVal = Arbitrary.arbitrary[LeafVal]
+    val genBranchVal = Gen.oneOf(Val.EmptyList, Val.EmptyMap)
+    Arbitrary(Gen.oneOf(genLeafVal, genBranchVal))
   }
 
   implicit val arbitraryMutation: Arbitrary[Mutation] = {
