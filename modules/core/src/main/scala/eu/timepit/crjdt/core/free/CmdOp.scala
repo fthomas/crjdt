@@ -101,4 +101,17 @@ object CmdCompanion {
 
   def values(cur: Cursor): Cmd[List[Val]] =
     Free.liftF(Values(cur))
+
+  ///
+
+  def insertAll(cur: Cursor, values: List[Val]): Cmd[Unit] =
+    values match {
+      case Nil => Free.pure(())
+      case head :: tail =>
+        for {
+          _ <- insert(cur, head)
+          cur1 <- next(cur)
+          _ <- insertAll(cur1, tail)
+        } yield ()
+    }
 }
