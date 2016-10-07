@@ -60,7 +60,7 @@ sealed trait Node extends Product with Serializable {
       // VAL2
       case Cursor.Leaf(k) =>
         findChild(RegT(k)) match {
-          case Some(reg: RegNode) => reg.regValues.values.toList
+          case Some(reg: RegNode) => reg.values
           case _ => List.empty
         }
 
@@ -125,9 +125,9 @@ sealed trait Node extends Product with Serializable {
 
   final def addNode(tag: TypeTag, node: Node): Node =
     this match {
-      case m: MapNode => m.copy(entries = m.entries.updated(tag, node))
-      case l: ListNode => l.copy(entries = l.entries.updated(tag, node))
-      case _: RegNode => this
+      case m: MapNode => m.copy(children = m.children.updated(tag, node))
+      case l: ListNode => l.copy(children = l.children.updated(tag, node))
+      case _ => this
     }
 
   final def addRegValue(id: Id, value: LeafVal): Node =
@@ -220,17 +220,15 @@ sealed trait Node extends Product with Serializable {
   // CHILD-GET
   final def findChild(tag: TypeTag): Option[Node] =
     this match {
-      case m: MapNode => m.entries.get(tag)
-      case l: ListNode => l.entries.get(tag)
-      case _: RegNode => None
+      case n: BranchNode => n.children.get(tag)
+      case _ => None
     }
 
   // PRESENCE1, PRESENCE2
   final def getPres(key: Key): Set[Id] =
     this match {
-      case m: MapNode => m.presSets.getOrElse(key, Set.empty)
-      case l: ListNode => l.presSets.getOrElse(key, Set.empty)
-      case _: RegNode => Set.empty
+      case n: BranchNode => n.presSets.getOrElse(key, Set.empty)
+      case _ => Set.empty
     }
 
   final def setPres(key: Key, pres: Set[Id]): Node =
@@ -239,13 +237,13 @@ sealed trait Node extends Product with Serializable {
         m.copy(presSets = removeOrUpdate(m.presSets, key, pres))
       case l: ListNode =>
         l.copy(presSets = removeOrUpdate(l.presSets, key, pres))
-      case _: RegNode =>
+      case _ =>
         this
     }
 
   final def keySet: Set[TypeTag] =
     this match {
-      case m: MapNode => m.entries.keySet
+      case m: MapNode => m.children.keySet
       case _ => Set.empty
     }
 
@@ -262,29 +260,38 @@ sealed trait Node extends Product with Serializable {
     }
 }
 
+sealed trait BranchNode extends Node {
+  def children: Map[TypeTag, Node]
+
+  def presSets: Map[Key, Set[Id]]
+}
+
 object Node {
-  final case class MapNode(entries: Map[TypeTag, Node],
+  final case class MapNode(children: Map[TypeTag, Node],
                            presSets: Map[Key, Set[Id]])
-      extends Node {
+      extends BranchNode {
 
     def keys: Set[String] =
       presSets.collect { case (StrK(key), pres) if pres.nonEmpty => key }.toSet
   }
 
-  final case class ListNode(entries: Map[TypeTag, Node],
+  final case class ListNode(children: Map[TypeTag, Node],
                             presSets: Map[Key, Set[Id]],
                             order: Map[ListRef, ListRef])
-      extends Node
+      extends BranchNode
 
-  final case class RegNode(regValues: RegValues) extends Node
+  final case class RegNode(regValues: RegValues) extends Node {
+    def values: List[LeafVal] =
+      regValues.values.toList
+  }
 
   ///
 
   final def emptyMap: Node =
-    MapNode(entries = Map.empty, presSets = Map.empty)
+    MapNode(children = Map.empty, presSets = Map.empty)
 
   final def emptyList: Node =
-    ListNode(entries = Map.empty,
+    ListNode(children = Map.empty,
              presSets = Map.empty,
              order = Map(HeadR -> TailR))
 
