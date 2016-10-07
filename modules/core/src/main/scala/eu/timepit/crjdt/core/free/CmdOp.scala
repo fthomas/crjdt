@@ -3,11 +3,9 @@ package free
 
 import cats.arrow.FunctionK
 import cats.data.State
-import cats.free.Free
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
-import eu.timepit.crjdt.core.free.CmdOp._
 
 sealed trait CmdOp[A] extends Product with Serializable
 
@@ -27,9 +25,9 @@ object CmdOp {
 
   type ReplicaState[A] = State[Replica, A]
 
-  val interpreter = new FunctionK[CmdOp, ReplicaState] {
-    override def apply[A](fa: CmdOp[A]): ReplicaState[A] =
-      fa match {
+  val cmdOpToReplicaState = new FunctionK[CmdOp, ReplicaState] {
+    override def apply[A](op: CmdOp[A]): ReplicaState[A] =
+      op match {
         // MAKE-ASSIGN
         case Assign(cur, value) =>
           State.modify(_.makeOp(cur, AssignM(value)))
@@ -66,47 +64,4 @@ object CmdOp {
           State.inspect(_.document.values(cur))
       }
   }
-
-}
-
-object CmdCompanion {
-
-  // constructors
-
-  def assign(cur: Cursor, value: Val): Cmd[Unit] =
-    Free.liftF(Assign(cur, value))
-
-  def insert(cur: Cursor, value: Val): Cmd[Unit] =
-    Free.liftF(Insert(cur, value))
-
-  def delete(cur: Cursor): Cmd[Unit] =
-    Free.liftF(Delete(cur))
-
-  def downField(cur: Cursor, key: String): Cmd[Cursor] =
-    Free.liftF(DownField(cur, key))
-
-  def iter(cur: Cursor): Cmd[Cursor] =
-    Free.liftF(Iter(cur))
-
-  def next(cur: Cursor): Cmd[Cursor] =
-    Free.liftF(Next(cur))
-
-  def keys(cur: Cursor): Cmd[Set[String]] =
-    Free.liftF(Keys(cur))
-
-  def values(cur: Cursor): Cmd[List[LeafVal]] =
-    Free.liftF(Values(cur))
-
-  // derived operations
-
-  def insertAll(cur: Cursor, values: List[Val]): Cmd[Unit] =
-    values match {
-      case Nil => Free.pure(())
-      case head :: tail =>
-        for {
-          _ <- insert(cur, head)
-          nextCur <- next(cur)
-          _ <- insertAll(nextCur, tail)
-        } yield ()
-    }
 }

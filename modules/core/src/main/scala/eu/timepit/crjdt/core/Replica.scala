@@ -19,7 +19,7 @@ final case class Replica(replicaId: ReplicaId,
                          receivedOps: Vector[Operation]) {
 
   def runCmd[A](cmd: free.Cmd[A]): (Replica, A) = {
-    val state = cmd.foldMap(free.CmdOp.interpreter)
+    val state = cmd.foldMap(free.CmdOp.cmdOpToReplicaState)
     state.run(this).value
   }
 
