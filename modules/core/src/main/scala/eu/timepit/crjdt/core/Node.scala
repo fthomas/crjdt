@@ -42,8 +42,7 @@ sealed trait Node extends Product with Serializable {
       // KEYS2
       case Cursor.Leaf(k) =>
         findChild(MapT(k)) match {
-          case Some(map: MapNode) =>
-            map.presSets.collect { case (StrK(key), v) if v.nonEmpty => key }.toSet
+          case Some(map: MapNode) => map.keys
           case _ => Set.empty
         }
 
@@ -61,7 +60,7 @@ sealed trait Node extends Product with Serializable {
       // VAL2
       case Cursor.Leaf(k) =>
         findChild(RegT(k)) match {
-          case Some(reg: RegNode) => reg.values.values.toList
+          case Some(reg: RegNode) => reg.regValues.values.toList
           case _ => List.empty
         }
 
@@ -133,7 +132,7 @@ sealed trait Node extends Product with Serializable {
 
   final def addRegValue(id: Id, value: LeafVal): Node =
     this match {
-      case r: RegNode => r.copy(values = r.values.updated(id, value))
+      case r: RegNode => r.copy(regValues = r.regValues.updated(id, value))
       case _ => this
     }
 
@@ -168,7 +167,7 @@ sealed trait Node extends Product with Serializable {
 
       // CLEAR-REG
       case Some(child: RegNode) =>
-        val concurrent = child.values.filterKeys(id => !deps(id))
+        val concurrent = child.regValues.filterKeys(id => !deps(id))
         (addNode(tag, RegNode(concurrent)), concurrent.keySet)
 
       // CLEAR-MAP1
@@ -266,14 +265,18 @@ sealed trait Node extends Product with Serializable {
 object Node {
   final case class MapNode(entries: Map[TypeTag, Node],
                            presSets: Map[Key, Set[Id]])
-      extends Node
+      extends Node {
+
+    def keys: Set[String] =
+      presSets.collect { case (StrK(key), pres) if pres.nonEmpty => key }.toSet
+  }
 
   final case class ListNode(entries: Map[TypeTag, Node],
                             presSets: Map[Key, Set[Id]],
                             order: Map[ListRef, ListRef])
       extends Node
 
-  final case class RegNode(values: RegValues) extends Node
+  final case class RegNode(regValues: RegValues) extends Node
 
   ///
 
@@ -286,5 +289,5 @@ object Node {
              order = Map(HeadR -> TailR))
 
   final def emptyReg: Node =
-    RegNode(values = Map.empty)
+    RegNode(regValues = Map.empty)
 }
