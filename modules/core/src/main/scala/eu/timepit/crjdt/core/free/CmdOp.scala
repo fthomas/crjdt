@@ -16,13 +16,12 @@ object CmdOp {
   final case class Insert(cur: Cursor, value: Val) extends CmdOp[Unit]
   final case class Delete(cur: Cursor) extends CmdOp[Unit]
 
-  case object Doc extends CmdOp[Cursor]
   final case class DownField(cur: Cursor, key: String) extends CmdOp[Cursor]
   final case class Iter(cur: Cursor) extends CmdOp[Cursor]
   final case class Next(cur: Cursor) extends CmdOp[Cursor]
 
   final case class Keys(cur: Cursor) extends CmdOp[Set[String]]
-  final case class Values(cur: Cursor) extends CmdOp[List[Val]]
+  final case class Values(cur: Cursor) extends CmdOp[List[LeafVal]]
 
   // interpreters
 
@@ -42,10 +41,6 @@ object CmdOp {
         // MAKE-DELETE
         case Delete(cur) =>
           State.modify(_.makeOp(cur, DeleteM))
-
-        // DOC
-        case Doc =>
-          State.pure(Cursor.doc)
 
         // GET
         case DownField(cur, key) =>
@@ -75,6 +70,9 @@ object CmdOp {
 }
 
 object CmdCompanion {
+
+  // constructors
+
   def assign(cur: Cursor, value: Val): Cmd[Unit] =
     Free.liftF(Assign(cur, value))
 
@@ -83,9 +81,6 @@ object CmdCompanion {
 
   def delete(cur: Cursor): Cmd[Unit] =
     Free.liftF(Delete(cur))
-
-  def doc: Cmd[Cursor] =
-    Free.liftF(Doc)
 
   def downField(cur: Cursor, key: String): Cmd[Cursor] =
     Free.liftF(DownField(cur, key))
@@ -99,10 +94,10 @@ object CmdCompanion {
   def keys(cur: Cursor): Cmd[Set[String]] =
     Free.liftF(Keys(cur))
 
-  def values(cur: Cursor): Cmd[List[Val]] =
+  def values(cur: Cursor): Cmd[List[LeafVal]] =
     Free.liftF(Values(cur))
 
-  ///
+  // derived operations
 
   def insertAll(cur: Cursor, values: List[Val]): Cmd[Unit] =
     values match {
@@ -110,8 +105,8 @@ object CmdCompanion {
       case head :: tail =>
         for {
           _ <- insert(cur, head)
-          cur1 <- next(cur)
-          _ <- insertAll(cur1, tail)
+          nextCur <- next(cur)
+          _ <- insertAll(nextCur, tail)
         } yield ()
     }
 }

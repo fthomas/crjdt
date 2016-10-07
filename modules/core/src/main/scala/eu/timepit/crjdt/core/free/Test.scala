@@ -29,7 +29,7 @@ object Test extends App {
     _ <- list.insert("cheese")
   } yield ()
 
-  val ctx = Replica.empty("").applyFree(cmd)._1.document
+  val ctx = Replica.empty("").applyCmd2(cmd).document
 
   val shoppingCtx = ListNode(
     Map(RegT(IdK(Id(4, ""))) -> RegNode(Map(Id(4, "") -> Str("cheese"))),

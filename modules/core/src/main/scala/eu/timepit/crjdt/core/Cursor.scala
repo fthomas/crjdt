@@ -1,12 +1,12 @@
 package eu.timepit.crjdt.core
 
 /** `Cursor` identifies a position in a `[[Node]]`. */
-final case class Cursor(keys: Vector[BranchTag], finalKey: Key) {
-  def append(tag: Key => BranchTag, newFinalKey: Key): Cursor =
-    Cursor(keys :+ tag(finalKey), newFinalKey)
+final case class Cursor(tags: Vector[BranchTag], finalKey: Key) {
+  def append(tagFun: Key => BranchTag, newFinalKey: Key): Cursor =
+    Cursor(tags :+ tagFun(finalKey), newFinalKey)
 
   def view: Cursor.View =
-    keys match {
+    tags match {
       case k1 +: kn => Cursor.Branch(k1, Cursor(kn, finalKey))
       case _ => Cursor.Leaf(finalKey)
     }

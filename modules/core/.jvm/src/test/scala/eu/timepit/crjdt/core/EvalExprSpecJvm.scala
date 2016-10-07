@@ -11,6 +11,6 @@ object EvalExprSpecJvm extends Properties("Replica.evalExpr") {
     val count = 100000
     val expr = Iterator.iterate(doc)(_.downField("k")).drop(count).next()
     val cur = p0.evalExpr(expr)
-    cur.keys.size ?= count
+    cur.tags.size ?= count
   }
 }

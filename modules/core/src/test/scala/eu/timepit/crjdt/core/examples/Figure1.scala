@@ -5,21 +5,21 @@ import eu.timepit.crjdt.core.Key.{DocK, StrK}
 import eu.timepit.crjdt.core.Node.{MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{MapT, RegT}
 import eu.timepit.crjdt.core.Val.Str
-import eu.timepit.crjdt.core.syntax._
+import eu.timepit.crjdt.core.free.syntax._
 import eu.timepit.crjdt.core.testUtil._
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object Figure1 extends Properties("Figure1") {
-  val p0 = Replica.empty("p").applyCmd(doc.downField("key") := "A")
+  val p0 = Replica.empty("p").applyCmd2(doc.downField("key") := "A")
   val q0 = merge(Replica.empty("q"), p0)
 
   property("initial state") = secure {
     converged(p0, q0)
   }
 
-  val p1 = p0.applyCmd(doc.downField("key") := "B")
-  val q1 = q0.applyCmd(doc.downField("key") := "C")
+  val p1 = p0.applyCmd2(doc.downField("key") := "B")
+  val q1 = q0.applyCmd2(doc.downField("key") := "C")
 
   property("divergence") = secure {
     diverged(p1, q1)
@@ -43,10 +43,10 @@ object Figure1 extends Properties("Figure1") {
   }
 
   property("keys") = secure {
-    p2.keys(doc) ?= Set("key")
+    p2.evalCmd(doc.keys) ?= Set("key")
   }
 
   property("values") = secure {
-    p2.values(doc.downField("key")) ?= List("B", "C")
+    p2.evalCmd(doc.downField("key").values) ?= List("B", "C")
   }
 }

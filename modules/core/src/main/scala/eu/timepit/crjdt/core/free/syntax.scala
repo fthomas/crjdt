@@ -18,11 +18,23 @@ object syntax {
     def insert(value: Val): Cmd[Unit] =
       Cmd.insert(self, value)
 
+    def delete: Cmd[Unit] =
+      Cmd.delete(self)
+
     def downField(key: String): Cmd[Cursor] =
       Cmd.downField(self, key)
 
+    def iter: Cmd[Cursor] =
+      Cmd.iter(self)
+
     def next: Cmd[Cursor] =
       Cmd.next(self)
+
+    def keys: Cmd[Set[String]] =
+      Cmd.keys(self)
+
+    def values: Cmd[List[LeafVal]] =
+      Cmd.values(self)
   }
 
   implicit final class CmdCursorOps(val self: Cmd[Cursor]) extends AnyVal {
@@ -33,15 +45,18 @@ object syntax {
       self.flatMap(_.insert(value))
 
     def delete: Cmd[Unit] =
-      self.flatMap(Cmd.delete)
+      self.flatMap(_.delete)
 
     def downField(key: String): Cmd[Cursor] =
       self.flatMap(_.downField(key))
 
     def iter: Cmd[Cursor] =
-      self.flatMap(Cmd.iter)
+      self.flatMap(_.iter)
 
     def next: Cmd[Cursor] =
       self.flatMap(_.next)
+
+    def values: Cmd[List[LeafVal]] =
+      self.flatMap(_.values)
   }
 }
