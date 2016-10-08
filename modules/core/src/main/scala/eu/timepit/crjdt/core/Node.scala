@@ -125,8 +125,7 @@ sealed trait Node extends Product with Serializable {
 
   final def addNode(tag: TypeTag, node: Node): Node =
     this match {
-      case m: MapNode => m.copy(children = m.children.updated(tag, node))
-      case l: ListNode => l.copy(children = l.children.updated(tag, node))
+      case n: BranchNode => n.withChildren(n.children.updated(tag, node))
       case _ => this
     }
 
@@ -233,10 +232,8 @@ sealed trait Node extends Product with Serializable {
 
   final def setPres(key: Key, pres: Set[Id]): Node =
     this match {
-      case m: MapNode =>
-        m.copy(presSets = removeOrUpdate(m.presSets, key, pres))
-      case l: ListNode =>
-        l.copy(presSets = removeOrUpdate(l.presSets, key, pres))
+      case n: BranchNode =>
+        n.withPresSets(removeOrUpdate(n.presSets, key, pres))
       case _ =>
         this
     }
@@ -264,12 +261,22 @@ sealed trait BranchNode extends Node {
   def children: Map[TypeTag, Node]
 
   def presSets: Map[Key, Set[Id]]
+
+  def withChildren(children: Map[TypeTag, Node]): BranchNode
+
+  def withPresSets(presSets: Map[Key, Set[Id]]): BranchNode
 }
 
 object Node {
   final case class MapNode(children: Map[TypeTag, Node],
                            presSets: Map[Key, Set[Id]])
       extends BranchNode {
+
+    override def withChildren(children: Map[TypeTag, Node]): MapNode =
+      copy(children = children)
+
+    override def withPresSets(presSets: Map[Key, Set[Id]]): MapNode =
+      copy(presSets = presSets)
 
     def keys: Set[String] =
       presSets.collect { case (StrK(key), pres) if pres.nonEmpty => key }.toSet
@@ -278,7 +285,14 @@ object Node {
   final case class ListNode(children: Map[TypeTag, Node],
                             presSets: Map[Key, Set[Id]],
                             order: Map[ListRef, ListRef])
-      extends BranchNode
+      extends BranchNode {
+
+    override def withChildren(children: Map[TypeTag, Node]): ListNode =
+      copy(children = children)
+
+    override def withPresSets(presSets: Map[Key, Set[Id]]): ListNode =
+      copy(presSets = presSets)
+  }
 
   final case class RegNode(regValues: RegValues) extends Node {
     def values: List[LeafVal] =
