@@ -294,7 +294,7 @@ object Node {
       copy(presSets = presSets)
   }
 
-  final case class RegNode(regValues: RegValues) extends Node {
+  final case class RegNode(regValues: Map[Id, LeafVal]) extends Node {
     def values: List[LeafVal] =
       regValues.values.toList
   }
