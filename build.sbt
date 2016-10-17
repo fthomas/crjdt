@@ -74,9 +74,7 @@ lazy val commonSettings = Def.settings(
   miscSettings
 )
 
-lazy val commonJsSettings = Def.settings(
-  scalaJSUseRhino in Global := false
-)
+lazy val commonJsSettings = Def.settings()
 
 lazy val metadataSettings = Def.settings(
   name := projectName,
