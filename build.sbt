@@ -8,9 +8,9 @@ val gitPubUrl = s"https://github.com/$gitHubOwner/$projectName.git"
 val gitDevUrl = s"git@github.com:$gitHubOwner/$projectName.git"
 val modulesDir = "modules"
 
-val catsVersion = "0.7.2"
-val circeVersion = "0.5.3"
-val scalaCheckVersion = "1.12.5"
+val catsVersion = "0.8.1"
+val circeVersion = "0.6.1"
+val scalaCheckVersion = "1.13.4"
 
 val allSubprojects = Seq("core", "circe")
 val allSubprojectsJVM = allSubprojects.map(_ + "JVM")
@@ -92,7 +92,8 @@ lazy val metadataSettings = Def.settings(
 )
 
 lazy val compileSettings = Def.settings(
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.12.0",
+  crossScalaVersions := Seq(scalaVersion.value, "2.11.8"),
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",
