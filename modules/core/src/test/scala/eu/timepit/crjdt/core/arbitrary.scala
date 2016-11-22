@@ -5,7 +5,7 @@ import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{DocK, HeadK, IdK, StrK}
 import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{Arbitrary, Cogen, Gen}
 
 object arbitrary {
   implicit val arbitraryId: Arbitrary[Id] = {
@@ -15,6 +15,9 @@ object arbitrary {
     } yield Id(c, p)
     Arbitrary(gen)
   }
+
+  implicit val cogenId: Cogen[Id] =
+    Cogen[(BigInt, String)].contramap(id => (id.c, id.p))
 
   implicit val arbitraryKey: Arbitrary[Key] = {
     val genDocK = Gen.const(DocK)
