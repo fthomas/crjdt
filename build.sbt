@@ -20,7 +20,7 @@ val allSubprojectsJS = allSubprojects.map(_ + "JS")
 
 lazy val root = project
   .in(file("."))
-  .aggregate(coreJVM, coreJS, circeJVM, circeJS)
+  .aggregate(coreJVM, coreJS, circeJVM, circeJS, docs)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
@@ -62,6 +62,13 @@ lazy val circe = crossProject
 
 lazy val circeJVM = circe.jvm
 lazy val circeJS = circe.js
+
+lazy val docs = project
+  .in(file(s"$modulesDir/docs"))
+  .enablePlugins(MicrositesPlugin)
+  .settings(commonSettings)
+  .settings(noPublishSettings)
+  .settings(micrositeSettings)
 
 /// settings
 
@@ -198,6 +205,14 @@ lazy val miscSettings = Def.settings(
     import $rootPkg.core.arbitrary._
     import org.scalacheck.Arbitrary
   """
+)
+
+lazy val micrositeSettings = Def.settings(
+  micrositeName := projectName,
+  micrositeBaseUrl := projectName,
+  micrositeGithubOwner := gitHubOwner,
+  micrositeGithubRepo := projectName,
+  organizationName := "Frank S. Thomas"
 )
 
 /// commands
