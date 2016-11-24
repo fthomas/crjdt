@@ -6,15 +6,17 @@
 [![Scaladoc](https://www.javadoc.io/badge/eu.timepit/crjdt-core_2.11.svg?color=blue&label=Scaladoc)](https://www.javadoc.io/doc/eu.timepit/crjdt-core_2.11)
 
 This is an implementation of the data structures and algorithms described
-in the paper [A Conflict-Free Replicated JSON Datatype][paper.abs] ([PDF][paper.pdf])
-by **[Martin Kleppmann][kleppmann]** and **[Alastair R. Beresford][beresford]**.
+in the paper [A Conflict-Free Replicated JSON Datatype][paper.abs]
+([PDF][paper.pdf]) by **[Martin Kleppmann][kleppmann]** and
+**[Alastair R. Beresford][beresford]**.
 
 The goal of this project is to provide a high-level API to the CRDT described
 in the paper that integrates well with other JSON libraries for Scala.
 
 ## Getting Started
 
-crjdt is currently available for Scala and [Scala.js][scala.js], version 2.11.
+crjdt is currently available for Scala and [Scala.js][scala.js],
+version 2.11 and 2.12.
 
 To get started with sbt, add the following to your `build.sbt` file:
 
@@ -32,9 +34,9 @@ Instructions for Maven and other build tools are available on the
 
 crjdt is currently maintained by [Frank S. Thomas][fst9000].
 
-The crjdt project supports the [Typelevel][typelevel] [code of conduct][typelevel-coc]
-and wants all of its channels (Gitter, GitHub, etc.) to be welcoming environments for
-everyone.
+The crjdt project supports the [Typelevel][typelevel]
+[code of conduct][typelevel-coc] and wants all of its channels (Gitter,
+GitHub, etc.) to be welcoming environments for everyone.
 
 ## Other implementations
 
