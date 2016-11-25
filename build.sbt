@@ -20,6 +20,7 @@ val allSubprojectsJS = allSubprojects.map(_ + "JS")
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(MicrositesPlugin)
   .aggregate(coreJVM, coreJS, circeJVM, circeJS)
   .settings(commonSettings)
   .settings(noPublishSettings)
@@ -71,6 +72,7 @@ lazy val commonSettings = Def.settings(
   scaladocSettings,
   releaseSettings,
   styleSettings,
+  siteSettings,
   miscSettings
 )
 
@@ -187,6 +189,12 @@ lazy val releaseSettings = {
 lazy val styleSettings = Def.settings(
   reformatOnCompileSettings,
   scalafmtConfig := Some(file(".scalafmt.conf"))
+)
+
+lazy val siteSettings = Def.settings(
+  micrositeGithubOwner := gitHubOwner,
+  micrositeGithubRepo := projectName,
+  micrositeExtraMdFiles := Map(file("README.md") -> "index.md")
 )
 
 lazy val miscSettings = Def.settings(

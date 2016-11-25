@@ -1,3 +1,6 @@
+---
+layout: home
+---
 # crjdt: a conflict-free replicated JSON datatype in Scala
 [![Build Status](https://travis-ci.org/fthomas/crjdt.svg?branch=master)](https://travis-ci.org/fthomas/crjdt)
 [![codecov](https://codecov.io/gh/fthomas/crjdt/branch/master/graph/badge.svg)](https://codecov.io/gh/fthomas/crjdt)
