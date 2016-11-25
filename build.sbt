@@ -139,7 +139,8 @@ lazy val scaladocSettings = Def.settings(
     baseDirectory.in(LocalRootProject).value.getAbsolutePath
   ),
   autoAPIMappings := true,
-  apiURL := Some(url(s"http://$gitHubOwner.github.io/$projectName/latest/api/"))
+  apiURL := Some(
+    url(s"http://$gitHubOwner.github.io/$projectName/latest/api/"))
 )
 
 lazy val publishSettings = Def.settings(
