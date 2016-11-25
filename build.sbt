@@ -49,11 +49,11 @@ lazy val coreJS = core.js
 lazy val circe = crossProject
   .crossType(CrossType.Pure)
   .in(file(s"$modulesDir/circe"))
+  .dependsOn(core)
   .settings(moduleName := s"$projectName-circe")
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .jsSettings(commonJsSettings: _*)
-  .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core" % circeVersion
@@ -69,6 +69,14 @@ lazy val docs = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(micrositeSettings)
+  .settings(
+    Def.settings(
+      unidocSettings,
+      UnidocKeys.unidocProjectFilter in (ScalaUnidoc, UnidocKeys.unidoc) :=
+        inAnyProject -- inProjects(
+          allSubprojectsJS.map(LocalProject.apply): _*)
+    )
+  )
 
 /// settings
 
@@ -184,6 +192,7 @@ lazy val releaseSettings = {
       commitReleaseVersion,
       tagRelease,
       publishArtifacts,
+      releaseStepTask(publishMicrosite in "docs"),
       setNextVersion,
       commitNextVersion,
       pushChanges
@@ -210,9 +219,12 @@ lazy val miscSettings = Def.settings(
 lazy val micrositeSettings = Def.settings(
   micrositeName := projectName,
   micrositeBaseUrl := projectName,
+  micrositeDocumentationUrl := "latest/api",
   micrositeGithubOwner := gitHubOwner,
   micrositeGithubRepo := projectName,
-  organizationName := "Frank S. Thomas"
+  organizationName := "Frank S. Thomas",
+  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc),
+                       micrositeDocumentationUrl)
 )
 
 /// commands
@@ -220,19 +232,20 @@ lazy val micrositeSettings = Def.settings(
 def addCommandsAlias(name: String, cmds: Seq[String]) =
   addCommandAlias(name, cmds.mkString(";", ";", ""))
 
+addCommandsAlias("testJS", allSubprojectsJS.map(_ + "/test"))
+addCommandsAlias("testJVM", allSubprojectsJVM.map(_ + "/test"))
+
 addCommandsAlias("validate",
                  Seq(
                    "clean",
                    "scalafmtTest",
                    "test:scalafmtTest",
-                   "coreJS/test",
-                   "circeJS/test",
+                   "testJS",
                    "coverage",
-                   "coreJVM/test",
-                   "circeJVM/test",
+                   "testJVM",
                    "coverageReport",
                    "coverageOff",
-                   "doc"
+                   "unidoc"
                  ))
 
 addCommandsAlias("syncMavenCentral",
