@@ -1,4 +1,64 @@
-<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>crjdt</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="A conflict-free replicated JSON datatype (CRDT) in Scala" /><meta name="author" content="Frank S. Thomas" /><meta name="og:image" content="/crjdt/img/poster.png" /><meta name="og:title" content="crjdt" /><meta name="og:site_name" content="crjdt" /><meta name="og:url" content="https://github.com/fthomas/crjdt" /><meta name="og:type" content="website" /><meta name="og:description" content="A conflict-free replicated JSON datatype (CRDT) in Scala" /><meta name="twitter:image" content="/crjdt/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/crjdt/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/crjdt/highlight/styles/default.css" /><link rel="stylesheet" href="/crjdt/css/style.css" /><link rel="stylesheet" href="/crjdt/css/palette.css" /></head><body><header id="site-header"><div class="navbar-wrapper"><div class="container"><div class="row"><div class="col-xs-6"><a href="/crjdt/" class="brand"><div class="icon-wrapper"><span>crjdt</span></div></a></div><div class="col-xs-6"><nav class="text-right"><ul class=""><li><a href="https://github.com/fthomas/crjdt"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li><li><a href="latest/api"><i class="fa fa-file-text"></i><span class="hidden-xs">Documentation</span></a></li></ul></nav></div></div></div></div><div class="jumbotron"><div class="container"><h1 class="text-center">A conflict-free replicated JSON datatype (CRDT) in Scala</h1><h2></h2><p class="text-center"><a href="https://github.com/fthomas/crjdt" class="btn btn-outline-inverse">View on GitHub</a></p></div></div><div><ul class="horizontalNav">      </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><p>Hello, world!</p>
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>crjdt</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="A conflict-free replicated JSON datatype (CRDT) in Scala" /><meta name="author" content="Frank S. Thomas" /><meta name="og:image" content="/crjdt/img/poster.png" /><meta name="og:title" content="crjdt" /><meta name="og:site_name" content="crjdt" /><meta name="og:url" content="https://github.com/fthomas/crjdt" /><meta name="og:type" content="website" /><meta name="og:description" content="A conflict-free replicated JSON datatype (CRDT) in Scala" /><meta name="twitter:image" content="/crjdt/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/crjdt/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/crjdt/highlight/styles/default.css" /><link rel="stylesheet" href="/crjdt/css/style.css" /><link rel="stylesheet" href="/crjdt/css/palette.css" /></head><body><header id="site-header"><div class="navbar-wrapper"><div class="container"><div class="row"><div class="col-xs-6"><a href="/crjdt/" class="brand"><div class="icon-wrapper"><span>crjdt</span></div></a></div><div class="col-xs-6"><nav class="text-right"><ul class=""><li><a href="https://github.com/fthomas/crjdt"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li><li><a href="latest/api"><i class="fa fa-file-text"></i><span class="hidden-xs">Documentation</span></a></li></ul></nav></div></div></div></div><div class="jumbotron"><div class="container"><h1 class="text-center">A conflict-free replicated JSON datatype (CRDT) in Scala</h1><h2></h2><p class="text-center"><a href="https://github.com/fthomas/crjdt" class="btn btn-outline-inverse">View on GitHub</a></p></div></div><div><ul class="horizontalNav">      </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><h1 id="crjdt-a-conflict-free-replicated-json-datatype-in-scala">crjdt: a conflict-free replicated JSON datatype in Scala</h1>
+<p><a href="https://travis-ci.org/fthomas/crjdt"><img src="https://travis-ci.org/fthomas/crjdt.svg?branch=master" alt="Build Status" /></a>
+<a href="https://codecov.io/gh/fthomas/crjdt"><img src="https://codecov.io/gh/fthomas/crjdt/branch/master/graph/badge.svg" alt="codecov" /></a>
+<a href="https://gitter.im/fthomas/crjdt?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/fthomas/crjdt.svg" alt="Join the chat at https://gitter.im/fthomas/crjdt" /></a>
+<a href="https://index.scala-lang.org/fthomas/crjdt/crjdt-core"><img src="https://index.scala-lang.org/fthomas/crjdt/crjdt-core/latest.svg?color=blue" alt="Scaladex" /></a>
+<a href="https://www.javadoc.io/doc/eu.timepit/crjdt-core_2.12"><img src="https://www.javadoc.io/badge/eu.timepit/crjdt-core_2.12.svg?color=blue&amp;label=Scaladoc" alt="Scaladoc" /></a></p>
+
+<p>This is an implementation of the data structures and algorithms described
+in the paper <a href="http://arxiv.org/abs/1608.03960">A Conflict-Free Replicated JSON Datatype</a>
+(<a href="http://arxiv.org/pdf/1608.03960.pdf">PDF</a>) by <strong><a href="https://martin.kleppmann.com/">Martin Kleppmann</a></strong> and
+<strong><a href="https://www.cl.cam.ac.uk/~arb33/">Alastair R. Beresford</a></strong>.</p>
+
+<p>The goal of this project is to provide a high-level API to the CRDT described
+in the paper that integrates well with other JSON libraries for Scala.</p>
+
+<h2 id="getting-started">Getting Started</h2>
+
+<p>crjdt is currently available for Scala and <a href="http://www.scala-js.org/">Scala.js</a>,
+version 2.11 and 2.12.</p>
+
+<p>To get started with sbt, add the following to your <code class="highlighter-rouge">build.sbt</code> file:</p>
+
+<p><code class="highlighter-rouge">sbt
+libraryDependencies ++= Seq(
+  "eu.timepit" %% "crjdt-core"  % "0.0.6",
+  "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
+)
+</code></p>
+
+<p>Instructions for Maven and other build tools are available on the
+<a href="https://index.scala-lang.org/fthomas/crjdt/crjdt-core">Scaladex</a> page.</p>
+
+<h2 id="contributors-and-participation">Contributors and participation</h2>
+
+<p>crjdt is currently maintained by <a href="https://twitter.com/fst9000">Frank S. Thomas</a>.</p>
+
+<p>The crjdt project supports the <a href="http://typelevel.org/">Typelevel</a>
+<a href="http://typelevel.org/conduct.html">code of conduct</a> and wants all of its channels (Gitter,
+GitHub, etc.) to be welcoming environments for everyone.</p>
+
+<h2 id="other-implementations">Other implementations</h2>
+
+<p>Currently crjdt is the only public implementation of the JSON CRDT.
+We will list other implementations here as soon as they become available.</p>
+
+<p>If you know an implementation that is not listed here, please submit a PR!</p>
+
+<h2 id="license">License</h2>
+
+<p>Copyright 2016 Frank S. Thomas</p>
+
+<p>crjdt is licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>
+(the “License”); you may not use this software except in compliance with
+the License.</p>
+
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+
 </div></div></section><section class="technologies"><div class="container"><div class="row"></div></div></section></main><footer id="site-footer"><div class="container"><div class="row"><div class="col-xs-6"><p>crjdt is designed and developed by <a href="https://github.com/fthomas/crjdt" target="_blank">Frank S. Thomas</a></p></div><div class="col-xs-6"><p class="text-right"><a href="https://github.com/fthomas/crjdt"><span class="fa fa-github"></span>View on Github</a></p></div></div></div></footer><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/crjdt/highlight/highlight.pack.js"></script><script>hljs.configure({
 languages:['scala','java','bash']
 });
