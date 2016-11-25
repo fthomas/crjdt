@@ -20,7 +20,7 @@ val allSubprojectsJS = allSubprojects.map(_ + "JS")
 
 lazy val root = project
   .in(file("."))
-  .aggregate(coreJVM, coreJS, circeJVM, circeJS)
+  .aggregate(coreJVM, coreJS, circeJVM, circeJS, docs)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
@@ -49,11 +49,11 @@ lazy val coreJS = core.js
 lazy val circe = crossProject
   .crossType(CrossType.Pure)
   .in(file(s"$modulesDir/circe"))
+  .dependsOn(core)
   .settings(moduleName := s"$projectName-circe")
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .jsSettings(commonJsSettings: _*)
-  .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core" % circeVersion
@@ -62,6 +62,21 @@ lazy val circe = crossProject
 
 lazy val circeJVM = circe.jvm
 lazy val circeJS = circe.js
+
+lazy val docs = project
+  .in(file(s"$modulesDir/docs"))
+  .enablePlugins(MicrositesPlugin)
+  .settings(commonSettings)
+  .settings(noPublishSettings)
+  .settings(micrositeSettings)
+  .settings(
+    Def.settings(
+      unidocSettings,
+      UnidocKeys.unidocProjectFilter in (ScalaUnidoc, UnidocKeys.unidoc) :=
+        inAnyProject -- inProjects(
+          allSubprojectsJS.map(LocalProject.apply): _*)
+    )
+  )
 
 /// settings
 
@@ -123,7 +138,9 @@ lazy val scaladocSettings = Def.settings(
     "-sourcepath",
     baseDirectory.in(LocalRootProject).value.getAbsolutePath
   ),
-  autoAPIMappings := true
+  autoAPIMappings := true,
+  apiURL := Some(
+    url(s"http://$gitHubOwner.github.io/$projectName/latest/api/"))
 )
 
 lazy val publishSettings = Def.settings(
@@ -177,6 +194,7 @@ lazy val releaseSettings = {
       commitReleaseVersion,
       tagRelease,
       publishArtifacts,
+      releaseStepTask(publishMicrosite in "docs"),
       setNextVersion,
       commitNextVersion,
       pushChanges
@@ -200,24 +218,52 @@ lazy val miscSettings = Def.settings(
   """
 )
 
+lazy val copyReadmeForMicrosite =
+  taskKey[Unit]("Copy and prepare README.md as index.md for the microsite")
+
+lazy val micrositeSettings = Def.settings(
+  micrositeName := projectName,
+  micrositeBaseUrl := projectName,
+  micrositeDocumentationUrl := "latest/api",
+  micrositeGithubOwner := gitHubOwner,
+  micrositeGithubRepo := projectName,
+  organizationName := "Frank S. Thomas",
+  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc),
+                       micrositeDocumentationUrl),
+  copyReadmeForMicrosite := {
+    val oldContent = IO.read(file("README.md"))
+    val newContent =
+      """|---
+         |layout: home
+         |---
+         |""".stripMargin + oldContent
+
+    val targetFile = tutSourceDirectory.value / "index.md"
+    streams.value.log.info(s"Writing $targetFile")
+    IO.write(targetFile, newContent)
+  },
+  publishMicrosite := publishMicrosite.dependsOn(copyReadmeForMicrosite).value
+)
+
 /// commands
 
 def addCommandsAlias(name: String, cmds: Seq[String]) =
   addCommandAlias(name, cmds.mkString(";", ";", ""))
+
+addCommandsAlias("testJS", allSubprojectsJS.map(_ + "/test"))
+addCommandsAlias("testJVM", allSubprojectsJVM.map(_ + "/test"))
 
 addCommandsAlias("validate",
                  Seq(
                    "clean",
                    "scalafmtTest",
                    "test:scalafmtTest",
-                   "coreJS/test",
-                   "circeJS/test",
+                   "testJS",
                    "coverage",
-                   "coreJVM/test",
-                   "circeJVM/test",
+                   "testJVM",
                    "coverageReport",
                    "coverageOff",
-                   "doc"
+                   "unidoc"
                  ))
 
 addCommandsAlias("syncMavenCentral",
