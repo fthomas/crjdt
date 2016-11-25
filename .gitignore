@@ -18,3 +18,5 @@ project/plugins/project/
 
 # IDEA specific
 .idea*/
+
+/modules/docs/src/main/tut/index.md

@@ -1,5 +1,0 @@
----
-layout: home
----
-
-Hello, world!
