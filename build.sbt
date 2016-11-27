@@ -103,6 +103,11 @@ lazy val metadataSettings = Def.settings(
     ScmInfo(homepage.value.get,
             s"scm:git:$gitPubUrl",
             Some(s"scm:git:$gitDevUrl"))),
+  developers := List(
+    Developer(id = "fthomas",
+              name = "Frank S. Thomas",
+              email = "",
+              url("https://github.com/fthomas"))),
   bintrayPackageLabels := Seq("JSON", "CRDT", "Scala")
 )
 
@@ -147,15 +152,7 @@ lazy val publishSettings = Def.settings(
   publishMavenStyle := true,
   pomIncludeRepository := { _ =>
     false
-  },
-  pomExtra :=
-    <developers>
-      <developer>
-        <id>fthomas</id>
-        <name>Frank S. Thomas</name>
-        <url>https://github.com/fthomas</url>
-      </developer>
-    </developers>
+  }
 )
 
 lazy val noPublishSettings = Def.settings(
