@@ -161,8 +161,6 @@ lazy val noPublishSettings = Def.settings(
   publishArtifact := false
 )
 
-lazy val latestVersion = settingKey[String]("latest released version")
-
 lazy val releaseSettings = {
   import sbtrelease.ReleaseStateTransformations._
 
@@ -185,9 +183,7 @@ lazy val releaseSettings = {
     val newVersion = extracted.get(version)
 
     val latestVersionSbt = "latestVersion.sbt"
-    val content = Seq(
-      """lazy val latestVersion = settingKey[String]("latest released version")""",
-      s"""latestVersion in ThisBuild := "$newVersion"""")
+    val content = Seq(s"""latestVersion in ThisBuild := "$newVersion"""")
 
     IO.writeLines(file(latestVersionSbt), content)
     s"git add $latestVersionSbt" !! st.log
