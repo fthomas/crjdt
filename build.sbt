@@ -161,13 +161,15 @@ lazy val noPublishSettings = Def.settings(
   publishArtifact := false
 )
 
+lazy val latestVersion = settingKey[String]("latest released version")
+
 lazy val releaseSettings = {
   import sbtrelease.ReleaseStateTransformations._
 
   lazy val updateVersionInReadme: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
     val newVersion = extracted.get(version)
-    val oldVersion = "git describe --abbrev=0".!!.trim.replaceAll("^v", "")
+    val oldVersion = extracted.get(latestVersion)
 
     val readme = "README.md"
     val oldContent = IO.read(file(readme))
@@ -176,6 +178,21 @@ lazy val releaseSettings = {
     s"git add $readme" !! st.log
 
     st
+  }
+
+  lazy val setLatestVersion: ReleaseStep = { st: State =>
+    val extracted = Project.extract(st)
+    val newVersion = extracted.get(version)
+
+    val latestVersionSbt = "latestVersion.sbt"
+    val content = Seq(
+      """lazy val latestVersion = settingKey[String]("latest released version")""",
+      s"""latestVersion in ThisBuild := "$newVersion"""")
+
+    IO.writeLines(file(latestVersionSbt), content)
+    s"git add $latestVersionSbt" !! st.log
+
+    reapply(Seq(latestVersion in ThisBuild := newVersion), st)
   }
 
   Def.settings(
@@ -192,6 +209,7 @@ lazy val releaseSettings = {
       tagRelease,
       publishArtifacts,
       releaseStepTask(publishMicrosite in "docs"),
+      setLatestVersion,
       setNextVersion,
       commitNextVersion,
       pushChanges
