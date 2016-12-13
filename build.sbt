@@ -178,19 +178,6 @@ lazy val releaseSettings = {
     st
   }
 
-  lazy val setLatestVersion: ReleaseStep = { st: State =>
-    val extracted = Project.extract(st)
-    val newVersion = extracted.get(version)
-
-    val latestVersionSbt = "latestVersion.sbt"
-    val content = Seq(s"""latestVersion in ThisBuild := "$newVersion"""")
-
-    IO.writeLines(file(latestVersionSbt), content)
-    s"git add $latestVersionSbt" !! st.log
-
-    reapply(Seq(latestVersion in ThisBuild := newVersion), st)
-  }
-
   Def.settings(
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
