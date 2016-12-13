@@ -1,5 +1,5 @@
 import sbt.Keys.version
-import sbt.{AutoPlugin, IO, Project, SettingKey, State, ThisBuild, file, settingKey}
+import sbt._
 import sbtrelease.ReleasePlugin.autoImport.ReleaseStep
 import sbtrelease.ReleaseStateTransformations.reapply
 
