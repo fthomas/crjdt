@@ -216,31 +216,17 @@ lazy val miscSettings = Def.settings(
   """
 )
 
-lazy val copyReadmeForMicrosite =
-  taskKey[Unit]("Copy and prepare README.md as index.md for the microsite")
-
 lazy val micrositeSettings = Def.settings(
   micrositeName := projectName,
   micrositeBaseUrl := projectName,
   micrositeDocumentationUrl := "latest/api",
   micrositeGithubOwner := gitHubOwner,
   micrositeGithubRepo := projectName,
+  micrositeExtraMdFiles := Map(
+    file("README.md") -> microsites.ExtraMdFileConfig("index.md", "home")),
   organizationName := "Frank S. Thomas",
   addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc),
-                       micrositeDocumentationUrl),
-  copyReadmeForMicrosite := {
-    val oldContent = IO.read(file("README.md"))
-    val newContent =
-      """|---
-         |layout: home
-         |---
-         |""".stripMargin + oldContent
-
-    val targetFile = tutSourceDirectory.value / "index.md"
-    streams.value.log.info(s"Writing $targetFile")
-    IO.write(targetFile, newContent)
-  },
-  publishMicrosite := publishMicrosite.dependsOn(copyReadmeForMicrosite).value
+                       micrositeDocumentationUrl)
 )
 
 /// commands
