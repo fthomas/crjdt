@@ -167,7 +167,7 @@ lazy val releaseSettings = {
   lazy val updateVersionInReadme: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
     val newVersion = extracted.get(version)
-    val oldVersion = "git describe --abbrev=0".!!.trim.replaceAll("^v", "")
+    val oldVersion = extracted.get(latestVersion)
 
     val readme = "README.md"
     val oldContent = IO.read(file(readme))
@@ -192,6 +192,7 @@ lazy val releaseSettings = {
       tagRelease,
       publishArtifacts,
       releaseStepTask(publishMicrosite in "docs"),
+      setLatestVersion,
       setNextVersion,
       commitNextVersion,
       pushChanges
