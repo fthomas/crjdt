@@ -20,17 +20,20 @@ trait RegNodeConflictResolver {
 
 object RegNodeConflictResolver {
 
-  implicit val LWW = new RegNodeConflictResolver {
+  implicit object LWW extends RegNodeConflictResolver {
     override def registerToJson(regNode: RegNode): Json = {
       val (_, lastVal) = regNode.regValues.max(new Ordering[(Id, LeafVal)] {
-        override def compare(x: (Id, LeafVal), y: (Id, LeafVal)): Int =
-          x._1 compare y._1
+        override def compare(x: (Id, LeafVal), y: (Id, LeafVal)): Int = {
+          val (xId, _) = x
+          val (yId, _) = y
+          xId compare yId
+        }
       })
       valToJson(lastVal)
     }
   }
 
-  implicit val PreserveAllAsArray = new RegNodeConflictResolver {
+  implicit object PreserveAllAsArray extends RegNodeConflictResolver {
     override def registerToJson(regNode: RegNode): Json = {
       val items = regNode.values.map(valToJson)
       Json.arr(items: _*)

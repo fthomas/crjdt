@@ -21,7 +21,7 @@ object NodeToJsonFigure6Spec extends Properties("NodeToJsonFigure6Spec") {
   val document = Replica.empty("").applyCmd(cmd).document
 
   property("toJson with last-writer-wins conflict resolution") = secure {
-    import RegNodeConflictResolver.LWW
+    implicit val resolver = RegNodeConflictResolver.LWW
     document.toJson ?= Json.obj(
       "shopping" -> Json.arr(
         List("cheese", "eggs", "milk").map(Json.fromString): _*
@@ -30,7 +30,7 @@ object NodeToJsonFigure6Spec extends Properties("NodeToJsonFigure6Spec") {
   }
 
   property("toJson with preserve-all-as-array conflict resolution") = secure {
-    import RegNodeConflictResolver.PreserveAllAsArray
+    implicit val resolver = RegNodeConflictResolver.PreserveAllAsArray
     document.toJson ?= Json.obj(
       "shopping" -> Json.arr(
         List("cheese", "eggs", "milk")

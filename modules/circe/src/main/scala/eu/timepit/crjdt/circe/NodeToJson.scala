@@ -12,7 +12,8 @@ private[circe] trait NodeToJson {
     if (mapNode.children.contains(TypeTag.MapT(Key.DocK))) {
       mapNode.children.collect {
         case (TypeTag.MapT(Key.DocK), node: MapNode) => mapToJson(node)
-      }.head
+      }.headOption.getOrElse(
+        throw new AssertionError("Root MapNode should contain DocK key only."))
     } else {
       val fields = mapNode.children.collect {
         case (TypeTag.MapT(Key.StrK(key)), node: MapNode)

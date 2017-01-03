@@ -40,7 +40,7 @@ object NodeToJsonFigure3Spec extends Properties("NodeToJsonFigure3Spec") {
   }
 
   property("toJson with last-writer-wins conflict resolution") = secure {
-    import RegNodeConflictResolver.LWW
+    implicit val resolver = RegNodeConflictResolver.LWW
     // Figure 3 shows list of the final state is [“eggs”, “ham”, “milk”, “flour”]
     // but ["milk", "flour", "eggs", "ham"] is also valid order.
     q2.document.toJson ?= Json.obj(
@@ -51,7 +51,7 @@ object NodeToJsonFigure3Spec extends Properties("NodeToJsonFigure3Spec") {
   }
 
   property("toJson with preserve-all-as-array conflict resolution") = secure {
-    import RegNodeConflictResolver.PreserveAllAsArray
+    implicit val resolver = RegNodeConflictResolver.PreserveAllAsArray
     q2.document.toJson ?= Json.obj(
       "grocery" -> Json.arr(
         List("milk", "flour", "eggs", "ham").map(v =>

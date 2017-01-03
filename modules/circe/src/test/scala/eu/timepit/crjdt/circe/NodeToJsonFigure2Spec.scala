@@ -36,7 +36,7 @@ object NodeToJsonFigure2Spec extends Properties("NodeToJsonFigure2Spec") {
   }
 
   property("toJson with last-writer-wins conflict resolution") = secure {
-    import RegNodeConflictResolver.LWW
+    implicit val resolver = RegNodeConflictResolver.LWW
     p2.document.toJson ?= Json.obj(
       "colors" -> Json.obj(
         "red" -> Json.fromString("#ff0000"),
@@ -46,7 +46,7 @@ object NodeToJsonFigure2Spec extends Properties("NodeToJsonFigure2Spec") {
   }
 
   property("toJson with preserve-all-as-array conflict resolution") = secure {
-    import RegNodeConflictResolver.PreserveAllAsArray
+    implicit val resolver = RegNodeConflictResolver.PreserveAllAsArray
     p2.document.toJson ?= Json.obj(
       "colors" -> Json.obj(
         "red" -> Json.arr(Json.fromString("#ff0000")),

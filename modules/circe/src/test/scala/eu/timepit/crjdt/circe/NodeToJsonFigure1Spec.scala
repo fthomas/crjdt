@@ -32,14 +32,14 @@ object NodeToJsonFigure1Spec extends Properties("NodeToJsonFigure1Spec") {
   }
 
   property("toJson with last-writer-wins conflict resolution") = secure {
-    import RegNodeConflictResolver.LWW
+    implicit val resolver = RegNodeConflictResolver.LWW
     p2.document.toJson ?= Json.obj(
       "key" -> Json.fromString("C")
     )
   }
 
   property("toJson with preserve-all-as-array conflict resolution") = secure {
-    import RegNodeConflictResolver.PreserveAllAsArray
+    implicit val resolver = RegNodeConflictResolver.PreserveAllAsArray
     p2.document.toJson ?= Json.obj(
       "key" -> Json.arr(List("B", "C").map(Json.fromString): _*)
     )
