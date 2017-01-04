@@ -57,6 +57,7 @@ lazy val circe = crossProject
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core" % circeVersion,
+      "io.circe" %%% "circe-testing" % circeVersion % "test",
       "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
     )
   )
