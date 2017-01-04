@@ -250,5 +250,27 @@ addCommandsAlias("validate",
                    "unidoc"
                  ))
 
+addCommandsAlias("validateJVM",
+                 Seq(
+                   "clean",
+                   "scalafmtTest",
+                   "test:scalafmtTest",
+                   "coverage",
+                   "testJVM",
+                   "coverageReport",
+                   "coverageOff",
+                   "unidoc"
+                 ))
+
+addCommandsAlias("validateJS",
+                 Seq(
+                   "clean",
+                   "scalafmtTest",
+                   "test:scalafmtTest",
+                   "testJS",
+                   "coverageOff",
+                   "unidoc"
+                 ))
+
 addCommandsAlias("syncMavenCentral",
                  allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral"))
