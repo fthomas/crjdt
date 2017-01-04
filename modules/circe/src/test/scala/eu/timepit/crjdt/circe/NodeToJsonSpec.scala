@@ -9,11 +9,8 @@ import org.scalacheck.Properties
 import org.scalacheck.Prop._
 import eu.timepit.crjdt.circe.syntax._
 import eu.timepit.crjdt.circe.RegNodeConflictResolver.LWW
-import eu.timepit.crjdt.core.Key.IdK
-import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
-import eu.timepit.crjdt.core.Node.{ListNode, RegNode}
-import eu.timepit.crjdt.core.TypeTag.RegT
-import eu.timepit.crjdt.core.Val.Str
+import eu.timepit.crjdt.core.Key.StrK
+import eu.timepit.crjdt.core.Node.MapNode
 
 object NodeToJsonSpec
     extends Properties("NodeToJsonSpec")
@@ -25,35 +22,29 @@ object NodeToJsonSpec
       JsonNumber.fromDecimalStringUnsafe("0.0")
     } else n
 
-  property("toJson") = forAllNoShrink { (obj: JsonObject) =>
+  property("root document to JSON") = forAllNoShrink { (obj: JsonObject) =>
     val json = Json.fromJsonObject(obj)
-    val commands = assignObjectFieldsCmds(doc, json.asObject.get)
+    val commands = assignObjectFieldsCmds(doc, obj)
     val document = Replica.empty("").applyCmds(commands.toList).document
     document.toJson ?= json
   }
 
-  property("ListNode to JSON") = secure {
-    val groceryList = ListNode(
-      Map(RegT(IdK(Id(2, "q"))) -> RegNode(Map(Id(2, "q") -> Str("milk"))),
-          RegT(IdK(Id(3, "q"))) -> RegNode(Map(Id(3, "q") -> Str("flour"))),
-          RegT(IdK(Id(2, "p"))) -> RegNode(Map(Id(2, "p") -> Str("eggs"))),
-          RegT(IdK(Id(3, "p"))) -> RegNode(Map(Id(3, "p") -> Str("ham")))),
-      Map(IdK(Id(2, "p")) -> Set(Id(2, "p")),
-          IdK(Id(3, "p")) -> Set(Id(3, "p")),
-          IdK(Id(2, "q")) -> Set(Id(2, "q")),
-          IdK(Id(3, "q")) -> Set(Id(3, "q"))),
-      Map(HeadR -> IdR(Id(2, "q")),
-          IdR(Id(2, "q")) -> IdR(Id(3, "q")),
-          IdR(Id(3, "q")) -> IdR(Id(2, "p")),
-          IdR(Id(2, "p")) -> IdR(Id(3, "p")),
-          IdR(Id(3, "p")) -> TailR))
-
-    groceryList.toJson ?= Json.arr(
-      List("milk", "flour", "eggs", "ham").map(Json.fromString): _*)
-  }
-
-  property("RegNode to JSON") = secure {
-    RegNode(Map(Id(1, "p") -> Val.True)).toJson ?= Json.True
+  property("Node including ListNode and RegNode to JSON") = forAllNoShrink {
+    (obj: JsonObject) =>
+      val commands = assignObjectFieldsCmds(doc, obj)
+      val document = Replica.empty("").applyCmds(commands.toList).document
+      val childNodes: Map[String, Node] = document
+        .findChild(TypeTag.MapT(Key.DocK))
+        .collect {
+          case node: MapNode =>
+            node.children.collect {
+              case (TypeTag.MapT(StrK(key)), value) => (key, value)
+              case (TypeTag.ListT(StrK(key)), value) => (key, value)
+              case (TypeTag.RegT(StrK(key)), value) => (key, value)
+            }
+        }
+        .getOrElse(Map.empty)
+      childNodes.mapValues(_.toJson) ?= obj.toMap
   }
 
 }
