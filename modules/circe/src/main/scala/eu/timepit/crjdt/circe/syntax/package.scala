@@ -6,7 +6,7 @@ import io.circe.Json
 
 package object syntax extends NodeToJson {
 
-  implicit class PinpNode(node: Node)(implicit rcr: RegNodeConflictResolver) {
+  implicit class PimpNode(node: Node)(implicit rcr: RegNodeConflictResolver) {
     def toJson: Json =
       node match {
         case v: MapNode => mapToJson(v)

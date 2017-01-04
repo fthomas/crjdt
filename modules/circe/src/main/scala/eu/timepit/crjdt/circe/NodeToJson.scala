@@ -10,10 +10,11 @@ private[circe] trait NodeToJson {
   protected def mapToJson(mapNode: MapNode)(
       implicit rcr: RegNodeConflictResolver): Json =
     if (mapNode.children.contains(TypeTag.MapT(Key.DocK))) {
-      mapNode.children.collect {
-        case (TypeTag.MapT(Key.DocK), node: MapNode) => mapToJson(node)
-      }.headOption.getOrElse(
-        throw new AssertionError("Root MapNode should contain DocK key only."))
+      mapNode.getChild(TypeTag.MapT(Key.DocK)) match {
+        case node: MapNode => mapToJson(node)
+        case node: ListNode => listToJson(node)
+        case node: RegNode => rcr.registerToJson(node)
+      }
     } else {
       val fields = mapNode.children.collect {
         case (TypeTag.MapT(Key.StrK(key)), node: MapNode)
