@@ -18,11 +18,11 @@ object NodeToJsonSpec
     with ArbitraryInstances {
 
   // avoid Scala.js test failure at travis CI
-  override protected def maxJsonArraySize: Int = if (Platform.isJs) 5 else 10
+  override protected def maxJsonArraySize: Int = if (Platform.isJs) 3 else 10
 
-  override protected def maxJsonObjectDepth: Int = if (Platform.isJs) 3 else 5
+  override protected def maxJsonObjectDepth: Int = if (Platform.isJs) 2 else 5
 
-  override protected def maxJsonObjectSize: Int = if (Platform.isJs) 5 else 10
+  override protected def maxJsonObjectSize: Int = if (Platform.isJs) 3 else 10
 
   // filter out numbers BigDecimal (and Val.Num) cannot handle
   override def transformJsonNumber(n: JsonNumber): JsonNumber =
