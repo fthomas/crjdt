@@ -56,7 +56,9 @@ lazy val circe = crossProject
   .jsSettings(commonJsSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
-      "io.circe" %%% "circe-core" % circeVersion
+      "io.circe" %%% "circe-core" % circeVersion,
+      "io.circe" %%% "circe-testing" % circeVersion % "test",
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
     )
   )
 
@@ -244,6 +246,28 @@ addCommandsAlias("validate",
                    "coverage",
                    "testJVM",
                    "coverageReport",
+                   "coverageOff",
+                   "unidoc"
+                 ))
+
+addCommandsAlias("validateJVM",
+                 Seq(
+                   "clean",
+                   "scalafmtTest",
+                   "test:scalafmtTest",
+                   "coverage",
+                   "testJVM",
+                   "coverageReport",
+                   "coverageOff",
+                   "unidoc"
+                 ))
+
+addCommandsAlias("validateJS",
+                 Seq(
+                   "clean",
+                   "scalafmtTest",
+                   "test:scalafmtTest",
+                   "testJS",
                    "coverageOff",
                    "unidoc"
                  ))
