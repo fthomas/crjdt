@@ -32,7 +32,8 @@ Instructions for Maven and other build tools are available on the
 
 ## Contributors and participation
 
-crjdt is currently maintained by [Frank S. Thomas][fst9000].
+* [Frank S. Thomas](https://github.com/fthomas)
+* [Yusuke Yasuda](https://github.com/TanUkkii007)
 
 The crjdt project supports the [Typelevel][typelevel]
 [code of conduct][typelevel-coc] and wants all of its channels (Gitter,
