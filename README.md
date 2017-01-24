@@ -34,6 +34,7 @@ Instructions for Maven and other build tools are available on the
 ## Contributors and participation
 
 * [Frank S. Thomas](https://github.com/fthomas)
+* [Jan](https://github.com/Tamriel)
 * [Yusuke Yasuda](https://github.com/TanUkkii007)
 
 The crjdt project supports the [Typelevel][typelevel]
