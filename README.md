@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
 )
 ```
+For Scala.js just replace %% with %%% above.
 
 Instructions for Maven and other build tools are available on the
 [Scaladex][scaladex] page.
