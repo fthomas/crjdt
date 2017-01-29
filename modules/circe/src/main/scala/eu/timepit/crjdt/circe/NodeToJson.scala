@@ -47,7 +47,7 @@ private[circe] trait NodeToJson {
       }
     val keyOrder = loopOrder(ListRef.HeadR, Vector.empty).zipWithIndex.toMap
     val jsons = new Array[Json](keyOrder.size)
-    listNode.children.foreach {
+    listNode.children.collect {
       case (TypeTag.MapT(key), node: MapNode)
           if listNode.getPres(key).nonEmpty =>
         jsons(keyOrder(key)) = mapToJson(node)
