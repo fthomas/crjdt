@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
   "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
 )
 ```
-For Scala.js just replace %% with %%% above.
+For Scala.js just replace `%%` with `%%%` above.
 
 Instructions for Maven and other build tools are available on the
 [Scaladex][scaladex] page.
@@ -43,8 +43,9 @@ GitHub, etc.) to be welcoming environments for everyone.
 
 ## Other implementations
 
-Currently crjdt is the only public implementation of the JSON CRDT.
-We will list other implementations here as soon as they become available.
+Currently crjdt is the only public implementation of the JSON CRDT described
+in the [paper][paper.abs] by **Kleppmann** and **Beresford**. We will list
+other implementations here as soon as they become available.
 
 If you know an implementation that is not listed here, please submit a PR!
 
