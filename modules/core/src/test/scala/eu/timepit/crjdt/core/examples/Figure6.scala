@@ -22,23 +22,27 @@ object Figure6 extends Properties("Figure6") {
         list.insert("cheese")
 
     val shoppingNode = ListNode(
-      Map(RegT(IdK(Id(4, ""))) -> RegNode(Map(Id(4, "") -> Str("cheese"))),
-          RegT(IdK(Id(2, ""))) -> RegNode(Map(Id(2, "") -> Str("eggs"))),
-          RegT(IdK(Id(3, ""))) -> RegNode(Map(Id(3, "") -> Str("milk")))),
+      Map(
+        RegT(IdK(Id(4, ""))) -> RegNode(Map(Id(4, "") -> Str("cheese"))),
+        RegT(IdK(Id(2, ""))) -> RegNode(Map(Id(2, "") -> Str("eggs"))),
+        RegT(IdK(Id(3, ""))) -> RegNode(Map(Id(3, "") -> Str("milk")))
+      ),
       Map(IdK(Id(4, "")) -> Set(Id(4, "")),
           IdK(Id(2, "")) -> Set(Id(2, "")),
           IdK(Id(3, "")) -> Set(Id(3, ""))),
       Map(HeadR -> IdR(Id(4, "")),
           IdR(Id(4, "")) -> IdR(Id(2, "")),
           IdR(Id(2, "")) -> IdR(Id(3, "")),
-          IdR(Id(3, "")) -> TailR))
+          IdR(Id(3, "")) -> TailR)
+    )
 
     val rootNode = MapNode(
       Map(
         MapT(DocK) -> MapNode(
           Map(ListT(StrK("shopping")) -> shoppingNode),
           Map(StrK("shopping") -> Set(Id(2, ""), Id(3, ""), Id(4, ""))))),
-      Map(DocK -> Set(Id(1, ""), Id(2, ""), Id(3, ""), Id(4, ""))))
+      Map(DocK -> Set(Id(1, ""), Id(2, ""), Id(3, ""), Id(4, "")))
+    )
 
     Replica.empty("").applyCmd(cmd).document ?= rootNode
   }

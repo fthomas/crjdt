@@ -201,10 +201,7 @@ lazy val releaseSettings = {
   )
 }
 
-lazy val styleSettings = Def.settings(
-  reformatOnCompileSettings,
-  scalafmtConfig := Some(file(".scalafmt.conf"))
-)
+lazy val styleSettings = Def.settings()
 
 lazy val miscSettings = Def.settings(
   initialCommands += s"""
@@ -248,7 +245,6 @@ addCommandsAlias("validateJVM",
                  Seq(
                    "clean",
                    "scalafmtTest",
-                   "test:scalafmtTest",
                    "coverage",
                    "testJVM",
                    "coverageReport",

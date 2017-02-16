@@ -43,10 +43,12 @@ object Figure3 extends Properties("Figure3") {
 
   property("content") = secure {
     val groceryList = ListNode(
-      Map(RegT(IdK(Id(2, "q"))) -> RegNode(Map(Id(2, "q") -> Str("milk"))),
-          RegT(IdK(Id(3, "q"))) -> RegNode(Map(Id(3, "q") -> Str("flour"))),
-          RegT(IdK(Id(2, "p"))) -> RegNode(Map(Id(2, "p") -> Str("eggs"))),
-          RegT(IdK(Id(3, "p"))) -> RegNode(Map(Id(3, "p") -> Str("ham")))),
+      Map(
+        RegT(IdK(Id(2, "q"))) -> RegNode(Map(Id(2, "q") -> Str("milk"))),
+        RegT(IdK(Id(3, "q"))) -> RegNode(Map(Id(3, "q") -> Str("flour"))),
+        RegT(IdK(Id(2, "p"))) -> RegNode(Map(Id(2, "p") -> Str("eggs"))),
+        RegT(IdK(Id(3, "p"))) -> RegNode(Map(Id(3, "p") -> Str("ham")))
+      ),
       Map(IdK(Id(2, "p")) -> Set(Id(2, "p")),
           IdK(Id(3, "p")) -> Set(Id(3, "p")),
           IdK(Id(2, "q")) -> Set(Id(2, "q")),
@@ -55,7 +57,8 @@ object Figure3 extends Properties("Figure3") {
           IdR(Id(2, "q")) -> IdR(Id(3, "q")),
           IdR(Id(3, "q")) -> IdR(Id(2, "p")),
           IdR(Id(2, "p")) -> IdR(Id(3, "p")),
-          IdR(Id(3, "p")) -> TailR))
+          IdR(Id(3, "p")) -> TailR)
+    )
     val pres = Set(Id(2, "p"),
                    Id(2, "q"),
                    Id(1, "q"),

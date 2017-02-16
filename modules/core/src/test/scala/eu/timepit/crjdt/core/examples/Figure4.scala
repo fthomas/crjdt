@@ -45,7 +45,8 @@ object Figure4 extends Properties("Figure4") {
               RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
           Map(StrK("done") -> Set(Id(4, "q"))))),
       Map(IdK(Id(1, "p")) -> Set(Id(4, "q"))),
-      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR))
+      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR)
+    )
 
     p2.document ?= MapNode(
       Map(
@@ -55,7 +56,8 @@ object Figure4 extends Properties("Figure4") {
                                                     Id(2, "p"),
                                                     Id(3, "p"),
                                                     Id(4, "q"))))),
-      Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q"))))
+      Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q")))
+    )
   }
 
   property("keys") = secure {
