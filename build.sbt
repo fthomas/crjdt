@@ -8,8 +8,8 @@ val gitPubUrl = s"https://github.com/$gitHubOwner/$projectName.git"
 val gitDevUrl = s"git@github.com:$gitHubOwner/$projectName.git"
 val modulesDir = "modules"
 
-val catsVersion = "0.8.1"
-val circeVersion = "0.6.1"
+val catsVersion = "0.9.0"
+val circeVersion = "0.7.0"
 val scalaCheckVersion = "1.13.4"
 
 val allSubprojects = Seq("core", "circe")
