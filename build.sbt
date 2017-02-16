@@ -238,17 +238,10 @@ def addCommandsAlias(name: String, cmds: Seq[String]) =
 addCommandsAlias("testJS", allSubprojectsJS.map(_ + "/test"))
 addCommandsAlias("testJVM", allSubprojectsJVM.map(_ + "/test"))
 
-addCommandsAlias("validate",
+addCommandsAlias("validateJS",
                  Seq(
                    "clean",
-                   "scalafmtTest",
-                   "test:scalafmtTest",
-                   "testJS",
-                   "coverage",
-                   "testJVM",
-                   "coverageReport",
-                   "coverageOff",
-                   "unidoc"
+                   "testJS"
                  ))
 
 addCommandsAlias("validateJVM",
@@ -259,16 +252,6 @@ addCommandsAlias("validateJVM",
                    "coverage",
                    "testJVM",
                    "coverageReport",
-                   "coverageOff",
-                   "unidoc"
-                 ))
-
-addCommandsAlias("validateJS",
-                 Seq(
-                   "clean",
-                   "scalafmtTest",
-                   "test:scalafmtTest",
-                   "testJS",
                    "coverageOff",
                    "unidoc"
                  ))
