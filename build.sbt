@@ -68,13 +68,13 @@ lazy val circeJS = circe.js
 lazy val docs = project
   .in(file(s"$modulesDir/docs"))
   .enablePlugins(MicrositesPlugin)
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(micrositeSettings)
   .settings(
     Def.settings(
-      unidocSettings,
-      UnidocKeys.unidocProjectFilter in (ScalaUnidoc, UnidocKeys.unidoc) :=
+      unidocProjectFilter in (ScalaUnidoc, unidoc) :=
         inAnyProject -- inProjects(
           allSubprojectsJS.map(LocalProject.apply): _*)
     )
@@ -192,7 +192,7 @@ lazy val releaseSettings = {
       commitReleaseVersion,
       tagRelease,
       publishArtifacts,
-      releaseStepTask(publishMicrosite in "docs"),
+      releaseStepTask(publishMicrosite in LocalProject("docs")),
       setLatestVersion,
       setNextVersion,
       commitNextVersion,
