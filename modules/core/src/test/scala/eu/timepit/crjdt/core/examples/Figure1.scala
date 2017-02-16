@@ -39,7 +39,8 @@ object Figure1 extends Properties("Figure1") {
           Map(RegT(StrK("key")) ->
             RegNode(Map(Id(2, "p") -> Str("B"), Id(2, "q") -> Str("C")))),
           Map(StrK("key") -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"))))),
-      Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"))))
+      Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q")))
+    )
   }
 
   property("keys") = secure {
