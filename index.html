@@ -21,17 +21,22 @@ version 2.11 and 2.12.</p>
 <p>To get started with sbt, add the following to your <code class="highlighter-rouge">build.sbt</code> file:</p>
 
 <pre><code class="language-sbt">libraryDependencies ++= Seq(
-  "eu.timepit" %% "crjdt-core"  % "0.0.6",
-  "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
+  "eu.timepit" %% "crjdt-core"  % "0.0.7",
+  "eu.timepit" %% "crjdt-circe" % "0.0.7" // optional
 )
 </code></pre>
+<p>For Scala.js just replace <code class="highlighter-rouge">%%</code> with <code class="highlighter-rouge">%%%</code> above.</p>
 
 <p>Instructions for Maven and other build tools are available on the
 <a href="https://index.scala-lang.org/fthomas/crjdt/crjdt-core">Scaladex</a> page.</p>
 
 <h2 id="contributors-and-participation">Contributors and participation</h2>
 
-<p>crjdt is currently maintained by <a href="https://twitter.com/fst9000">Frank S. Thomas</a>.</p>
+<ul>
+  <li><a href="https://github.com/fthomas">Frank S. Thomas</a> (<a href="https://github.com/fthomas">@fthomas</a>)</li>
+  <li><a href="https://github.com/Tamriel">Jan</a> (<a href="https://github.com/Tamriel">@Tamriel</a>)</li>
+  <li><a href="https://github.com/TanUkkii007">Yusuke Yasuda</a> (<a href="https://github.com/TanUkkii007">@TanUkkii007</a>)</li>
+</ul>
 
 <p>The crjdt project supports the <a href="http://typelevel.org/">Typelevel</a>
 <a href="http://typelevel.org/conduct.html">code of conduct</a> and wants all of its channels (Gitter,
@@ -39,8 +44,9 @@ GitHub, etc.) to be welcoming environments for everyone.</p>
 
 <h2 id="other-implementations">Other implementations</h2>
 
-<p>Currently crjdt is the only public implementation of the JSON CRDT.
-We will list other implementations here as soon as they become available.</p>
+<p>Currently crjdt is the only public implementation of the JSON CRDT described
+in the <a href="http://arxiv.org/abs/1608.03960">paper</a> by <strong>Kleppmann</strong> and <strong>Beresford</strong>. We will list
+other implementations here as soon as they become available.</p>
 
 <p>If you know an implementation that is not listed here, please submit a PR!</p>
 
