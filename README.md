@@ -22,8 +22,8 @@ To get started with sbt, add the following to your `build.sbt` file:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "crjdt-core"  % "0.0.6",
-  "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
+  "eu.timepit" %% "crjdt-core"  % "0.0.7",
+  "eu.timepit" %% "crjdt-circe" % "0.0.7" // optional
 )
 ```
 For Scala.js just replace `%%` with `%%%` above.
