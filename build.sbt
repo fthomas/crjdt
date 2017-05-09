@@ -8,8 +8,8 @@ val gitPubUrl = s"https://github.com/$gitHubOwner/$projectName.git"
 val gitDevUrl = s"git@github.com:$gitHubOwner/$projectName.git"
 val modulesDir = "modules"
 
-val catsVersion = "0.8.1"
-val circeVersion = "0.6.1"
+val catsVersion = "0.9.0"
+val circeVersion = "0.7.0"
 val scalaCheckVersion = "1.13.4"
 
 val allSubprojects = Seq("core", "circe")
@@ -68,13 +68,13 @@ lazy val circeJS = circe.js
 lazy val docs = project
   .in(file(s"$modulesDir/docs"))
   .enablePlugins(MicrositesPlugin)
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(micrositeSettings)
   .settings(
     Def.settings(
-      unidocSettings,
-      UnidocKeys.unidocProjectFilter in (ScalaUnidoc, UnidocKeys.unidoc) :=
+      unidocProjectFilter in (ScalaUnidoc, unidoc) :=
         inAnyProject -- inProjects(
           allSubprojectsJS.map(LocalProject.apply): _*)
     )
@@ -181,6 +181,7 @@ lazy val releaseSettings = {
   Def.settings(
     releaseCrossBuild := true,
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+    releaseVcsSign := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
@@ -191,7 +192,7 @@ lazy val releaseSettings = {
       commitReleaseVersion,
       tagRelease,
       publishArtifacts,
-      releaseStepTask(publishMicrosite in "docs"),
+      releaseStepTask(publishMicrosite in LocalProject("docs")),
       setLatestVersion,
       setNextVersion,
       commitNextVersion,
@@ -200,10 +201,7 @@ lazy val releaseSettings = {
   )
 }
 
-lazy val styleSettings = Def.settings(
-  reformatOnCompileSettings,
-  scalafmtConfig := Some(file(".scalafmt.conf"))
-)
+lazy val styleSettings = Def.settings()
 
 lazy val miscSettings = Def.settings(
   initialCommands += s"""
@@ -237,37 +235,19 @@ def addCommandsAlias(name: String, cmds: Seq[String]) =
 addCommandsAlias("testJS", allSubprojectsJS.map(_ + "/test"))
 addCommandsAlias("testJVM", allSubprojectsJVM.map(_ + "/test"))
 
-addCommandsAlias("validate",
+addCommandsAlias("validateJS",
                  Seq(
                    "clean",
-                   "scalafmtTest",
-                   "test:scalafmtTest",
-                   "testJS",
-                   "coverage",
-                   "testJVM",
-                   "coverageReport",
-                   "coverageOff",
-                   "unidoc"
+                   "testJS"
                  ))
 
 addCommandsAlias("validateJVM",
                  Seq(
                    "clean",
                    "scalafmtTest",
-                   "test:scalafmtTest",
                    "coverage",
                    "testJVM",
                    "coverageReport",
-                   "coverageOff",
-                   "unidoc"
-                 ))
-
-addCommandsAlias("validateJS",
-                 Seq(
-                   "clean",
-                   "scalafmtTest",
-                   "test:scalafmtTest",
-                   "testJS",
                    "coverageOff",
                    "unidoc"
                  ))

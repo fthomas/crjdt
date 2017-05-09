@@ -22,19 +22,20 @@ To get started with sbt, add the following to your `build.sbt` file:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "crjdt-core"  % "0.0.6",
-  "eu.timepit" %% "crjdt-circe" % "0.0.6" // optional
+  "eu.timepit" %% "crjdt-core"  % "0.0.7",
+  "eu.timepit" %% "crjdt-circe" % "0.0.7" // optional
 )
 ```
-For Scala.js just replace %% with %%% above.
+For Scala.js just replace `%%` with `%%%` above.
 
 Instructions for Maven and other build tools are available on the
 [Scaladex][scaladex] page.
 
 ## Contributors and participation
 
-* [Frank S. Thomas](https://github.com/fthomas)
-* [Yusuke Yasuda](https://github.com/TanUkkii007)
+* [Frank S. Thomas](https://github.com/fthomas) ([@fthomas](https://github.com/fthomas))
+* [Jan](https://github.com/Tamriel) ([@Tamriel](https://github.com/Tamriel))
+* [Yusuke Yasuda](https://github.com/TanUkkii007) ([@TanUkkii007](https://github.com/TanUkkii007))
 
 The crjdt project supports the [Typelevel][typelevel]
 [code of conduct][typelevel-coc] and wants all of its channels (Gitter,
@@ -42,8 +43,9 @@ GitHub, etc.) to be welcoming environments for everyone.
 
 ## Other implementations
 
-Currently crjdt is the only public implementation of the JSON CRDT.
-We will list other implementations here as soon as they become available.
+Currently crjdt is the only public implementation of the JSON CRDT described
+in the [paper][paper.abs] by **Kleppmann** and **Beresford**. We will list
+other implementations here as soon as they become available.
 
 If you know an implementation that is not listed here, please submit a PR!
 

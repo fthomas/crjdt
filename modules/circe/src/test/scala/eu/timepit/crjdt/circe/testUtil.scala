@@ -37,7 +37,7 @@ object testUtil {
     assign +: fillEmptyArrayOrMap
   }
 
-  def insertToArrayCmds(expr: Expr, array: List[Json]): Vector[Cmd] = {
+  def insertToArrayCmds(expr: Expr, array: Vector[Json]): Vector[Cmd] = {
     val (_, commands) = array.foldLeft((expr.iter.next, Vector.empty[Cmd])) {
       (acc, item) =>
         val (position, commands) = acc
