@@ -4,7 +4,12 @@ import cats.instances.list._
 import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
-import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM}
+import eu.timepit.crjdt.core.Mutation.{
+  AssignM,
+  DeleteM,
+  InsertM,
+  MoveVerticalM
+}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
 import eu.timepit.crjdt.core.util.applyAllLeft
 
@@ -26,7 +31,7 @@ final case class Replica(replicaId: ReplicaId,
 
   // APPLY-LOCAL
   def applyLocal(op: Operation): Replica =
-    copy(document = document.applyOp(op),
+    copy(document = document.applyOp(op, this),
          processedOps = processedOps + op.id,
          generatedOps = generatedOps :+ op)
 
@@ -37,7 +42,7 @@ final case class Replica(replicaId: ReplicaId,
       case None => this
       case Some(op) =>
         copy(opsCounter = opsCounter max op.id.c,
-             document = document.applyOp(op),
+             document = document.applyOp(op, this),
              processedOps = processedOps + op.id).applyRemote
     }
 
@@ -144,6 +149,13 @@ object Replica {
           // MAKE-DELETE
           case Delete(expr) =>
             val newReplica = replica.makeOp(replica.evalExpr(expr), DeleteM)
+            applyCmds(newReplica, rest)
+
+          // MAKE-MOVE-VERTICAL
+          case MoveVertical(moveExpr, targetExpr, aboveBelow) =>
+            val newReplica = replica.makeOp(
+              replica.evalExpr(moveExpr),
+              MoveVerticalM(replica.evalExpr(targetExpr), aboveBelow))
             applyCmds(newReplica, rest)
 
           // EXEC
