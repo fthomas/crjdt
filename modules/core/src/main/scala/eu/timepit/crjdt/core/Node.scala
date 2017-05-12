@@ -89,103 +89,48 @@ sealed trait Node extends Product with Serializable {
 
     op.cur.view match {
       case Cursor.Leaf(k) =>
-        op.mut match {
-          // EMPTY-MAP, EMPTY-LIST
-          case AssignM(value: BranchVal) =>
-            val tag = if (value == EmptyMap) MapT(k) else ListT(k)
-            val (ctx1, _) = clearElem(op.deps, k)
-            val ctx2 = ctx1.addId(tag, op.id, op.mut)
-            val child = ctx2.getChild(tag)
-            ctx2.addNode(tag, child)
+        // if there are parallel or newer ops other than the incoming op:
+        // restore the old linked list, then reapply ops
+        this match {
+          case ln: ListNode =>
+            val ctx0 = saveOrder(ln)
+            val allOps = replica.generatedOps ++ replica.receivedOps
+            // we are interested in ops which are processed, are as new or
+            // newer, changed the linked list and have the same parent as
+            // the current op
+            println("oooop" + op)
+            println("\nallOps" + replica.replicaId + allOps)
+            val relevantOps =
+              for (o <- allOps
+                   if (replica.processedOps.contains(o.id) || o.id == op.id) &&
+                     o.id.c >= op.id.c && cond(o.mut) {
+                     case InsertM(_) | DeleteM | MoveVerticalM(_, _) =>
+                       true
+                   } &&
+                     this.findChild(RegT(o.cur.finalKey)).isDefined)
+                yield o
+            println("\nrelevantOps" + replica.replicaId + relevantOps)
 
-          // ASSIGN
-          case AssignM(value: LeafVal) =>
-            val tag = RegT(k)
-            val (ctx1, _) = clear(op.deps, tag)
-            val ctx2 = ctx1.addId(tag, op.id, op.mut)
-            val child = ctx2.getChild(tag)
-            ctx2.addNode(tag, child.addRegValue(op.id, value))
+            if (relevantOps.length > 1) {
+              val sortedOps = relevantOps.sortWith(_.id < _.id)
+              println("ops:" + replica.replicaId + sortedOps)
+              println("ar" + ctx0.orderArchive)
 
-          case InsertM(value) =>
-            val prevRef = ListRef.fromKey(k)
-            val nextRef = getNextRef(prevRef)
-            nextRef match {
-              // INSERT2
-              /** INSERT 2 handles the case of multiple replicas concurrently
-                * inserting list elements at the same position, and uses the
-                * ordering relation < on Lamport timestamps to consistently
-                * determine the insertion point.
-                */
-              case IdR(nextId) if op.id < nextId =>
-                applyOp(op.copy(cur = Cursor.withFinalKey(IdK(nextId))),
-                        replica)
-
-              // INSERT1
-              /** INSERT1 performs the insertion by manipulating the linked
-                * list structure.
-                */
-              case _ =>
-                val idRef = IdR(op.id)
-                // the ID of the inserted node will be the ID of the operation
-                val ctx1 = applyOp(op.copy(cur =
-                                             Cursor.withFinalKey(IdK(op.id)),
-                                           mut = AssignM(value)),
-                                   replica)
-                ctx1.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
+              val olderOrders =
+                ctx0.orderArchive.filterKeys(_ <= sortedOps(0).id.c)
+              val ctx1 =
+                ctx0.copy(order = olderOrders(olderOrders.keysIterator.max))
+              println("\n\nbefore " + replica.replicaId + ctx1)
+              val a = ctx1.applyMany(sortedOps)
+              println("\n\nafter " + replica.replicaId + a)
+              a
+            } else {
+              ctx0.apply(op)
             }
-
-          // DELETE
-          case DeleteM =>
-            val (ctx1, _) = clearElem(op.deps, k)
-            ctx1
-
-          // MOVE-VERTICAL
-          case MoveVerticalM(_, _) =>
-            this match {
-              case ln: ListNode => {
-                val ctx0 = saveOrder(ln)
-
-                val allOps = replica.generatedOps ++ replica.receivedOps
-                // we are interested in ops which are processed, are as new or
-                // newer, changed the linked list and have the same parent as
-                // the current op
-                println("oooop" + op)
-                println("\nallOps" + replica.replicaId + allOps)
-                val relevantOps =
-                  for (o <- allOps
-                       if (replica.processedOps.contains(o.id) || o.id == op.id) &&
-                         o.id.c >= op.id.c && cond(o.mut) {
-                         case InsertM(_) | DeleteM | MoveVerticalM(_, _) =>
-                           true
-                       } &&
-                         this.findChild(RegT(o.cur.finalKey)).isDefined)
-                    yield o
-                println("\nrelevantOps" + replica.replicaId + relevantOps)
-
-                // if there are parallel or newer ops other than the incoming op:
-                // restore the old linked list, then reapply ops
-                if (relevantOps.length > 1) {
-                  val sortedOps = relevantOps.sortWith(_.id < _.id)
-                  println("ops:" + replica.replicaId + sortedOps)
-                  println("ar" + ctx0.orderArchive)
-
-                  val olderOrders =
-                    ctx0.orderArchive.filterKeys(_ <= sortedOps(0).id.c)
-                  val ctx1 =
-                    ctx0.copy(
-                      order = olderOrders(olderOrders.keysIterator.max))
-                  println("\n\nbefore " + replica.replicaId + ctx1)
-                  val a = ctx1.applyMany(sortedOps)
-                  println("\n\nafter " + replica.replicaId + a)
-                  a
-                } else {
-                  // the op was done without me doing stuff, so need to
-                  // restore anything. just apply it.
-                  ctx0.apply(op)
-                }
-              }
-              case _ => this // todo: log error
-            }
+          case _ =>
+            // the op was done without me doing stuff, so need to
+            // restore anything. just apply it.
+            this.apply(op)
         }
 
       // DESCEND
@@ -202,8 +147,55 @@ sealed trait Node extends Product with Serializable {
     }
   }
 
-  def apply(o: Operation): Node =
-    o.mut match {
+  def apply(op: Operation): Node = {
+    val k = op.cur.finalKey
+    op.mut match {
+      // EMPTY-MAP, EMPTY-LIST
+      case AssignM(value: BranchVal) =>
+        val tag = if (value == EmptyMap) MapT(k) else ListT(k)
+        val (ctx1, _) = clearElem(op.deps, k)
+        val ctx2 = ctx1.addId(tag, op.id, op.mut)
+        val child = ctx2.getChild(tag)
+        ctx2.addNode(tag, child)
+
+      // ASSIGN
+      case AssignM(value: LeafVal) =>
+        val tag = RegT(k)
+        val (ctx1, _) = clear(op.deps, tag)
+        val ctx2 = ctx1.addId(tag, op.id, op.mut)
+        val child = ctx2.getChild(tag)
+        ctx2.addNode(tag, child.addRegValue(op.id, value))
+
+      // DELETE
+      case DeleteM =>
+        val (ctx1, _) = clearElem(op.deps, k)
+        ctx1
+
+      case InsertM(value) =>
+        val prevRef = ListRef.fromKey(k)
+        val nextRef = getNextRef(prevRef)
+        nextRef match {
+          // INSERT2
+          /** INSERT 2 handles the case of multiple replicas concurrently
+            * inserting list elements at the same position, and uses the
+            * ordering relation < on Lamport timestamps to consistently
+            * determine the insertion point.
+            */
+          case IdR(nextId) if op.id < nextId =>
+            apply(op.copy(cur = Cursor.withFinalKey(IdK(nextId))))
+
+          // INSERT1
+          /** INSERT1 performs the insertion by manipulating the linked
+            * list structure.
+            */
+          case _ =>
+            val idRef = IdR(op.id)
+            // the ID of the inserted node will be the ID of the operation
+            val ctx1 = apply(
+              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
+                      mut = AssignM(value)))
+            ctx1.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
+        }
       case MoveVerticalM(targetCursor, aboveBelow) =>
         // the Node is already the final listnode
 
@@ -214,23 +206,29 @@ sealed trait Node extends Product with Serializable {
 
         //                 find the node which points to the moved node and set its
         //                 next pointer to node the moved nodes points to
-        val movedNodeRef = ListRef.fromKey(o.cur.finalKey)
-        val nodeAfterMovedNodeRef = getNextRef(movedNodeRef)
-        val ctx1 =
-          this.setNextRef(getPreviousRef(movedNodeRef), nodeAfterMovedNodeRef)
+        val moveNodeRef = ListRef.fromKey(op.cur.finalKey)
+        val nodeAfterMovedNodeRef = getNextRef(moveNodeRef)
 
         val targetNodeRef = ListRef.fromKey(targetCursor.finalKey)
         // todo: if aboveBelow is below: insert the moved node below the targetCursor
         val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
+
+        val ctx1 =
+          this.setNextRef(getPreviousRef(moveNodeRef), nodeAfterMovedNodeRef)
         ctx1
-          .setNextRef(targetNodeRef, movedNodeRef)
-          .setNextRef(movedNodeRef, nodeAfterTargetNodeRef)
-      case _ => this
+          .setNextRef(targetNodeRef, moveNodeRef)
+          .setNextRef(moveNodeRef, nodeAfterTargetNodeRef)
     }
+  }
 
   def applyMany(operations: Vector[Operation]): Node =
     operations match {
-      case o +: ops => apply(o).applyMany(ops)
+      case o +: ops =>
+        val one = apply(o)
+        println("one " + o + one)
+        val two = one.applyMany(ops)
+        println("two " + o + two)
+        two
       case _ => this
     }
 

@@ -8,6 +8,8 @@ import org.scalacheck.Properties
 
 object MoveVertical extends Properties("MoveVertical") {
 
+  // when done concurrently, q is applied before p
+
   def merge(a: Replica, b: Replica): Replica =
     a.applyRemoteOps(b.generatedOps)
 
@@ -15,6 +17,7 @@ object MoveVertical extends Properties("MoveVertical") {
   val eins = grocery.iter.next.next
   val vier = grocery.iter.next.next.next.next.next
   val fuenf = grocery.iter.next.next.next.next.next.next
+  val sieben = grocery.iter.next.next.next.next.next.next.next.next
 
   val p0 = Replica
     .empty("p")
@@ -25,6 +28,8 @@ object MoveVertical extends Properties("MoveVertical") {
     .applyCmd(grocery.iter.next.next.next.insert("drei"))
     .applyCmd(grocery.iter.next.next.next.next.insert("vier"))
     .applyCmd(grocery.iter.next.next.next.next.next.insert("fünf"))
+    .applyCmd(grocery.iter.next.next.next.next.next.next.insert("sechs"))
+    .applyCmd(grocery.iter.next.next.next.next.next.next.next.insert("sieben"))
 
   println("p0:" + p0.document)
   println("p0 json:" + p0.document.toJson)
@@ -32,8 +37,9 @@ object MoveVertical extends Properties("MoveVertical") {
   val q0 = merge(Replica.empty("q"), p0)
 
   val p1 = p0.applyCmd(vier.moveVertical(eins, After))
-  val q1 = q0.applyCmd(fuenf := "UMBENANNT")
-  val q2 = q1.applyCmd(fuenf.moveVertical(eins, After))
+  val q1 = q0.applyCmd(fuenf := "FUENF UMBENANNT")
+  val q15 = q1.applyCmd(grocery.iter.next.next.next.insert("INS NACH ZWEI"))
+  val q2 = q15.applyCmd(sieben.moveVertical(eins, After))
 
   println("q1 json:" + q2.document.toJson)
 

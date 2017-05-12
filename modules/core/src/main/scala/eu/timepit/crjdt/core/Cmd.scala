@@ -21,6 +21,8 @@ object Cmd {
   final case class MoveVertical(moveExpr: Expr,
                                 targetExpr: Expr,
                                 beforeAfter: BeforeAfter)
-      extends Cmd
+      extends Cmd {
+    assert(moveExpr != targetExpr)
+  }
   final case class Sequence(cmd1: Cmd, cmd2: Cmd) extends Cmd
 }
