@@ -37,9 +37,13 @@ object MoveVertical extends Properties("MoveVertical") {
   val q0 = merge(Replica.empty("q"), p0)
 
   val p1 = p0.applyCmd(vier.moveVertical(eins, After))
-  val p2 = p1.applyCmd(grocery.iter.next.next.insert("INS NACH EINS"))
+//  val p2 = p1.applyCmd(grocery.iter.next.next.insert("INS NACH EINS"))
+  val p2 = p1.applyCmd(grocery.iter.next.next.delete) // deletes eins
 
-  val q1 = q0.applyCmd(fuenf := "FUENF UMBENANNT")
+  println("p1 json:" + p2.document.toJson)
+
+//  val q1 = q0.applyCmd(fuenf := "FUENF UMBENANNT")
+  val q1 = q0.applyCmd(grocery.iter.next.next.next.next.next.next.delete)
   val q15 = q1.applyCmd(grocery.iter.next.next.next.insert("INS NACH ZWEI"))
   val q2 = q15.applyCmd(sieben.moveVertical(eins, After))
 

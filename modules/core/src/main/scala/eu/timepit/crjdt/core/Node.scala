@@ -186,8 +186,9 @@ sealed trait Node extends Product with Serializable {
 
       // DELETE
       case DeleteM =>
-        val (ctx1, _) = clearElem(op.deps, k)
-        ctx1
+        val ctx1 = saveOrder(op.id, replica)
+        val (ctx2, _) = ctx1.clearElem(op.deps, k)
+        ctx2
 
       // INSERT
       case InsertM(value) =>
