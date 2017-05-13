@@ -78,59 +78,79 @@ sealed trait Node extends Product with Serializable {
         }
     }
 
-  final def applyOp(op: Operation, replica: Replica): Node = {
+  def saveOrder(id: Id, replica: Replica): Node =
+    // saves how the linked list was before count
+    // but don't overwrite if it already exists
+    // (it may exist due to a parallel op)
+    // overwrite existing stuff, thats important!
+    this match {
+      case ln: ListNode =>
+        // get all processed ops with the current ops counter,
+        // including the current op. that list is the new id
+        ln.copy(orderArchive = ln.orderArchive + (id.c -> ln.order))
+      case _ => this
+    }
 
-    def saveOrder(ln: ListNode): ListNode =
-      // save the linked list, but don't overwrite if it already exists
-      // (it may exist due to a parallel op)
-      if ((ln.orderArchive get op.id.c).isEmpty)
-        ln.copy(orderArchive = ln.orderArchive + (op.id.c -> ln.order))
-      else ln
-
+  final def applyOp(op: Operation, replica: Replica): Node =
     op.cur.view match {
-      case Cursor.Leaf(k) =>
+      case Cursor.Leaf(_) =>
         // if there are parallel or newer ops other than the incoming op:
         // restore the old linked list, then reapply ops
         this match {
           case ln: ListNode =>
-            val ctx0 = saveOrder(ln)
+            // todo performance: bei assign nicht nötig
             val allOps = replica.generatedOps ++ replica.receivedOps
             // we are interested in ops which are processed, are as new or
             // newer, changed the linked list and have the same parent as
             // the current op
             println("oooop" + op)
             println("\nallOps" + replica.replicaId + allOps)
-            val relevantOps =
+
+            def relevantOpsSince(count: BigInt): Vector[Operation] =
               for (o <- allOps
                    if (replica.processedOps.contains(o.id) || o.id == op.id) &&
-                     o.id.c >= op.id.c && cond(o.mut) {
+                     o.id.c >= count && cond(o.mut) {
                      case InsertM(_) | DeleteM | MoveVerticalM(_, _) =>
                        true
                    } &&
                      this.findChild(RegT(o.cur.finalKey)).isDefined)
                 yield o
-            println("\nrelevantOps" + replica.replicaId + relevantOps)
 
-            if (relevantOps.length > 1) {
-              val sortedOps = relevantOps.sortWith(_.id < _.id)
-              println("ops:" + replica.replicaId + sortedOps)
-              println("ar" + ctx0.orderArchive)
+            val concurrentOps = relevantOpsSince(op.id.c)
+            println("\nconcurrentOps" + replica.replicaId + concurrentOps)
 
-              val olderOrders =
-                ctx0.orderArchive.filterKeys(_ <= sortedOps(0).id.c)
+            // if there are more ops than the current op
+            if (concurrentOps.length > 1) {
+              println("archive:" + ln.orderArchive)
+              // op.id.c is the the op with the lowest counter in concurrentOps
+              // todo: bei assign nicht nötig therefore one might reset
+              // to an older state, not the one directly before:
+//              val opsToRedo =
+//              if (olderOrders.keysIterator.max < op.id.c)
+//                relevantOpsSince(olderOrders.keysIterator.max)
+//              else concurrentOps
+              val orders = ln.orderArchive.filterKeys(_ >= op.id.c)
+
               val ctx1 =
-                ctx0.copy(order = olderOrders(olderOrders.keysIterator.max))
+                if (!orders.isEmpty) ln.copy(order = orders.minBy {
+                  case (c, _) => c
+                }._2)
+                else this
+              // reset the order
+              // the concurrentOps have deps. find the order, which fulfills all of them.
+
               println("\n\nbefore " + replica.replicaId + ctx1)
-              val a = ctx1.applyMany(sortedOps)
-              println("\n\nafter " + replica.replicaId + a)
-              a
+              val ret =
+                ctx1.applyMany(concurrentOps.sortWith(_.id < _.id), replica)
+              println("\n\nafter " + replica.replicaId + ret)
+              ret
             } else {
-              ctx0.apply(op)
+              apply(op, replica)
             }
           case _ =>
             // the op was done without me doing stuff, so need to
             // restore anything. just apply it.
-            this.apply(op)
+            apply(op, replica)
         }
 
       // DESCEND
@@ -145,9 +165,8 @@ sealed trait Node extends Product with Serializable {
         val ctx1 = addId(k1, op.id, op.mut)
         ctx1.addNode(k1, child1)
     }
-  }
 
-  def apply(op: Operation): Node = {
+  def apply(op: Operation, replica: Replica): Node = {
     val k = op.cur.finalKey
     op.mut match {
       // EMPTY-MAP, EMPTY-LIST
@@ -171,6 +190,7 @@ sealed trait Node extends Product with Serializable {
         val (ctx1, _) = clearElem(op.deps, k)
         ctx1
 
+      // INSERT
       case InsertM(value) =>
         val prevRef = ListRef.fromKey(k)
         val nextRef = getNextRef(prevRef)
@@ -182,7 +202,7 @@ sealed trait Node extends Product with Serializable {
             * determine the insertion point.
             */
           case IdR(nextId) if op.id < nextId =>
-            apply(op.copy(cur = Cursor.withFinalKey(IdK(nextId))))
+            apply(op.copy(cur = Cursor.withFinalKey(IdK(nextId))), replica)
 
           // INSERT1
           /** INSERT1 performs the insertion by manipulating the linked
@@ -191,12 +211,17 @@ sealed trait Node extends Product with Serializable {
           case _ =>
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
-            val ctx1 = apply(
-              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
-                      mut = AssignM(value)))
-            ctx1.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
+            val ctx1 = apply(op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
+                                     mut = AssignM(value)),
+                             replica)
+            val ctx2 = ctx1.saveOrder(op.id, replica)
+            ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
+
+      // MOVE-VERTICAL
       case MoveVerticalM(targetCursor, aboveBelow) =>
+        val ctx0 = saveOrder(op.id, replica)
+
         // the Node is already the final listnode
 
         // leave a mark upon touched nodes
@@ -204,8 +229,8 @@ sealed trait Node extends Product with Serializable {
         //            val tag = RegT(k)
         //            val ctx2 = this.addId(tag, op.id, op.mut)
 
-        //                 find the node which points to the moved node and set its
-        //                 next pointer to node the moved nodes points to
+        // find the node which points to the moved node and set its
+        // next pointer to node the moved nodes points to
         val moveNodeRef = ListRef.fromKey(op.cur.finalKey)
         val nodeAfterMovedNodeRef = getNextRef(moveNodeRef)
 
@@ -214,19 +239,19 @@ sealed trait Node extends Product with Serializable {
         val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
 
         val ctx1 =
-          this.setNextRef(getPreviousRef(moveNodeRef), nodeAfterMovedNodeRef)
+          ctx0.setNextRef(getPreviousRef(moveNodeRef), nodeAfterMovedNodeRef)
         ctx1
           .setNextRef(targetNodeRef, moveNodeRef)
           .setNextRef(moveNodeRef, nodeAfterTargetNodeRef)
     }
   }
 
-  def applyMany(operations: Vector[Operation]): Node =
+  def applyMany(operations: Vector[Operation], replica: Replica): Node =
     operations match {
       case o +: ops =>
-        val one = apply(o)
+        val one = apply(o, replica)
         println("one " + o + one)
-        val two = one.applyMany(ops)
+        val two = one.applyMany(ops, replica)
         println("two " + o + two)
         two
       case _ => this
