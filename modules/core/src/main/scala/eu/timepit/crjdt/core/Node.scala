@@ -103,17 +103,16 @@ sealed trait Node extends Product with Serializable {
             // we are interested in ops which are processed, are as new or
             // newer, changed the linked list and have the same parent as
             // the current op
-            println("oooop" + op)
+            println("\n\toooop" + op)
             println("\nallOps" + replica.replicaId + allOps)
 
             def relevantOpsSince(count: BigInt): Vector[Operation] =
               for (o <- allOps
-                   if (replica.processedOps.contains(o.id) || o.id == op.id) &&
-                     o.id.c >= count && cond(o.mut) {
-                     case InsertM(_) | DeleteM | MoveVerticalM(_, _) =>
-                       true
-                   } &&
-                     this.findChild(RegT(o.cur.finalKey)).isDefined)
+                   if (replica.processedOps.contains(o.id) && cond(o.mut) {
+                     case InsertM(_) | DeleteM | MoveVerticalM(_, _) => true
+                   } || o.id == op.id) && o.id.c >= count && this
+                     .findChild(RegT(o.cur.finalKey))
+                     .isDefined)
                 yield o
 
             val concurrentOps = relevantOpsSince(op.id.c)
@@ -250,9 +249,9 @@ sealed trait Node extends Product with Serializable {
     operations match {
       case o +: ops =>
         val one = apply(o, replica)
-        println("one " + o + one)
+//        println("one " + o + one)
         val two = one.applyMany(ops, replica)
-        println("two " + o + two)
+//        println("two " + o + two)
         two
       case _ => this
     }
