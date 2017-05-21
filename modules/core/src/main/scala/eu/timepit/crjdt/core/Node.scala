@@ -103,8 +103,6 @@ sealed trait Node extends Product with Serializable {
             // we are interested in ops which are processed, are as new or
             // newer, changed the linked list and have the same parent as
             // the current op
-            println("\n\toooop" + op)
-            println("\nallOps" + replica.replicaId + allOps)
 
             def relevantOpsSince(count: BigInt): Vector[Operation] =
               for (o <- allOps
@@ -116,18 +114,16 @@ sealed trait Node extends Product with Serializable {
                 yield o
 
             val concurrentOps = relevantOpsSince(op.id.c)
-            println("\nconcurrentOps" + replica.replicaId + concurrentOps)
 
             // if there are more ops than the current op
             if (concurrentOps.length > 1) {
-              println("archive:" + ln.orderArchive)
               // op.id.c is the the op with the lowest counter in concurrentOps
               // todo: bei assign nicht nötig therefore one might reset
               // to an older state, not the one directly before:
-//              val opsToRedo =
-//              if (olderOrders.keysIterator.max < op.id.c)
-//                relevantOpsSince(olderOrders.keysIterator.max)
-//              else concurrentOps
+              //              val opsToRedo =
+              //              if (olderOrders.keysIterator.max < op.id.c)
+              //                relevantOpsSince(olderOrders.keysIterator.max)
+              //              else concurrentOps
               val orders = ln.orderArchive.filterKeys(_ >= op.id.c)
 
               val ctx1 =
@@ -138,10 +134,8 @@ sealed trait Node extends Product with Serializable {
               // reset the order
               // the concurrentOps have deps. find the order, which fulfills all of them.
 
-              println("\n\nbefore " + replica.replicaId + ctx1)
               val ret =
                 ctx1.applyMany(concurrentOps.sortWith(_.id < _.id), replica)
-              println("\n\nafter " + replica.replicaId + ret)
               ret
             } else {
               apply(op, replica)
@@ -235,14 +229,19 @@ sealed trait Node extends Product with Serializable {
         val nodeAfterMovedNodeRef = getNextRef(moveNodeRef)
 
         val targetNodeRef = ListRef.fromKey(targetCursor.finalKey)
-        // todo: if aboveBelow is below: insert the moved node below the targetCursor
-        val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
 
         val ctx1 =
           ctx0.setNextRef(getPreviousRef(moveNodeRef), nodeAfterMovedNodeRef)
-        ctx1
-          .setNextRef(targetNodeRef, moveNodeRef)
-          .setNextRef(moveNodeRef, nodeAfterTargetNodeRef)
+        aboveBelow match {
+          case Before =>
+            ctx1
+              .setNextRef(getPreviousRef(targetNodeRef), moveNodeRef)
+              .setNextRef(moveNodeRef, targetNodeRef)
+          case After =>
+            ctx1
+              .setNextRef(targetNodeRef, moveNodeRef)
+              .setNextRef(moveNodeRef, getNextRef(targetNodeRef))
+        }
     }
   }
 
@@ -250,9 +249,7 @@ sealed trait Node extends Product with Serializable {
     operations match {
       case o +: ops =>
         val one = apply(o, replica)
-//        println("one " + o + one)
         val two = one.applyMany(ops, replica)
-//        println("two " + o + two)
         two
       case _ => this
     }

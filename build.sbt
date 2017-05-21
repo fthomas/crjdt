@@ -11,6 +11,7 @@ val modulesDir = "modules"
 val catsVersion = "0.9.0"
 val circeVersion = "0.7.0"
 val scalaCheckVersion = "1.13.4"
+val wvletLogVersion = "1.2.3"
 
 val allSubprojects = Seq("core", "circe")
 val allSubprojectsJVM = allSubprojects.map(_ + "JVM")
@@ -58,7 +59,8 @@ lazy val circe = crossProject
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core" % circeVersion,
       "io.circe" %%% "circe-testing" % circeVersion % "test",
-      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test"
+      "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % "test",
+      "org.wvlet" %%% "wvlet-log" % wvletLogVersion
     )
   )
 
