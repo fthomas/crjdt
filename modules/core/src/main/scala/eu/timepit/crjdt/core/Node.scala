@@ -215,27 +215,38 @@ sealed trait Node extends Product with Serializable {
 
       // MOVE-VERTICAL
       case MoveVerticalM(targetCursor, aboveBelow) =>
-        val ctx0 = saveOrder(op.id, replica)
-
-        /** Fix the whole where we removed the moved node:
-          * Find the node which points to the moved node and set its
-          * next pointer to the node the moved node points to. */
         val movedNodeRef = ListRef.fromKey(op.cur.finalKey)
         val nodeAfterMovedNodeRef = getNextRef(movedNodeRef)
-        val ctx1 =
-          ctx0.setNextRef(getPreviousRef(movedNodeRef), nodeAfterMovedNodeRef)
 
-        // Insert the moved node somewhere else by adjusting the pointers.
         val targetNodeRef = ListRef.fromKey(targetCursor.finalKey)
-        aboveBelow match {
-          case Before =>
-            ctx1
-              .setNextRef(getPreviousRef(targetNodeRef), movedNodeRef)
-              .setNextRef(movedNodeRef, targetNodeRef)
-          case After =>
-            ctx1
-              .setNextRef(targetNodeRef, movedNodeRef)
-              .setNextRef(movedNodeRef, getNextRef(targetNodeRef))
+        val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
+
+        if (aboveBelow == Before && nodeAfterMovedNodeRef == targetNodeRef ||
+            aboveBelow == After && nodeAfterTargetNodeRef == movedNodeRef ||
+            movedNodeRef == targetNodeRef) {
+          // the order is already as wished
+          this
+        } else {
+          val ctx0 = saveOrder(op.id, replica)
+
+          /** Fix the whole where we removed the moved node:
+            * Find the node which points to the moved node and set its
+            * next pointer to the node the moved node points to. */
+          val ctx1 =
+            ctx0.setNextRef(getPreviousRef(movedNodeRef),
+                            nodeAfterMovedNodeRef)
+
+          // Insert the moved node somewhere else by adjusting the pointers.
+          aboveBelow match {
+            case Before =>
+              ctx1
+                .setNextRef(getPreviousRef(targetNodeRef), movedNodeRef)
+                .setNextRef(movedNodeRef, targetNodeRef)
+            case After =>
+              ctx1
+                .setNextRef(targetNodeRef, movedNodeRef)
+                .setNextRef(movedNodeRef, nodeAfterTargetNodeRef)
+          }
         }
     }
   }

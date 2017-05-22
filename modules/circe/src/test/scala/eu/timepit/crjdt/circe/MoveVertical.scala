@@ -5,10 +5,9 @@ import eu.timepit.crjdt.circe.syntax._
 import eu.timepit.crjdt.core.syntax._
 import eu.timepit.crjdt.core.{After, Before, Cmd, Replica}
 import io.circe.Json
-import org.scalacheck.Prop._
 import org.scalacheck.Prop.secure
 import org.scalacheck.Properties
-import wvlet.log.LogLevel.{OFF}
+import wvlet.log.LogLevel.OFF
 import wvlet.log.LogSupport
 
 object MoveVertical extends Properties("MoveVertical") with LogSupport {
@@ -84,6 +83,13 @@ object MoveVertical extends Properties("MoveVertical") with LogSupport {
     List(one.moveVertical(three, After)),
     List(five.moveVertical(one, Before)),
     List("2", "3", "5", "1", "4")
+  )
+
+  // ops where nothing has to be done
+  testConcurrentOps(
+    List(one.moveVertical(two, Before), two.moveVertical(one, After)),
+    List(one.moveVertical(one, Before)),
+    List("1", "2", "3", "4", "5")
   )
 
 //  // here, move five should be done after move one
