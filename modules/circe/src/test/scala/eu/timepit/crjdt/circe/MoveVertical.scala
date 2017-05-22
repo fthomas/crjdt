@@ -13,7 +13,7 @@ import wvlet.log.LogSupport
 
 object MoveVertical extends Properties("MoveVertical") with LogSupport {
 
-  wvlet.log.Logger.setDefaultLogLevel(OFF)
+  wvlet.log.Logger.setDefaultLogLevel(OFF) // OFF, INFO or DEBUG
 
   val children = doc.downField("children")
   val head = children.iter
@@ -107,15 +107,15 @@ object MoveVertical extends Properties("MoveVertical") with LogSupport {
 //    List("2", "4", "Renamed 1", "3", "5")
 //  )
 
-  testConcurrentOps(
-    List(one.delete),
-    List(five.moveVertical(one, After)),
-    List("5", "2", "3", "4")
-  )
+//  testConcurrentOps(
+//    List(one.delete),
+//    List(five.moveVertical(one, After)),
+//    List("5", "2", "3", "4")
+//  )
 
-  testConcurrentOps(
-    List(five.moveVertical(one, After)),
-    List(one.delete),
-    List("5", "2", "3", "4")
-  )
+//  testConcurrentOps(
+//    List(five.moveVertical(one, After)),
+//    List(one.delete),
+//    List("5", "2", "3", "4")
+//  )
 }
