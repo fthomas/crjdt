@@ -120,15 +120,16 @@ sealed trait Node extends Product with Serializable {
                 * It is a Map whose key is the lamport timestamp counter value.
                 *
                 * To improve performance and save disk space, we don't save the
-                * order for assign operations, since they don't change the order.
-                * Now there might be this situation: Alice did an assign and a
+                * order before assign operations, since they don't change the order.
+                * Now there might be this situation: Alice did an assign and then a
                 * move op, while Bob did a move op. Now Bobs op comes in and
                 * Alice resets her order to the order with counter value like the
                 * incoming op. However, locally exists no such saved order, since
                 * she has done an assign op at that count. Therefore she resets
                 * to the next higher saved order.
-                * This is implemented by getting all order >= counter and then
-                * getting the minimum: */
+                * This fix is implemented by getting all orders whose counter is
+                * greater equals than the counter of the incoming op and then
+                * choosing the earliest order of those: */
               val newerOrders = ln.orderArchive.filterKeys(_ >= op.id.c)
 
               // restore the order
