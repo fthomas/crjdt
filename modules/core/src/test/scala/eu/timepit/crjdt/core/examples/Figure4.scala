@@ -42,34 +42,35 @@ object Figure4 extends Properties("Figure4") {
       Map(
         MapT(IdK(Id(1, "p"))) -> MapNode(
           Map(RegT(StrK("title")) -> RegNode(Map()),
-            RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
+              RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
           Map(StrK("done") -> Set(Id(4, "q"))))),
       Map(IdK(Id(1, "p")) -> Set(Id(4, "q"))),
-      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR)
+      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR),
+      Map()
     )
 
     p2.document ?= MapNode(
       Map(
         MapT(DocK) -> MapNode(Map(ListT(StrK("todo")) -> todoLists),
-          Map(
-            StrK("todo") -> Set(Id(1, "p"),
-              Id(2, "p"),
-              Id(3, "p"),
-              Id(4, "q"))))),
+                              Map(
+                                StrK("todo") -> Set(Id(1, "p"),
+                                                    Id(2, "p"),
+                                                    Id(3, "p"),
+                                                    Id(4, "q"))))),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q")))
     )
   }
 
   property("keys") = secure {
     (p2.keys(doc) ?= Set("todo")) &&
-      (p2.keys(todo.next) ?= Set("done")) &&
-      (p2.keys(todo) ?= Set.empty) &&
-      (p2.keys(doc.downField("foo").iter) ?= Set.empty)
+    (p2.keys(todo.next) ?= Set("done")) &&
+    (p2.keys(todo) ?= Set.empty) &&
+    (p2.keys(doc.downField("foo").iter) ?= Set.empty)
   }
 
   property("values") = secure {
     (p2.values(todo.next.downField("done")) ?= List(Val.True)) &&
-      (p2.values(todo) ?= List.empty) &&
-      (p2.values(doc.downField("foo").iter) ?= List.empty)
+    (p2.values(todo) ?= List.empty) &&
+    (p2.values(doc.downField("foo").iter) ?= List.empty)
   }
 }

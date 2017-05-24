@@ -5,6 +5,7 @@ import eu.timepit.crjdt.circe.syntax._
 import eu.timepit.crjdt.core.syntax._
 import eu.timepit.crjdt.core.{After, Before, Cmd, Replica}
 import io.circe.Json
+import org.scalacheck.Prop._
 import org.scalacheck.Prop.secure
 import org.scalacheck.Properties
 import wvlet.log.LogLevel.OFF

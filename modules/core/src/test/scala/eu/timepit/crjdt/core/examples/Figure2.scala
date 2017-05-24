@@ -52,7 +52,7 @@ object Figure2 extends Properties("Figure2") {
                       RegNode(Map(Id(3, "q") -> Str("#00ff00")))
                   ),
                   Map(StrK("red") -> Set(Id(2, "p")),
-                    StrK("green") -> Set(Id(3, "q")))
+                      StrK("green") -> Set(Id(3, "q")))
                 )),
             Map(StrK("colors") -> Set(Id(2, "p"), Id(2, "q"), Id(3, "q")))
           )),
@@ -62,6 +62,6 @@ object Figure2 extends Properties("Figure2") {
 
   property("keys") = secure {
     (p2.keys(doc) ?= Set("colors")) &&
-      (p2.keys(colors) ?= Set("red", "green"))
+    (p2.keys(colors) ?= Set("red", "green"))
   }
 }

@@ -50,26 +50,35 @@ object Figure3 extends Properties("Figure3") {
         RegT(IdK(Id(3, "p"))) -> RegNode(Map(Id(3, "p") -> Str("ham")))
       ),
       Map(IdK(Id(2, "p")) -> Set(Id(2, "p")),
-        IdK(Id(3, "p")) -> Set(Id(3, "p")),
-        IdK(Id(2, "q")) -> Set(Id(2, "q")),
-        IdK(Id(3, "q")) -> Set(Id(3, "q"))),
+          IdK(Id(3, "p")) -> Set(Id(3, "p")),
+          IdK(Id(2, "q")) -> Set(Id(2, "q")),
+          IdK(Id(3, "q")) -> Set(Id(3, "q"))),
       Map(HeadR -> IdR(Id(2, "q")),
-        IdR(Id(2, "q")) -> IdR(Id(3, "q")),
-        IdR(Id(3, "q")) -> IdR(Id(2, "p")),
-        IdR(Id(2, "p")) -> IdR(Id(3, "p")),
-        IdR(Id(3, "p")) -> TailR)
+          IdR(Id(2, "q")) -> IdR(Id(3, "q")),
+          IdR(Id(3, "q")) -> IdR(Id(2, "p")),
+          IdR(Id(2, "p")) -> IdR(Id(3, "p")),
+          IdR(Id(3, "p")) -> TailR),
+      Map(
+        BigInt(2) -> Map(HeadR -> IdR(Id(2, "p")),
+                         IdR(Id(2, "p")) -> IdR(Id(3, "p")),
+                         IdR(Id(3, "p")) -> TailR),
+        BigInt(3) -> Map(HeadR -> IdR(Id(2, "p")),
+                         IdR(Id(2, "p")) -> IdR(Id(3, "p")),
+                         IdR(Id(3, "p")) -> TailR)
+      )
     )
     val pres = Set(Id(2, "p"),
-      Id(2, "q"),
-      Id(1, "q"),
-      Id(3, "q"),
-      Id(3, "p"),
-      Id(1, "p"))
+                   Id(2, "q"),
+                   Id(1, "q"),
+                   Id(3, "q"),
+                   Id(3, "p"),
+                   Id(1, "p"))
 
+    print("zzz" + p2.document)
     p2.document ?= MapNode(
       Map(
         MapT(DocK) -> MapNode(Map(ListT(StrK("grocery")) -> groceryList),
-          Map(StrK("grocery") -> pres))),
+                              Map(StrK("grocery") -> pres))),
       Map(DocK -> pres))
   }
 }
