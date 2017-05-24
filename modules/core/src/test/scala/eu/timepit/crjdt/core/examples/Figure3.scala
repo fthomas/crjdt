@@ -67,7 +67,6 @@ object Figure3 extends Properties("Figure3") {
                    Id(3, "p"),
                    Id(1, "p"))
 
-    print("zzz" + p2.document)
     p2.document ?= MapNode(
       Map(
         MapT(DocK) -> MapNode(Map(ListT(StrK("grocery")) -> groceryList),

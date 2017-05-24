@@ -6,14 +6,9 @@ import eu.timepit.crjdt.core.syntax._
 import eu.timepit.crjdt.core.{After, Before, Cmd, Replica}
 import io.circe.Json
 import org.scalacheck.Prop._
-import org.scalacheck.Prop.secure
 import org.scalacheck.Properties
-import wvlet.log.LogLevel.OFF
-import wvlet.log.LogSupport
 
-object MoveVertical extends Properties("MoveVertical") with LogSupport {
-
-  wvlet.log.Logger.setDefaultLogLevel(OFF) // OFF, INFO or DEBUG
+object MoveVertical extends Properties("MoveVertical") {
 
   val children = doc.downField("children")
   val head = children.iter
@@ -23,11 +18,9 @@ object MoveVertical extends Properties("MoveVertical") with LogSupport {
   val four = children.iter.next.next.next.next
   val five = children.iter.next.next.next.next.next
 
-  def testConcurrentOps(aliceOps: List[Cmd],
-                        bobsOps: List[Cmd],
-                        resultList: List[String]) = {
-    val alice0 = Replica
-      .empty("Alice")
+  def testConcurrentOps(resultList: List[String], cmdLists: List[Cmd]*) = {
+    val start = Replica
+      .empty("start")
       .applyCmd(children := `[]`)
       .applyCmd(head.insert("1"))
       .applyCmd(one.insert("2"))
@@ -35,63 +28,78 @@ object MoveVertical extends Properties("MoveVertical") with LogSupport {
       .applyCmd(three.insert("4"))
       .applyCmd(four.insert("5"))
 
-    debug("alice0 / bob0:\n" + alice0.document)
-    info("alice0 / bob0 json:\n" + alice0.document.toJson)
+    val replicas0 = for (i <- cmdLists.indices) yield {
+      Replica.empty(i.toString).applyRemoteOps(start.generatedOps)
+    }
 
-    val bob0 = Replica.empty("Bob").applyRemoteOps(alice0.generatedOps)
+    val replicas1 = for (i <- cmdLists.indices) yield {
+      replicas0(i).applyCmds(cmdLists(i))
+    }
 
-    val alice1 = alice0.applyCmds(aliceOps)
-    val bob1 = bob0.applyCmds(bobsOps)
-    info("alice1 json:\n" + alice1.document.toJson)
-    info("bob1 json:\n" + bob1.document.toJson)
-
-    val alice2 = alice1.applyRemoteOps(bob1.generatedOps)
-    val bob2 = bob1.applyRemoteOps(alice1.generatedOps)
-    debug("alice2:\n" + alice2.document)
-    debug("bob2:\n" + bob2.document)
-
-    val alice2Json = alice2.document.toJson
-    val bob2Json = bob2.document.toJson
-    if (alice2Json == bob2Json) {
-      info("alice2 == bob2:\n" + alice2Json)
-    } else {
-      info("alice2 json:\n" + alice2Json)
-      info("bob2 json:\n" + bob2Json)
+    val replicas2 = for (i <- cmdLists.indices) yield {
+      val opLists = for (j <- cmdLists.indices if j != i)
+        yield replicas1(j).generatedOps
+      replicas1(i).applyRemoteOps(opLists.flatten.to[Vector])
     }
 
     property("converged") = secure {
-      alice2Json ?= Json.obj(
-        "children" -> Json.arr(resultList.map(Json.fromString): _*)
-      )
+      val props = for (replica <- replicas2) yield {
+        (replicas2(0).processedOps ?= replica.processedOps) &&
+        (replicas2(0).document ?= replica.document)
+      }
+      all(props: _*)
+    }
+
+    property("content") = secure {
+      val props = for (replica <- replicas2) yield {
+        replica.document.toJson ?= Json.obj(
+          "children" -> Json.arr(resultList.map(Json.fromString): _*)
+        )
+      }
+      all(props: _*)
     }
   }
 
-  // note: when two ops are concurrent, bobs op is applied before alices op
+  /* Note: When two ops are concurrent, the op whose replica name is later in
+   * the alphabet will be first. */
+
+  testConcurrentOps(List("2", "3", "1", "5", "4"),
+                    List(one.moveVertical(three, After)),
+                    List(five.moveVertical(one, After)))
 
   testConcurrentOps(
-    List(one.moveVertical(three, After)),
-    List(five.moveVertical(one, After)),
-    List("2", "3", "1", "5", "4")
-  )
-
-  testConcurrentOps(
+    List("2", "5", "1", "3", "4"),
     List(one.moveVertical(three, Before)),
-    List(five.moveVertical(one, Before)),
-    List("2", "5", "1", "3", "4")
+    List(five.moveVertical(one, Before))
   )
 
   testConcurrentOps(
+    List("2", "3", "5", "1", "4"),
     List(one.moveVertical(three, After)),
-    List(five.moveVertical(one, Before)),
-    List("2", "3", "5", "1", "4")
+    List(five.moveVertical(one, Before))
   )
 
-  // ops where nothing has to be done
+  val ins1 = "User1 inserted after 1"
+  val ins2 = "User2 inserted after 1"
   testConcurrentOps(
-    List(one.moveVertical(two, Before), two.moveVertical(one, After)),
-    List(one.moveVertical(one, Before)),
-    List("1", "2", "3", "4", "5")
+    List("1", ins2, ins1, "2", "3", "4", "5"),
+    List(one.insert(ins1)),
+    List(one.insert(ins2))
   )
+
+//  testConcurrentOps(
+//    List("1", ins2, ins1, "2", "3", "4", "5"),
+//    List(one.insert(ins1)),
+//    List(one.insert(ins2)),
+//    List(five.moveVertical(four, Before))
+//  )
+
+//  // ops where nothing has to be done
+//  testConcurrentOps(
+//    List("1", "2", "3", "4", "5"),
+//    List(one.moveVertical(two, Before), two.moveVertical(one, After)),
+//    List(one.moveVertical(one, Before))
+//  )
 
 //  // here, move five should be done after move one
 //  testConcurrentOps(

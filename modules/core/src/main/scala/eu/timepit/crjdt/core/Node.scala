@@ -114,8 +114,8 @@ sealed trait Node extends Product with Serializable {
 
             /** If there are concurrent or newer local ops other than the
               * incoming op: Restore the old order, then redo these ops.
-              * However, this must only be done if a MoveVertical op is among
-              * them. */
+              * However, it is only necessary if a MoveVertical op is among them.
+              * Therefore we do it only then. */
             if (concurrentOps.length > 1 && concurrentOps.count(
                   _.mut.isInstanceOf[MoveVerticalM]) >= 1) {
 
