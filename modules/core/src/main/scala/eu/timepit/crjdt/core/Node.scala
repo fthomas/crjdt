@@ -116,9 +116,8 @@ sealed trait Node extends Product with Serializable {
               * incoming op: Restore the old order, then redo these ops.
               * However, this must only be done if a MoveVertical op is among
               * them. */
-            if (concurrentOps.length > 1 && concurrentOps
-                  .filter(_.mut.isInstanceOf[MoveVerticalM])
-                  .length >= 1) {
+            if (concurrentOps.length > 1 && concurrentOps.count(
+                  _.mut.isInstanceOf[MoveVerticalM]) >= 1) {
 
               /** Before applying an operation we save the order in orderArchive.
                 * It is a Map whose key is the lamport timestamp counter value.
@@ -138,7 +137,7 @@ sealed trait Node extends Product with Serializable {
 
               // restore the order
               val ctx1 =
-                if (!newerOrders.isEmpty) ln.copy(order = newerOrders.minBy {
+                if (newerOrders.nonEmpty) ln.copy(order = newerOrders.minBy {
                   case (c, _) => c
                 }._2)
                 else this
@@ -445,8 +444,11 @@ object Node {
     override def withPresSets(presSets: Map[Key, Set[Id]]): ListNode =
       copy(presSets = presSets)
 
-    /** When comparing two lists for equality, their orderArchive does not have
-      * to be equal. */
+    /**
+      *
+      * @param that
+      * @return
+      */
     override def equals(that: scala.Any): Boolean =
       that match {
         case ln: ListNode => {
