@@ -51,7 +51,7 @@ If you know an implementation that is not listed here, please submit a PR!
 
 ## Development
 - Format your code with [Scalafmt](http://scalameta.org/scalafmt/).
-- Run a specific test with `sbt "test:testOnly eu.timepit.crjdt.core.examples.Figure1"` or all tests with `sbt test`.
+- Run a specific test with e.g. `sbt "test:testOnly eu.timepit.crjdt.core.examples.Figure1"` or all tests with `sbt test`.
 - Documentation for Vertical Move is in the file [`doc.md`](https://github.com/Tamriel/crjdt/blob/master/doc/doc.md).
 
 ## License
