@@ -32,7 +32,7 @@ Example:
 Here, the two operations can be applied in different order, too. Let's compare their results-
 
 | | Alice, then Bob: `3, 2, 1` | Bob then Alice: `2, 1, 3` |
-| :------------- |
+| --- |
 | Is `2` above `1` ? | ✓ | ✓ |
 | Is `3` above `2` ? | ✓ | x |
 
@@ -61,7 +61,7 @@ These cycles has to be dissolved before applying the topological sort by deletin
 Which model for vertical move operations shall we choose? Let's compare the results of the two options:
 
 | | Decrease index: `2, 3, 1` | Provide a target: `3, 2, 1` |
-| :------------- |
+| --- |
 | 2 went up | ✓ | x |
 | 3 went up | ✓ | ✓ |
 | 2 above 1 | o | ✓ |
