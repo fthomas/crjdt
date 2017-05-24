@@ -58,14 +58,7 @@ object Figure3 extends Properties("Figure3") {
           IdR(Id(3, "q")) -> IdR(Id(2, "p")),
           IdR(Id(2, "p")) -> IdR(Id(3, "p")),
           IdR(Id(3, "p")) -> TailR),
-      Map(
-        BigInt(2) -> Map(HeadR -> IdR(Id(2, "p")),
-                         IdR(Id(2, "p")) -> IdR(Id(3, "p")),
-                         IdR(Id(3, "p")) -> TailR),
-        BigInt(3) -> Map(HeadR -> IdR(Id(2, "p")),
-                         IdR(Id(2, "p")) -> IdR(Id(3, "p")),
-                         IdR(Id(3, "p")) -> TailR)
-      )
+      Map()
     )
     val pres = Set(Id(2, "p"),
                    Id(2, "q"),

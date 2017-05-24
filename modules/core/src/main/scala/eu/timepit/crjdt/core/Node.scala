@@ -112,9 +112,13 @@ sealed trait Node extends Product with Serializable {
 
             val concurrentOps = concurrentOpsSince(op.id.c)
 
-            /** If there are concurrent or newer ops other than the incoming op:
-              * Restore the old order, then redo these ops. */
-            if (concurrentOps.length > 1) {
+            /** If there are concurrent or newer local ops other than the
+              * incoming op: Restore the old order, then redo these ops.
+              * However, this must only be done if a MoveVertical op is among
+              * them. */
+            if (concurrentOps.length > 1 && concurrentOps
+                  .filter(_.mut.isInstanceOf[MoveVerticalM])
+                  .length >= 1) {
 
               /** Before applying an operation we save the order in orderArchive.
                 * It is a Map whose key is the lamport timestamp counter value.
@@ -440,14 +444,22 @@ object Node {
 
     override def withPresSets(presSets: Map[Key, Set[Id]]): ListNode =
       copy(presSets = presSets)
+
+    /** When comparing two lists for equality, their orderArchive does not have
+      * to be equal. */
+    override def equals(that: scala.Any): Boolean =
+      that match {
+        case ln: ListNode => {
+          children == ln.children && presSets == ln.presSets && order == ln.order
+        }
+        case _ => super.equals(that)
+      }
   }
 
   final case class RegNode(regValues: Map[Id, LeafVal]) extends Node {
     def values: List[LeafVal] =
       regValues.values.toList
   }
-
-  ///
 
   final def emptyMap: Node =
     MapNode(children = Map.empty, presSets = Map.empty)
