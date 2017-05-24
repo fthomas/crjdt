@@ -113,16 +113,14 @@ Then she applies the two operations again, but in a specific order. The result i
 What was just shown in the example can be abstracted into:
 
 When an operation comes in which was done concurrently to an own operation:
-1. Reset the current order to the order.
-2. Redo all operations since then in a specific order. The order does not matter in the first place, as long as all sides order in the same way and therefore all sides get the same result.
+1. Reset the current order to the order when the two replicas had the same state.
+2. Redo all operations since then in a specific order. The order does not matter, as long as all sides order in the same way and therefore all sides get the same result.
 
-To be able to reset the order to an older order, we save the order before applying any operation. It is saved in the Map `orderArchive` inside the parent node with the counter of the operation id as the key.
+To get a result the users expect, a topological sort can be applied, as outlined above. Though, this is not implement yet.
 
-When resetting the order, we get the order which has the counter of the incoming operation as its id. That is the order which was saved, before the local operation which is concurrent to the incoming operation was applied.
+To be able to reset the order to an older order, the order is saved before applying any operation. It is saved in the Map `orderArchive` inside the parent node with the counter value of the operation id as the key.
 
-Before applying an operation we save the order in orderArchive.
-It is a Map whose key is the lamport timestamp counter value.
-
+How do we now, to which order we shall reset? All concurrent operations have the same counter value inside their id. Therefore we can just reset to the order which has the counter value of the incoming operation as its key. That is the order, which was saved before the local operation of the concurrent operations was applied.
 
 ## Performance improvements
 To improve performance and save disk space, we don't save the
