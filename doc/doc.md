@@ -8,25 +8,22 @@ When two vertical move operations are done concurrently, there must be an algori
 A vertical move operation can be defined in at least two ways: By decreasing the index or by providing a target. In this section, both ways are introduced and then compared regarding the desired merge results. In the implementation of the vertical move algorithm only one of the two ways is used.
 
 #### Decrease index
-Let's say
-
 A vertical move operation can be modeled by defining, that the index of a specific element should be decreased.
 
 Example:
+On a list `1, 2, 3` these two operations are applied one after another:
 * Alice: VerticalMove(2, up)
 * Bob: VerticalMove(3, up)
 
-Black is what changed
-
-Look at the graphics below: When Alice's operation is applied to the list in the first column, the result is the list in the second column. The index of element 2 was decreased by one and therefore the index of element 1 increased. When Bob's operation is applied then, the result is the list in the third column:
+Look at the graphics below: When Alice's operation is applied to the list in the first column, the result is the list in the second column. The elements which changed order are colored black. The index of `2` was decreased by one and therefore the index of `1` increased. When Bob's operation is applied then, the result is the list in the third column.
 
 ![](img/decrease_index_1.png)
 
-When however Bob's operation is applied to the list `1, 2, 3` and then Alice's operation, the result will be `1, 2, 3`, so the order will be the same as in the original list.
+The next graphics shows the same process for the contrary order, first Bob then Alice. The result is `1, 2, 3`. That is the same order as in the beginning.
 
 ![](img/decrease_index_2.png)
 
-Conclusion: When applying operations, the order matters.
+Thus, when applying operations, the order matters.
 
 #### Provide a target
 A vertical move operation can be modeled by providing a target element, above which the moved element should end up.
@@ -35,12 +32,15 @@ Example:
 * Alice: VerticalMove(2, above, 1)
 * Bob: VerticalMove(3, above, 2)
 
+The graphics below visualizes applying the two operations. The `3` is not moved up now, but moved above the `2`. Since the `2` changed its position, the result is `3, 2, 1`.
 
-![](img/provide_target.png)
+![](img/provide_target_1.png)
 
-Other reihenfolge nicht gezeigt.
+The contrary order, first Bob then Alice, can be applied here, too. Its result is `2, 1, 3`, as seen in the graphics below.
 
-Here, the two operations can be applied in different order, too. Let's compare their results.
+![](img/provide_target_2.png)
+
+Let's compare the two results:
 
 |  | Alice, then Bob: `3, 2, 1` | Bob then Alice: `2, 1, 3` |
 | --- | --- | --- |
