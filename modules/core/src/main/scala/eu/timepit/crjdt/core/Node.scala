@@ -1,6 +1,5 @@
 package eu.timepit.crjdt.core
 
-import PartialFunction._
 import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
@@ -16,6 +15,7 @@ import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.EmptyMap
 import eu.timepit.crjdt.core.util.removeOrUpdate
 
+import scala.PartialFunction._
 import scala.annotation.tailrec
 
 sealed trait Node extends Product with Serializable {
@@ -78,12 +78,19 @@ sealed trait Node extends Product with Serializable {
         }
     }
 
-  def saveOrder(id: Id, replica: Replica): Node =
-    /** If this node is a list: Save the order of item in the list in the
-      * replica. Overwrites existing saved orders to update them. */
+  /** If this node is a list: Save the order of item in the list.
+    * Don't overwrite if it already exists. Why? Assumed it would be overwritten
+    * and user1, user2 and user3 do an op concurrently. When user2's op arrives
+    * at user1, the order is reset and both ops are redone. Each time an op is
+    * applied, the order is saved. Therefore when the user2's op is applied, the
+    * order is saved. That's the order after user1's op was applied. When now
+    * user3's op arrives and the order is reset, the order we reset to should be
+    * the order before all three ops were applied. But it's not, since user2's op
+    * has overwritten the order. Therefore don't overwrite. */
+  def saveOrder(op: Operation): Node =
     this match {
-      case ln: ListNode =>
-        ln.copy(orderArchive = ln.orderArchive + (id.c -> ln.order))
+      case ln: ListNode if (ln.orderArchive get op.id.c).isEmpty =>
+        ln.copy(orderArchive = ln.orderArchive + (op.id.c -> ln.order))
       case _ => this
     }
 
@@ -187,7 +194,7 @@ sealed trait Node extends Product with Serializable {
 
       // DELETE
       case DeleteM =>
-        val ctx1 = saveOrder(op.id, replica)
+        val ctx1 = saveOrder(op)
         val (ctx2, _) = ctx1.clearElem(op.deps, k)
         ctx2
 
@@ -202,6 +209,13 @@ sealed trait Node extends Product with Serializable {
             * ordering relation < on Lamport timestamps to consistently
             * determine the insertion point.  */
           case IdR(nextId) if op.id < nextId =>
+            /** Normally, the nextId is lower, since it was already inserted and
+              * newer ops have a higher id. NextId may be only higher, if two
+              * insert operations are concurrent the one the other one - with the
+              * higher id - was already inserted. When that's the case, insert
+              * the new op after the concurrent one with higher id. This way, when
+              * inserted at the same place, the op whose user id is higher,
+              * comes always fist. */
             apply(op.copy(cur = Cursor.withFinalKey(IdK(nextId))), replica)
 
           // INSERT1
@@ -213,7 +227,7 @@ sealed trait Node extends Product with Serializable {
             val ctx1 = apply(op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
                                      mut = AssignM(value)),
                              replica)
-            val ctx2 = ctx1.saveOrder(op.id, replica)
+            val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
 
@@ -231,7 +245,7 @@ sealed trait Node extends Product with Serializable {
           // the order is already as wished
           this
         } else {
-          val ctx0 = saveOrder(op.id, replica)
+          val ctx0 = saveOrder(op)
 
           /** Fix the whole where we removed the moved node:
             * Find the node which points to the moved node and set its
