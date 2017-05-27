@@ -155,10 +155,10 @@ sealed trait Node extends Product with Serializable {
 
               /** The op was done without me doing an op concurrently, so there is
                 * no need to restore anything. Just apply the op. */
-              apply(op, replica)
+              applyAtLeaf(op, replica)
             }
           case _ =>
-            apply(op, replica)
+            applyAtLeaf(op, replica)
         }
 
       // DESCEND
@@ -173,7 +173,7 @@ sealed trait Node extends Product with Serializable {
         ctx1.addNode(k1, child1)
     }
 
-  def apply(op: Operation, replica: Replica): Node = {
+  def applyAtLeaf(op: Operation, replica: Replica): Node = {
     val k = op.cur.finalKey
     op.mut match {
       // EMPTY-MAP, EMPTY-LIST
@@ -216,7 +216,8 @@ sealed trait Node extends Product with Serializable {
               * the new op after the concurrent one with higher id. This way, when
               * inserted at the same place, the op whose user id is higher,
               * comes always fist. */
-            apply(op.copy(cur = Cursor.withFinalKey(IdK(nextId))), replica)
+            applyAtLeaf(op.copy(cur = Cursor.withFinalKey(IdK(nextId))),
+                        replica)
 
           // INSERT1
           /** INSERT1 performs the insertion by manipulating the linked
@@ -224,9 +225,10 @@ sealed trait Node extends Product with Serializable {
           case _ =>
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
-            val ctx1 = apply(op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
-                                     mut = AssignM(value)),
-                             replica)
+            val ctx1 = applyAtLeaf(op.copy(cur =
+                                             Cursor.withFinalKey(IdK(op.id)),
+                                           mut = AssignM(value)),
+                                   replica)
             val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
@@ -239,10 +241,12 @@ sealed trait Node extends Product with Serializable {
         val targetNodeRef = ListRef.fromKey(targetCursor.finalKey)
         val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
 
-        if (aboveBelow == Before && nodeAfterMovedNodeRef == targetNodeRef ||
+        if (// the order is already as wished
+            aboveBelow == Before && nodeAfterMovedNodeRef == targetNodeRef ||
             aboveBelow == After && nodeAfterTargetNodeRef == movedNodeRef ||
-            movedNodeRef == targetNodeRef) {
-          // the order is already as wished
+            movedNodeRef == targetNodeRef ||
+            // the target has not the same parent
+            this.findChild(RegT(targetCursor.finalKey)).isEmpty) {
           this
         } else {
           val ctx0 = saveOrder(op)
@@ -272,7 +276,7 @@ sealed trait Node extends Product with Serializable {
   def applyMany(operations: Vector[Operation], replica: Replica): Node =
     operations match {
       case o +: ops =>
-        val ctx = apply(o, replica)
+        val ctx = applyAtLeaf(o, replica)
         ctx.applyMany(ops, replica)
       case _ => this
     }
@@ -458,11 +462,8 @@ object Node {
     override def withPresSets(presSets: Map[Key, Set[Id]]): ListNode =
       copy(presSets = presSets)
 
-    /**
-      *
-      * @param that
-      * @return
-      */
+    /** The tests cannot converge, since the orderArchive of two replicas is
+      * always different. Therefore don't compare the orderArchive. */
     override def equals(that: scala.Any): Boolean =
       that match {
         case ln: ListNode => {

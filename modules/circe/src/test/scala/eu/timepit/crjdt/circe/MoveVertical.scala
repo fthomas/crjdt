@@ -10,24 +10,30 @@ import org.scalacheck.Properties
 
 object MoveVertical extends Properties("MoveVertical") {
 
-  val children = doc.downField("children")
-  val head = children.iter
-  val one = children.iter.next
-  val two = children.iter.next.next
-  val three = children.iter.next.next.next
-  val four = children.iter.next.next.next.next
-  val five = children.iter.next.next.next.next.next
+  val parent = doc.downField("parent1")
+  val head = parent.iter
+  val one = parent.iter.next
+  val two = parent.iter.next.next
+  val three = parent.iter.next.next.next
+  val four = parent.iter.next.next.next.next
+  val five = parent.iter.next.next.next.next.next
+
+  val parent2 = doc.downField("parent2")
+  val head2 = parent2.iter
+  val one2 = parent2.iter.next
 
   def testConcurrentOps(resultList: List[String], cmdLists: List[Cmd]*) = {
     val start = Replica
       .empty("start")
-      .applyCmd(children := `[]`)
+      .applyCmd(parent := `[]`)
       .applyCmd(head.insert("1"))
       .applyCmd(one.insert("2"))
       .applyCmd(two.insert("3"))
       .applyCmd(three.insert("4"))
       .applyCmd(four.insert("5"))
-
+      .applyCmd(parent2 := `[]`)
+      .applyCmd(head2.insert("One"))
+      .applyCmd(one2.insert("Two"))
     val replicas0 = for (i <- cmdLists.indices) yield {
       Replica.empty(i.toString).applyRemoteOps(start.generatedOps)
     }
@@ -53,8 +59,8 @@ object MoveVertical extends Properties("MoveVertical") {
     property("content") = secure {
       val props = for (replica <- replicas2) yield {
         replica.document.toJson ?= Json.obj(
-          "children" -> Json.arr(resultList.map(Json.fromString): _*)
-        )
+          "parent1" -> Json.arr(resultList.map(Json.fromString): _*),
+          "parent2" -> Json.arr(List("One", "Two").map(Json.fromString): _*))
       }
       all(props: _*)
     }
@@ -90,6 +96,10 @@ object MoveVertical extends Properties("MoveVertical") {
     List("1", "2", "3", "4", "5"),
     List(one.moveVertical(two, Before), two.moveVertical(one, After)),
     List(one.moveVertical(one, Before)))
+
+  // provide a wrong parent
+  testConcurrentOps(List("1", "2", "3", "4", "5"),
+                    List(two.moveVertical(one2, After)))
 
   testConcurrentOps(List("5", "2", "3", "4"),
                     List(one.delete),
