@@ -4,12 +4,7 @@ import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
-import eu.timepit.crjdt.core.Mutation.{
-  AssignM,
-  DeleteM,
-  InsertM,
-  MoveVerticalM
-}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM, MoveVerticalM}
 import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.EmptyMap
@@ -99,12 +94,12 @@ sealed trait Node extends Product with Serializable {
       case Cursor.Leaf(_) =>
         this match {
 
-          /** If this node is a list: To merge concurrent vertical move ops,
-            * we may have to redo concurrent ops. */
+          // If this node is a list: To merge concurrent vertical move ops,
+          // we may have to redo concurrent ops.
           case ln: ListNode =>
-            /** Returns ops which are processed, are as new or
-              * newer, changed the linked list and have the same parent as
-              * the current op. */
+            // Returns ops which are processed, are as new or
+            // newer, changed the linked list and have the same parent as
+            // the current op.
             def concurrentOpsSince(count: BigInt): Vector[Operation] = {
               val allOps = replica.generatedOps ++ replica.receivedOps
 
@@ -119,27 +114,26 @@ sealed trait Node extends Product with Serializable {
 
             val concurrentOps = concurrentOpsSince(op.id.c)
 
-            /** If there are concurrent or newer local ops other than the
-              * incoming op: Restore the old order, then redo these ops.
-              * However, it is only necessary if a MoveVertical op is among them.
-              * Therefore we do it only then. */
+            // If there are concurrent or newer local ops other than the
+            //  incoming op: Restore the old order, then redo these ops.
+            //  However, it is only necessary if a MoveVertical op is among them.
+            //  Therefore we do it only then.
             if (concurrentOps.length > 1 && concurrentOps.count(
                   _.mut.isInstanceOf[MoveVerticalM]) >= 1) {
 
-              /** Before applying an operation we save the order in orderArchive.
-                * It is a Map whose key is the lamport timestamp counter value.
-                *
-                * To improve performance and save disk space, we don't save the
-                * order before assign operations, since they don't change the order.
-                * Now there might be this situation: Alice did an assign and then a
-                * move op, while Bob did a move op. Now Bobs op comes in and
-                * Alice resets her order to the order with counter value like the
-                * incoming op. However, locally exists no such saved order, since
-                * she has done an assign op at that count. Therefore she resets
-                * to the next higher saved order.
-                * This fix is implemented by getting all orders whose counter is
-                * greater equals than the counter of the incoming op and then
-                * choosing the earliest order of those: */
+              //  Before applying an operation we save the order in orderArchive.
+              // It is a Map whose key is the lamport timestamp counter value.
+              // To improve performance and save disk space, we don't save the
+              // order before assign operations, since they don't change the order.
+              // Now there might be this situation: Alice did an assign and then a
+              // move op, while Bob did a move op. Now Bobs op comes in and
+              // Alice resets her order to the order with counter value like the
+              // incoming op. However, locally exists no such saved order, since
+              // she has done an assign op at that count. Therefore she resets
+              // to the next higher saved order.
+              // This fix is implemented by getting all orders whose counter is
+              // greater equals than the counter of the incoming op and then
+              // choosing the earliest order of those:
               val newerOrders = ln.orderArchive.filterKeys(_ >= op.id.c)
 
               // restore the order
@@ -153,8 +147,8 @@ sealed trait Node extends Product with Serializable {
               ctx1.applyMany(concurrentOps.sortWith(_.id < _.id), replica)
             } else {
 
-              /** The op was done without me doing an op concurrently, so there is
-                * no need to restore anything. Just apply the op. */
+              // The op was done without me doing an op concurrently, so there is
+              // no need to restore anything. Just apply the op.
               applyAtLeaf(op, replica)
             }
           case _ =>
@@ -165,10 +159,10 @@ sealed trait Node extends Product with Serializable {
       case Cursor.Branch(k1, cur1) =>
         val child0 = getChild(k1)
         val child1 = child0.applyOp(op.copy(cur = cur1), replica) // update that child
-        /** The DESCEND rule also invokes ADD-ID1,2 at each tree
-          * node along the path described by the cursor, adding the
-          * operation ID to the presence set pres(k) to indicate that the
-          * subtree includes a mutation made by this operation. */
+        // The DESCEND rule also invokes ADD-ID1,2 at each tree
+        // node along the path described by the cursor, adding the
+        // operation ID to the presence set pres(k) to indicate that the
+        // subtree includes a mutation made by this operation.
         val ctx1 = addId(k1, op.id, op.mut)
         ctx1.addNode(k1, child1)
     }
@@ -204,31 +198,31 @@ sealed trait Node extends Product with Serializable {
         val nextRef = getNextRef(prevRef)
         nextRef match {
           // INSERT2
-          /** INSERT 2 handles the case of multiple replicas concurrently
-            * inserting list elements at the same position, and uses the
-            * ordering relation < on Lamport timestamps to consistently
-            * determine the insertion point.  */
+          // INSERT 2 handles the case of multiple replicas concurrently
+          // inserting list elements at the same position, and uses the
+          // ordering relation < on Lamport timestamps to consistently
+          // determine the insertion point.
           case IdR(nextId) if op.id < nextId =>
-            /** Normally, the nextId is lower, since it was already inserted and
-              * newer ops have a higher id. NextId may be only higher, if two
-              * insert operations are concurrent the one the other one - with the
-              * higher id - was already inserted. When that's the case, insert
-              * the new op after the concurrent one with higher id. This way, when
-              * inserted at the same place, the op whose user id is higher,
-              * comes always fist. */
+            // Normally, the nextId is lower, since it was already inserted and
+            // newer ops have a higher id. NextId may be only higher, if two
+            // insert operations are concurrent the one the other one - with the
+            // higher id - was already inserted. When that's the case, insert
+            // the new op after the concurrent one with higher id. This way, when
+            // inserted at the same place, the op whose user id is higher,
+            // comes always fist.
             applyAtLeaf(op.copy(cur = Cursor.withFinalKey(IdK(nextId))),
                         replica)
 
           // INSERT1
-          /** INSERT1 performs the insertion by manipulating the linked
-            * list structure. */
+          // INSERT1 performs the insertion by manipulating the linked
+          // list structure.
           case _ =>
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
-            val ctx1 = applyAtLeaf(op.copy(cur =
-                                             Cursor.withFinalKey(IdK(op.id)),
-                                           mut = AssignM(value)),
-                                   replica)
+            val ctx1 = applyAtLeaf(
+              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
+                      mut = AssignM(value)),
+              replica)
             val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
@@ -251,12 +245,11 @@ sealed trait Node extends Product with Serializable {
         } else {
           val ctx0 = saveOrder(op)
 
-          /** Fix the whole where we removed the moved node:
-            * Find the node which points to the moved node and set its
-            * next pointer to the node the moved node points to. */
+          // Fix the whole where we removed the moved node:
+          // Find the node which points to the moved node and set its
+          // next pointer to the node the moved node points to.
           val ctx1 =
-            ctx0.setNextRef(getPreviousRef(movedNodeRef),
-                            nodeAfterMovedNodeRef)
+            ctx0.setNextRef(getPreviousRef(movedNodeRef), nodeAfterMovedNodeRef)
 
           // Insert the moved node somewhere else by adjusting the pointers.
           aboveBelow match {
