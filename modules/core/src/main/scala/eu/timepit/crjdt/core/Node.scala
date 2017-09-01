@@ -4,7 +4,12 @@ import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
-import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM, MoveVerticalM}
+import eu.timepit.crjdt.core.Mutation.{
+  AssignM,
+  DeleteM,
+  InsertM,
+  MoveVerticalM
+}
 import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.EmptyMap
@@ -219,10 +224,10 @@ sealed trait Node extends Product with Serializable {
           case _ =>
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
-            val ctx1 = applyAtLeaf(
-              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
-                      mut = AssignM(value)),
-              replica)
+            val ctx1 = applyAtLeaf(op.copy(cur =
+                                             Cursor.withFinalKey(IdK(op.id)),
+                                           mut = AssignM(value)),
+                                   replica)
             val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
@@ -249,7 +254,8 @@ sealed trait Node extends Product with Serializable {
           // Find the node which points to the moved node and set its
           // next pointer to the node the moved node points to.
           val ctx1 =
-            ctx0.setNextRef(getPreviousRef(movedNodeRef), nodeAfterMovedNodeRef)
+            ctx0.setNextRef(getPreviousRef(movedNodeRef),
+                            nodeAfterMovedNodeRef)
 
           // Insert the moved node somewhere else by adjusting the pointers.
           aboveBelow match {

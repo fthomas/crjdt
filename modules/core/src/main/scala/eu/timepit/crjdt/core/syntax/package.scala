@@ -8,8 +8,8 @@ package object syntax {
   val doc: Expr = Doc
   val let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
-  val `{}` : BranchVal = EmptyMap
-  val `[]` : BranchVal = EmptyList
+  val `{}`: BranchVal = EmptyMap
+  val `[]`: BranchVal = EmptyList
 
   implicit final class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
