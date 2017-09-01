@@ -8,8 +8,8 @@ package object syntax {
   val doc: Expr = Doc
   val let: LetSyntax = new LetSyntax
   def v(name: String): Var = Var(name)
-  val `{}`: BranchVal = EmptyMap
-  val `[]`: BranchVal = EmptyList
+  val `{}` : BranchVal = EmptyMap
+  val `[]` : BranchVal = EmptyList
 
   implicit final class CmdOps(val self: Cmd) extends AnyVal {
     def `;`(cmd2: Cmd): Cmd = Sequence(self, cmd2)
@@ -19,6 +19,8 @@ package object syntax {
     def :=(value: Val): Cmd = Assign(self, value)
     def insert(value: Val): Cmd = Insert(self, value)
     def delete: Cmd = Delete(self)
+    def moveVertical(targetExpr: Expr, beforeAfter: BeforeAfter): Cmd =
+      MoveVertical(self, targetExpr, beforeAfter)
 
     def downField(key: String): Expr = DownField(self, key)
     def iter: Expr = Iter(self)

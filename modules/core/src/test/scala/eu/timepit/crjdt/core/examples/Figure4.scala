@@ -13,8 +13,8 @@ import org.scalacheck.Properties
 object Figure4 extends Properties("Figure4") {
   val todo = doc.downField("todo").iter
   val cmd = todo.insert(`{}`) `;`
-      (todo.next.downField("title") := "buy milk") `;`
-      (todo.next.downField("done") := false)
+    (todo.next.downField("title") := "buy milk") `;`
+    (todo.next.downField("done") := false)
 
   val p0 = Replica.empty("p").applyCmd(cmd)
   val q0 = merge(Replica.empty("q"), p0)
@@ -45,7 +45,8 @@ object Figure4 extends Properties("Figure4") {
               RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
           Map(StrK("done") -> Set(Id(4, "q"))))),
       Map(IdK(Id(1, "p")) -> Set(Id(4, "q"))),
-      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR)
+      Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR),
+      Map()
     )
 
     p2.document ?= MapNode(

@@ -15,11 +15,11 @@ object Figure6 extends Properties("Figure6") {
     val list = v("list")
     val eggs = v("eggs")
     val cmd = (doc := `{}`) `;`
-        (let(list) = doc.downField("shopping").iter) `;`
-        list.insert("eggs") `;`
-        (let(eggs) = list.next) `;`
-        eggs.insert("milk") `;`
-        list.insert("cheese")
+      (let(list) = doc.downField("shopping").iter) `;`
+      list.insert("eggs") `;`
+      (let(eggs) = list.next) `;`
+      eggs.insert("milk") `;`
+      list.insert("cheese")
 
     val shoppingNode = ListNode(
       Map(
@@ -33,7 +33,8 @@ object Figure6 extends Properties("Figure6") {
       Map(HeadR -> IdR(Id(4, "")),
           IdR(Id(4, "")) -> IdR(Id(2, "")),
           IdR(Id(2, "")) -> IdR(Id(3, "")),
-          IdR(Id(3, "")) -> TailR)
+          IdR(Id(3, "")) -> TailR),
+      Map()
     )
 
     val rootNode = MapNode(
