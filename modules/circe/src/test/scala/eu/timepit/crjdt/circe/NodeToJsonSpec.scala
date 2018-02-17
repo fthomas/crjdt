@@ -46,9 +46,9 @@ object NodeToJsonSpec
         .collect {
           case node: MapNode =>
             node.children.collect {
-              case (TypeTag.MapT(StrK(key)), value) => (key, value)
+              case (TypeTag.MapT(StrK(key)), value)  => (key, value)
               case (TypeTag.ListT(StrK(key)), value) => (key, value)
-              case (TypeTag.RegT(StrK(key)), value) => (key, value)
+              case (TypeTag.RegT(StrK(key)), value)  => (key, value)
             }
         }
         .getOrElse(Map.empty)

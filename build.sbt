@@ -1,3 +1,5 @@
+import scala.sys.process._
+
 /// variables
 
 val groupId = "eu.timepit"
@@ -75,8 +77,7 @@ lazy val docs = project
   .settings(
     Def.settings(
       unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-        inAnyProject -- inProjects(
-          allSubprojectsJS.map(LocalProject.apply): _*)
+        inAnyProject -- inProjects(allSubprojectsJS.map(LocalProject.apply): _*)
     )
   )
 
@@ -144,8 +145,7 @@ lazy val scaladocSettings = Def.settings(
     baseDirectory.in(LocalRootProject).value.getAbsolutePath
   ),
   autoAPIMappings := true,
-  apiURL := Some(
-    url(s"http://$gitHubOwner.github.io/$projectName/latest/api/"))
+  apiURL := Some(url(s"http://$gitHubOwner.github.io/$projectName/latest/api/"))
 )
 
 lazy val publishSettings = Def.settings(
@@ -156,8 +156,8 @@ lazy val publishSettings = Def.settings(
 )
 
 lazy val noPublishSettings = Def.settings(
-  publish := (),
-  publishLocal := (),
+  publish := {},
+  publishLocal := {},
   publishArtifact := false
 )
 
@@ -244,7 +244,9 @@ addCommandsAlias("validateJS",
 addCommandsAlias("validateJVM",
                  Seq(
                    "clean",
-                   "scalafmtTest",
+                   "scalafmtCheck",
+                   "scalafmtSbtCheck",
+                   "test:scalafmtCheck",
                    "coverage",
                    "testJVM",
                    "coverageReport",

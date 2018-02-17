@@ -12,11 +12,11 @@ object NodeToJsonFigure6Spec extends Properties("NodeToJsonFigure6Spec") {
   val list = v("list")
   val eggs = v("eggs")
   val cmd = (doc := `{}`) `;`
-      (let(list) = doc.downField("shopping").iter) `;`
-      list.insert("eggs") `;`
-      (let(eggs) = list.next) `;`
-      eggs.insert("milk") `;`
-      list.insert("cheese")
+    (let(list) = doc.downField("shopping").iter) `;`
+    list.insert("eggs") `;`
+    (let(eggs) = list.next) `;`
+    eggs.insert("milk") `;`
+    list.insert("cheese")
 
   val document = Replica.empty("").applyCmd(cmd).document
 

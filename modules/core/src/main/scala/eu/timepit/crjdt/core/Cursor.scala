@@ -8,7 +8,7 @@ final case class Cursor(keys: Vector[BranchTag], finalKey: Key) {
   def view: Cursor.View =
     keys match {
       case k1 +: kn => Cursor.Branch(k1, Cursor(kn, finalKey))
-      case _ => Cursor.Leaf(finalKey)
+      case _        => Cursor.Leaf(finalKey)
     }
 }
 

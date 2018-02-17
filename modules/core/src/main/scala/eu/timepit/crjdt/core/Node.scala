@@ -4,12 +4,7 @@ import cats.instances.set._
 import cats.syntax.order._
 import eu.timepit.crjdt.core.Key.{IdK, StrK}
 import eu.timepit.crjdt.core.ListRef.{HeadR, IdR, TailR}
-import eu.timepit.crjdt.core.Mutation.{
-  AssignM,
-  DeleteM,
-  InsertM,
-  MoveVerticalM
-}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM, MoveVerticalM}
 import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT, RegT}
 import eu.timepit.crjdt.core.Val.EmptyMap
@@ -49,14 +44,14 @@ sealed trait Node extends Product with Serializable {
       case Cursor.Leaf(k) =>
         findChild(MapT(k)) match {
           case Some(map: MapNode) => map.keys
-          case _ => Set.empty
+          case _                  => Set.empty
         }
 
       // KEYS3
       case Cursor.Branch(k1, cur1) =>
         findChild(k1) match {
           case Some(child) => child.keys(cur1)
-          case None => Set.empty
+          case None        => Set.empty
         }
     }
 
@@ -67,14 +62,14 @@ sealed trait Node extends Product with Serializable {
       case Cursor.Leaf(k) =>
         findChild(RegT(k)) match {
           case Some(reg: RegNode) => reg.values
-          case _ => List.empty
+          case _                  => List.empty
         }
 
       // VAL3
       case Cursor.Branch(k1, cur1) =>
         findChild(k1) match {
           case Some(child) => child.values(cur1)
-          case None => List.empty
+          case None        => List.empty
         }
     }
 
@@ -224,10 +219,10 @@ sealed trait Node extends Product with Serializable {
           case _ =>
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
-            val ctx1 = applyAtLeaf(op.copy(cur =
-                                             Cursor.withFinalKey(IdK(op.id)),
-                                           mut = AssignM(value)),
-                                   replica)
+            val ctx1 = applyAtLeaf(
+              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
+                      mut = AssignM(value)),
+              replica)
             val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
@@ -254,8 +249,7 @@ sealed trait Node extends Product with Serializable {
           // Find the node which points to the moved node and set its
           // next pointer to the node the moved node points to.
           val ctx1 =
-            ctx0.setNextRef(getPreviousRef(movedNodeRef),
-                            nodeAfterMovedNodeRef)
+            ctx0.setNextRef(getPreviousRef(movedNodeRef), nodeAfterMovedNodeRef)
 
           // Insert the moved node somewhere else by adjusting the pointers.
           aboveBelow match {
@@ -285,13 +279,13 @@ sealed trait Node extends Product with Serializable {
   final def addNode(tag: TypeTag, node: Node): Node =
     this match {
       case n: BranchNode => n.withChildren(n.children.updated(tag, node))
-      case _ => this
+      case _             => this
     }
 
   final def addRegValue(id: Id, value: LeafVal): Node =
     this match {
       case r: RegNode => r.copy(regValues = r.regValues.updated(id, value))
-      case _ => this
+      case _          => this
     }
 
   final def addId(tag: TypeTag, id: Id, mut: Mutation): Node =
@@ -380,14 +374,14 @@ sealed trait Node extends Product with Serializable {
   final def findChild(tag: TypeTag): Option[Node] =
     this match {
       case n: BranchNode => n.children.get(tag)
-      case _ => None
+      case _             => None
     }
 
   // PRESENCE1, PRESENCE2
   final def getPres(key: Key): Set[Id] =
     this match {
       case n: BranchNode => n.presSets.getOrElse(key, Set.empty)
-      case _ => Set.empty
+      case _             => Set.empty
     }
 
   final def setPres(key: Key, pres: Set[Id]): Node =
@@ -401,25 +395,25 @@ sealed trait Node extends Product with Serializable {
   final def keySet: Set[TypeTag] =
     this match {
       case m: MapNode => m.children.keySet
-      case _ => Set.empty
+      case _          => Set.empty
     }
 
   final def getNextRef(ref: ListRef): ListRef =
     this match {
       case l: ListNode => l.order.getOrElse(ref, TailR)
-      case _ => TailR
+      case _           => TailR
     }
 
   final def getPreviousRef(ref: ListRef): ListRef =
     this match {
       case l: ListNode => l.order.map(_.swap).getOrElse(ref, HeadR)
-      case _ => HeadR
+      case _           => HeadR
     }
 
   final def setNextRef(src: ListRef, dst: ListRef): Node =
     this match {
       case l: ListNode => l.copy(order = l.order.updated(src, dst))
-      case _ => this
+      case _           => this
     }
 }
 

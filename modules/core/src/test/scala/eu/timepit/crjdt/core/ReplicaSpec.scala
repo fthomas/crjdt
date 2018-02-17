@@ -48,15 +48,14 @@ object ReplicaSpec extends Properties("Replica") {
     converged(p1, q1)
   }
 
-  property("commutativity 2") = forAll {
-    (cmds1: List[Cmd], cmds2: List[Cmd]) =>
-      val p1 = p0.applyCmds(cmds1)
-      val q1 = q0.applyCmds(cmds2)
+  property("commutativity 2") = forAll { (cmds1: List[Cmd], cmds2: List[Cmd]) =>
+    val p1 = p0.applyCmds(cmds1)
+    val q1 = q0.applyCmds(cmds2)
 
-      val p2 = p1.applyRemoteOps(randomPermutation(q1.generatedOps))
-      val q2 = q1.applyRemoteOps(randomPermutation(p1.generatedOps))
+    val p2 = p1.applyRemoteOps(randomPermutation(q1.generatedOps))
+    val q2 = q1.applyRemoteOps(randomPermutation(p1.generatedOps))
 
-      converged(p2, q2)
+    converged(p2, q2)
   }
 
   property("commutativity 3") = forAll {
@@ -65,12 +64,12 @@ object ReplicaSpec extends Properties("Replica") {
       val q1 = q0.applyCmds(cmds2)
       val r1 = r0.applyCmds(cmds3)
 
-      val p2 = p1.applyRemoteOps(
-        randomPermutation(q1.generatedOps ++ r1.generatedOps))
-      val q2 = q1.applyRemoteOps(
-        randomPermutation(p1.generatedOps ++ r1.generatedOps))
-      val r2 = r1.applyRemoteOps(
-        randomPermutation(p1.generatedOps ++ q1.generatedOps))
+      val p2 =
+        p1.applyRemoteOps(randomPermutation(q1.generatedOps ++ r1.generatedOps))
+      val q2 =
+        q1.applyRemoteOps(randomPermutation(p1.generatedOps ++ r1.generatedOps))
+      val r2 =
+        r1.applyRemoteOps(randomPermutation(p1.generatedOps ++ q1.generatedOps))
 
       converged(p2, q2, r2)
   }

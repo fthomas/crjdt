@@ -9,9 +9,9 @@ package object syntax extends NodeToJson {
   implicit class PimpNode(node: Node)(implicit rcr: RegNodeConflictResolver) {
     def toJson: Json =
       node match {
-        case v: MapNode => mapToJson(v)
+        case v: MapNode  => mapToJson(v)
         case v: ListNode => listToJson(v)
-        case v: RegNode => rcr.registerToJson(v)
+        case v: RegNode  => rcr.registerToJson(v)
       }
   }
 
