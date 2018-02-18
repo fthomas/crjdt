@@ -4,12 +4,7 @@ import cats.instances.list._
 import eu.timepit.crjdt.core.Cmd._
 import eu.timepit.crjdt.core.Expr._
 import eu.timepit.crjdt.core.Key.{HeadK, StrK}
-import eu.timepit.crjdt.core.Mutation.{
-  AssignM,
-  DeleteM,
-  InsertM,
-  MoveVerticalM
-}
+import eu.timepit.crjdt.core.Mutation.{AssignM, DeleteM, InsertM, MoveVerticalM}
 import eu.timepit.crjdt.core.TypeTag.{ListT, MapT}
 import eu.timepit.crjdt.core.util.applyAllLeft
 
@@ -76,7 +71,7 @@ final case class Replica(replicaId: ReplicaId,
               // It corresponds to the dubious EXPR `iter[key]` which should
               // be impossible to construct with the EXPR API.
               case HeadK => c
-              case _ => c.append(MapT.apply, StrK(key))
+              case _     => c.append(MapT.apply, StrK(key))
           }
           go(expr2, f :: fs)
 

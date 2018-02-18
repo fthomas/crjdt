@@ -9,7 +9,7 @@ sealed trait KeyRef extends ListRef {
   final def toKey: Key =
     this match {
       case IdR(id) => IdK(id)
-      case HeadR => HeadK
+      case HeadR   => HeadK
     }
 }
 
@@ -21,7 +21,7 @@ object ListRef {
   final def fromKey(key: Key): ListRef =
     key match {
       case IdK(id) => IdR(id)
-      case HeadK => HeadR
-      case _ => TailR
+      case HeadK   => HeadR
+      case _       => TailR
     }
 }

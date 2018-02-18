@@ -11,9 +11,9 @@ private[circe] trait NodeToJson {
       implicit rcr: RegNodeConflictResolver): Json =
     if (mapNode.children.contains(TypeTag.MapT(Key.DocK))) {
       mapNode.getChild(TypeTag.MapT(Key.DocK)) match {
-        case node: MapNode => mapToJson(node)
+        case node: MapNode  => mapToJson(node)
         case node: ListNode => listToJson(node)
-        case node: RegNode => rcr.registerToJson(node)
+        case node: RegNode  => rcr.registerToJson(node)
       }
     } else {
       val fields = mapNode.children.collect {

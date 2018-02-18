@@ -34,9 +34,9 @@ object EvalExprSpec extends Properties("Replica.evalExpr") {
   property("list.iter.next") = secure {
     val list = doc.downField("list")
     val cmd = (list := `[]`) `;`
-        list.iter.insert("item1") `;`
-        list.iter.insert("item2") `;`
-        list.iter.insert("item3")
+      list.iter.insert("item1") `;`
+      list.iter.insert("item2") `;`
+      list.iter.insert("item3")
 
     val p1 = p0.applyCmd(cmd)
     val e1 = list.iter.next

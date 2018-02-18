@@ -13,8 +13,8 @@ import org.scalacheck.Properties
 object Figure4 extends Properties("Figure4") {
   val todo = doc.downField("todo").iter
   val cmd = todo.insert(`{}`) `;`
-      (todo.next.downField("title") := "buy milk") `;`
-      (todo.next.downField("done") := false)
+    (todo.next.downField("title") := "buy milk") `;`
+    (todo.next.downField("done") := false)
 
   val p0 = Replica.empty("p").applyCmd(cmd)
   val q0 = merge(Replica.empty("q"), p0)
