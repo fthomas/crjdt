@@ -43,11 +43,12 @@ GitHub, etc.) to be welcoming environments for everyone.
 
 ## Other implementations
 
-Currently crjdt is the only public implementation of the JSON CRDT described
-in the [paper][paper.abs] by **Kleppmann** and **Beresford**. We will list
-other implementations here as soon as they become available.
+Here are other implementations of the JSON CRDT described in the
+[paper][paper.abs] by **Kleppmann** and **Beresford**.
 
 If you know an implementation that is not listed here, please submit a PR!
+
+- [crjdt-haskell](https://github.com/amarpotghan/crjdt-haskell)
 
 ## Development
 - Format your code with [Scalafmt](http://scalameta.org/scalafmt/).
