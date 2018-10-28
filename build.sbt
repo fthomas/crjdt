@@ -11,7 +11,7 @@ val gitDevUrl = s"git@github.com:$gitHubOwner/$projectName.git"
 val modulesDir = "modules"
 
 val catsVersion = "0.9.0"
-val circeVersion = "0.7.1"
+val circeVersion = "0.10.0"
 val scalaCheckVersion = "1.14.0"
 
 val allSubprojects = Seq("core", "circe")
