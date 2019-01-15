@@ -1,10 +1,14 @@
 package eu.timepit.crjdt.core
 
+import cats.Eq
 import cats.Order
 
 final case class Id(c: BigInt, p: ReplicaId)
 
 object Id {
+  implicit final val orderEq: Eq[Id] =
+    Eq.fromUniversalEquals
+
   implicit final val orderId: Order[Id] =
     Order.from { (x: Id, y: Id) =>
       val rc = x.c compare y.c

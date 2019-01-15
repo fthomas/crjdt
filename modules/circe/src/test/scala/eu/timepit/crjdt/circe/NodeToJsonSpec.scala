@@ -20,7 +20,7 @@ object NodeToJsonSpec
   // avoid Scala.js test failure at travis CI
   override protected def maxJsonArraySize: Int = if (Platform.isJs) 3 else 10
 
-  override protected def maxJsonObjectDepth: Int = if (Platform.isJs) 2 else 5
+  override protected def maxJsonDepth: Int = if (Platform.isJs) 2 else 5
 
   override protected def maxJsonObjectSize: Int = if (Platform.isJs) 1 else 10
 
