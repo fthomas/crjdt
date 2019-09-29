@@ -10,13 +10,15 @@ import eu.timepit.crjdt.core.util.applyAllLeft
 
 import scala.annotation.tailrec
 
-final case class Replica(replicaId: ReplicaId,
-                         opsCounter: BigInt,
-                         document: Node,
-                         variables: Map[Var, Cursor],
-                         processedOps: Set[Id],
-                         generatedOps: Vector[Operation],
-                         receivedOps: Vector[Operation]) {
+final case class Replica(
+    replicaId: ReplicaId,
+    opsCounter: BigInt,
+    document: Node,
+    variables: Map[Var, Cursor],
+    processedOps: Set[Id],
+    generatedOps: Vector[Operation],
+    receivedOps: Vector[Operation]
+) {
 
   def applyCmd(cmd: Cmd): Replica =
     Replica.applyCmds(this, List(cmd))
@@ -26,9 +28,11 @@ final case class Replica(replicaId: ReplicaId,
 
   // APPLY-LOCAL
   def applyLocal(op: Operation): Replica =
-    copy(document = document.applyOp(op, this),
-         processedOps = processedOps + op.id,
-         generatedOps = generatedOps :+ op)
+    copy(
+      document = document.applyOp(op, this),
+      processedOps = processedOps + op.id,
+      generatedOps = generatedOps :+ op
+    )
 
   // APPLY-REMOTE, YIELD
   @tailrec
@@ -36,9 +40,11 @@ final case class Replica(replicaId: ReplicaId,
     findApplicableRemoteOp match {
       case None => this
       case Some(op) =>
-        copy(opsCounter = opsCounter max op.id.c,
-             document = document.applyOp(op, this),
-             processedOps = processedOps + op.id).applyRemote
+        copy(
+          opsCounter = opsCounter max op.id.c,
+          document = document.applyOp(op, this),
+          processedOps = processedOps + op.id
+        ).applyRemote
     }
 
   // RECV, YIELD
@@ -72,7 +78,7 @@ final case class Replica(replicaId: ReplicaId,
               // be impossible to construct with the EXPR API.
               case HeadK => c
               case _     => c.append(MapT.apply, StrK(key))
-          }
+            }
           go(expr2, f :: fs)
 
         // ITER
@@ -150,7 +156,8 @@ object Replica {
           case MoveVertical(moveExpr, targetExpr, aboveBelow) =>
             val newReplica = replica.makeOp(
               replica.evalExpr(moveExpr),
-              MoveVerticalM(replica.evalExpr(targetExpr), aboveBelow))
+              MoveVerticalM(replica.evalExpr(targetExpr), aboveBelow)
+            )
             applyCmds(newReplica, rest)
 
           // EXEC
@@ -161,11 +168,13 @@ object Replica {
     }
 
   final def empty(replicaId: ReplicaId): Replica =
-    Replica(replicaId = replicaId,
-            opsCounter = 0,
-            document = Node.emptyMap,
-            variables = Map.empty,
-            processedOps = Set.empty,
-            generatedOps = Vector.empty,
-            receivedOps = Vector.empty)
+    Replica(
+      replicaId = replicaId,
+      opsCounter = 0,
+      document = Node.emptyMap,
+      variables = Map.empty,
+      processedOps = Set.empty,
+      generatedOps = Vector.empty,
+      receivedOps = Vector.empty
+    )
 }

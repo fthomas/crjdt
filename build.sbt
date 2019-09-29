@@ -101,16 +101,23 @@ lazy val metadataSettings = Def.settings(
   homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
   startYear := Some(2016),
   licenses := Seq(
-    "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")
+  ),
   scmInfo := Some(
-    ScmInfo(homepage.value.get,
-            s"scm:git:$gitPubUrl",
-            Some(s"scm:git:$gitDevUrl"))),
+    ScmInfo(
+      homepage.value.get,
+      s"scm:git:$gitPubUrl",
+      Some(s"scm:git:$gitDevUrl")
+    )
+  ),
   developers := List(
-    Developer(id = "fthomas",
-              name = "Frank S. Thomas",
-              email = "",
-              url("https://github.com/fthomas"))),
+    Developer(
+      id = "fthomas",
+      name = "Frank S. Thomas",
+      email = "",
+      url("https://github.com/fthomas")
+    )
+  ),
   bintrayPackageLabels := Seq("JSON", "CRDT", "Scala")
 )
 
@@ -221,10 +228,13 @@ lazy val micrositeSettings = Def.settings(
   micrositeGithubOwner := gitHubOwner,
   micrositeGithubRepo := projectName,
   micrositeExtraMdFiles := Map(
-    file("README.md") -> microsites.ExtraMdFileConfig("index.md", "home")),
+    file("README.md") -> microsites.ExtraMdFileConfig("index.md", "home")
+  ),
   organizationName := "Frank S. Thomas",
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc),
-                       micrositeDocumentationUrl)
+  addMappingsToSiteDir(
+    mappings in (ScalaUnidoc, packageDoc),
+    micrositeDocumentationUrl
+  )
 )
 
 /// commands
@@ -235,24 +245,30 @@ def addCommandsAlias(name: String, cmds: Seq[String]) =
 addCommandsAlias("testJS", allSubprojectsJS.map(_ + "/test"))
 addCommandsAlias("testJVM", allSubprojectsJVM.map(_ + "/test"))
 
-addCommandsAlias("validateJS",
-                 Seq(
-                   "clean",
-                   "testJS"
-                 ))
+addCommandsAlias(
+  "validateJS",
+  Seq(
+    "clean",
+    "testJS"
+  )
+)
 
-addCommandsAlias("validateJVM",
-                 Seq(
-                   "clean",
-                   "scalafmtCheck",
-                   "scalafmtSbtCheck",
-                   "test:scalafmtCheck",
-                   "coverage",
-                   "testJVM",
-                   "coverageReport",
-                   "coverageOff",
-                   "unidoc"
-                 ))
+addCommandsAlias(
+  "validateJVM",
+  Seq(
+    "clean",
+    "scalafmtCheck",
+    "scalafmtSbtCheck",
+    "test:scalafmtCheck",
+    "coverage",
+    "testJVM",
+    "coverageReport",
+    "coverageOff",
+    "unidoc"
+  )
+)
 
-addCommandsAlias("syncMavenCentral",
-                 allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral"))
+addCommandsAlias(
+  "syncMavenCentral",
+  allSubprojectsJVM.map(_ + "/bintraySyncMavenCentral")
+)

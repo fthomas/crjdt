@@ -7,8 +7,9 @@ import scala.annotation.tailrec
 
 private[circe] trait NodeToJson {
 
-  protected def mapToJson(mapNode: MapNode)(
-      implicit rcr: RegNodeConflictResolver): Json =
+  protected def mapToJson(
+      mapNode: MapNode
+  )(implicit rcr: RegNodeConflictResolver): Json =
     if (mapNode.children.contains(TypeTag.MapT(Key.DocK))) {
       mapNode.getChild(TypeTag.MapT(Key.DocK)) match {
         case node: MapNode  => mapToJson(node)
@@ -30,8 +31,9 @@ private[circe] trait NodeToJson {
       Json.fromFields(fields)
     }
 
-  protected def listToJson(listNode: ListNode)(
-      implicit rcr: RegNodeConflictResolver): Json = {
+  protected def listToJson(
+      listNode: ListNode
+  )(implicit rcr: RegNodeConflictResolver): Json = {
     @tailrec
     def loopOrder(listRef: ListRef, keyOrder: Vector[Key]): Vector[Key] =
       listRef match {

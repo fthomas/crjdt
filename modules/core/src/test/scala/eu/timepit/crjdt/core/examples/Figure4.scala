@@ -41,9 +41,13 @@ object Figure4 extends Properties("Figure4") {
     val todoLists = ListNode(
       Map(
         MapT(IdK(Id(1, "p"))) -> MapNode(
-          Map(RegT(StrK("title")) -> RegNode(Map()),
-              RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))),
-          Map(StrK("done") -> Set(Id(4, "q"))))),
+          Map(
+            RegT(StrK("title")) -> RegNode(Map()),
+            RegT(StrK("done")) -> RegNode(Map(Id(4, "q") -> Val.True))
+          ),
+          Map(StrK("done") -> Set(Id(4, "q")))
+        )
+      ),
       Map(IdK(Id(1, "p")) -> Set(Id(4, "q"))),
       Map(HeadR -> IdR(Id(1, "p")), IdR(Id(1, "p")) -> TailR),
       Map()
@@ -51,12 +55,13 @@ object Figure4 extends Properties("Figure4") {
 
     p2.document ?= MapNode(
       Map(
-        MapT(DocK) -> MapNode(Map(ListT(StrK("todo")) -> todoLists),
-                              Map(
-                                StrK("todo") -> Set(Id(1, "p"),
-                                                    Id(2, "p"),
-                                                    Id(3, "p"),
-                                                    Id(4, "q"))))),
+        MapT(DocK) -> MapNode(
+          Map(ListT(StrK("todo")) -> todoLists),
+          Map(
+            StrK("todo") -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q"))
+          )
+        )
+      ),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(3, "p"), Id(4, "q")))
     )
   }

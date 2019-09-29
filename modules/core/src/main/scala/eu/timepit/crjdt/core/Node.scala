@@ -119,7 +119,8 @@ sealed trait Node extends Product with Serializable {
             //  However, it is only necessary if a MoveVertical op is among them.
             //  Therefore we do it only then.
             if (concurrentOps.length > 1 && concurrentOps.count(
-                  _.mut.isInstanceOf[MoveVerticalM]) >= 1) {
+                  _.mut.isInstanceOf[MoveVerticalM]
+                ) >= 1) {
 
               //  Before applying an operation we save the order in orderArchive.
               // It is a Map whose key is the lamport timestamp counter value.
@@ -210,8 +211,10 @@ sealed trait Node extends Product with Serializable {
             // the new op after the concurrent one with higher id. This way, when
             // inserted at the same place, the op whose user id is higher,
             // comes always fist.
-            applyAtLeaf(op.copy(cur = Cursor.withFinalKey(IdK(nextId))),
-                        replica)
+            applyAtLeaf(
+              op.copy(cur = Cursor.withFinalKey(IdK(nextId))),
+              replica
+            )
 
           // INSERT1
           // INSERT1 performs the insertion by manipulating the linked
@@ -220,9 +223,12 @@ sealed trait Node extends Product with Serializable {
             val idRef = IdR(op.id)
             // the ID of the inserted node will be the ID of the operation
             val ctx1 = applyAtLeaf(
-              op.copy(cur = Cursor.withFinalKey(IdK(op.id)),
-                      mut = AssignM(value)),
-              replica)
+              op.copy(
+                cur = Cursor.withFinalKey(IdK(op.id)),
+                mut = AssignM(value)
+              ),
+              replica
+            )
             val ctx2 = ctx1.saveOrder(op)
             ctx2.setNextRef(prevRef, idRef).setNextRef(idRef, nextRef)
         }
@@ -429,9 +435,10 @@ sealed trait BranchNode extends Node {
 
 object Node {
 
-  final case class MapNode(children: Map[TypeTag, Node],
-                           presSets: Map[Key, Set[Id]])
-      extends BranchNode {
+  final case class MapNode(
+      children: Map[TypeTag, Node],
+      presSets: Map[Key, Set[Id]]
+  ) extends BranchNode {
 
     override def withChildren(children: Map[TypeTag, Node]): MapNode =
       copy(children = children)
@@ -443,11 +450,12 @@ object Node {
       presSets.collect { case (StrK(key), pres) if pres.nonEmpty => key }.toSet
   }
 
-  final case class ListNode(children: Map[TypeTag, Node],
-                            presSets: Map[Key, Set[Id]],
-                            order: Map[ListRef, ListRef],
-                            orderArchive: Map[BigInt, Map[ListRef, ListRef]])
-      extends BranchNode {
+  final case class ListNode(
+      children: Map[TypeTag, Node],
+      presSets: Map[Key, Set[Id]],
+      order: Map[ListRef, ListRef],
+      orderArchive: Map[BigInt, Map[ListRef, ListRef]]
+  ) extends BranchNode {
 
     override def withChildren(children: Map[TypeTag, Node]): ListNode =
       copy(children = children)
@@ -475,10 +483,12 @@ object Node {
     MapNode(children = Map.empty, presSets = Map.empty)
 
   final def emptyList: Node =
-    ListNode(children = Map.empty,
-             presSets = Map.empty,
-             order = Map(HeadR -> TailR),
-             orderArchive = Map())
+    ListNode(
+      children = Map.empty,
+      presSets = Map.empty,
+      order = Map(HeadR -> TailR),
+      orderArchive = Map()
+    )
 
   final def emptyReg: Node =
     RegNode(regValues = Map.empty)
