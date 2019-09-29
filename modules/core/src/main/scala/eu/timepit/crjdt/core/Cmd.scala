@@ -18,9 +18,10 @@ object Cmd {
     * 'After' means the moved objects new index will be one higher than the index of the object at targetExpr
     * Example: Applying a MoveVertical(3, 0, After) on a List [0123] will result in [0312].
     */
-  final case class MoveVertical(moveExpr: Expr,
-                                targetExpr: Expr,
-                                beforeAfter: BeforeAfter)
-      extends Cmd
+  final case class MoveVertical(
+      moveExpr: Expr,
+      targetExpr: Expr,
+      beforeAfter: BeforeAfter
+  ) extends Cmd
   final case class Sequence(cmd1: Cmd, cmd2: Cmd) extends Cmd
 }

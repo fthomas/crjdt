@@ -51,11 +51,15 @@ object Figure2 extends Properties("Figure2") {
                     RegT(StrK("green")) ->
                       RegNode(Map(Id(3, "q") -> Str("#00ff00")))
                   ),
-                  Map(StrK("red") -> Set(Id(2, "p")),
-                      StrK("green") -> Set(Id(3, "q")))
-                )),
+                  Map(
+                    StrK("red") -> Set(Id(2, "p")),
+                    StrK("green") -> Set(Id(3, "q"))
+                  )
+                )
+            ),
             Map(StrK("colors") -> Set(Id(2, "p"), Id(2, "q"), Id(3, "q")))
-          )),
+          )
+      ),
       Map(DocK -> Set(Id(1, "p"), Id(2, "p"), Id(2, "q"), Id(3, "q")))
     )
   }

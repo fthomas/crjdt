@@ -35,8 +35,10 @@ object arbitrary {
   }
 
   implicit val arbitraryTypeTag: Arbitrary[TypeTag] = {
-    val gen = Gen.oneOf(Arbitrary.arbitrary[Key].map(RegT.apply),
-                        Arbitrary.arbitrary[BranchTag])
+    val gen = Gen.oneOf(
+      Arbitrary.arbitrary[Key].map(RegT.apply),
+      Arbitrary.arbitrary[BranchTag]
+    )
     Arbitrary(gen)
   }
 
