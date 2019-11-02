@@ -93,7 +93,6 @@ sealed trait Node extends Product with Serializable {
     op.cur.view match {
       case Cursor.Leaf(_) =>
         this match {
-
           // If this node is a list: To merge concurrent vertical move ops,
           // we may have to redo concurrent ops.
           case ln: ListNode =>
@@ -121,7 +120,6 @@ sealed trait Node extends Product with Serializable {
             if (concurrentOps.length > 1 && concurrentOps.count(
                   _.mut.isInstanceOf[MoveVerticalM]
                 ) >= 1) {
-
               //  Before applying an operation we save the order in orderArchive.
               // It is a Map whose key is the lamport timestamp counter value.
               // To improve performance and save disk space, we don't save the
@@ -147,7 +145,6 @@ sealed trait Node extends Product with Serializable {
               // redo newer ops in a specific order
               ctx1.applyMany(concurrentOps.sortWith(_.id < _.id), replica)
             } else {
-
               // The op was done without me doing an op concurrently, so there is
               // no need to restore anything. Just apply the op.
               applyAtLeaf(op, replica)
@@ -434,12 +431,10 @@ sealed trait BranchNode extends Node {
 }
 
 object Node {
-
   final case class MapNode(
       children: Map[TypeTag, Node],
       presSets: Map[Key, Set[Id]]
   ) extends BranchNode {
-
     override def withChildren(children: Map[TypeTag, Node]): MapNode =
       copy(children = children)
 
@@ -456,7 +451,6 @@ object Node {
       order: Map[ListRef, ListRef],
       orderArchive: Map[BigInt, Map[ListRef, ListRef]]
   ) extends BranchNode {
-
     override def withChildren(children: Map[TypeTag, Node]): ListNode =
       copy(children = children)
 

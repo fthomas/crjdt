@@ -5,7 +5,6 @@ import eu.timepit.crjdt.core.Node.{ListNode, MapNode, RegNode}
 import io.circe.Json
 
 package object syntax extends NodeToJson {
-
   implicit class PimpNode(node: Node)(implicit rcr: RegNodeConflictResolver) {
     def toJson: Json =
       node match {
@@ -14,5 +13,4 @@ package object syntax extends NodeToJson {
         case v: RegNode  => rcr.registerToJson(v)
       }
   }
-
 }

@@ -19,7 +19,6 @@ final case class Replica(
     generatedOps: Vector[Operation],
     receivedOps: Vector[Operation]
 ) {
-
   def applyCmd(cmd: Cmd): Replica =
     Replica.applyCmds(this, List(cmd))
 
