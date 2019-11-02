@@ -9,7 +9,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object MoveVertical extends Properties("MoveVertical") {
-
   val parent = doc.downField("parent1")
   val head = parent.iter
   val one = parent.iter.next

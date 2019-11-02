@@ -9,7 +9,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object NodeToJsonFigure3Spec extends Properties("NodeToJsonFigure3Spec") {
-
   val p0 = Replica.empty("p")
   val q0 = Replica.empty("q")
 

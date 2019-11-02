@@ -9,7 +9,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object NodeToJsonFigure4Spec extends Properties("NodeToJsonFigure4Spec") {
-
   val todo = doc.downField("todo").iter
   val cmd = todo.insert(`{}`) `;`
     (todo.next.downField("title") := "buy milk") `;`

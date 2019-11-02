@@ -9,7 +9,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object NodeToJsonFigure2Spec extends Properties("NodeToJsonFigure2Spec") {
-
   val colors = doc.downField("colors")
   val p0 =
     Replica.empty("p").applyCmd(colors.downField("blue") := "#0000ff")

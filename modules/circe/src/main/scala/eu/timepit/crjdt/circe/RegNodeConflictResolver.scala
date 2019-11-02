@@ -6,7 +6,6 @@ import io.circe.Json
 import cats.syntax.order._
 
 trait RegNodeConflictResolver {
-
   def registerToJson(regNode: RegNode): Json
 
   protected def valToJson(value: LeafVal): Json = value match {
@@ -19,7 +18,6 @@ trait RegNodeConflictResolver {
 }
 
 object RegNodeConflictResolver {
-
   implicit object LWW extends RegNodeConflictResolver {
     override def registerToJson(regNode: RegNode): Json = {
       val (_, lastVal) = regNode.regValues.max(new Ordering[(Id, LeafVal)] {

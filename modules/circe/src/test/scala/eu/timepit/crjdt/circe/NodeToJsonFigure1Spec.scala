@@ -9,7 +9,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
 object NodeToJsonFigure1Spec extends Properties("NodeToJsonFigure1Spec") {
-
   val p0 = Replica.empty("p").applyCmd(doc.downField("key") := "A")
   val q0 = merge(Replica.empty("q"), p0)
 

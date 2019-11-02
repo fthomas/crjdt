@@ -9,7 +9,6 @@ import eu.timepit.crjdt.core.syntax._
 import io.circe.Json
 
 object NodeToJsonDeleteSpec extends Properties("NodeToJsonDeleteSpec") {
-
   // fix bug #19
   property("delete list items") = secure {
     val list = doc.downField("list")

@@ -6,7 +6,6 @@ import io.circe.Json
 import scala.annotation.tailrec
 
 private[circe] trait NodeToJson {
-
   protected def mapToJson(
       mapNode: MapNode
   )(implicit rcr: RegNodeConflictResolver): Json =
@@ -62,5 +61,4 @@ private[circe] trait NodeToJson {
     }
     Json.fromValues(jsons)
   }
-
 }

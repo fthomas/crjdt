@@ -16,7 +16,6 @@ import eu.timepit.crjdt.core.Node.MapNode
 object NodeToJsonSpec
     extends Properties("NodeToJsonSpec")
     with ArbitraryInstances {
-
   // avoid Scala.js test failure at travis CI
   override protected def maxJsonArraySize: Int = if (Platform.isJs) 3 else 10
 
@@ -54,5 +53,4 @@ object NodeToJsonSpec
         .getOrElse(Map.empty)
       childNodes.mapValues(_.toJson) ?= obj.toMap
   }
-
 }
