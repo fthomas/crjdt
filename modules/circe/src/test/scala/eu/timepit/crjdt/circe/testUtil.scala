@@ -63,9 +63,7 @@ object testUtil {
     value.fold(
       Val.Null,
       bool => if (bool) Val.True else Val.False,
-      number => {
-        Val.Num(number.toBigDecimal.getOrElse(number.toDouble))
-      },
+      number => Val.Num(number.toBigDecimal.getOrElse(number.toDouble)),
       string => Val.Str(string),
       array => Val.EmptyList,
       obj => Val.EmptyMap

@@ -53,8 +53,8 @@ object NodeToJsonFigure3Spec extends Properties("NodeToJsonFigure3Spec") {
     implicit val resolver = RegNodeConflictResolver.PreserveAllAsArray
     q2.document.toJson ?= Json.obj(
       "grocery" -> Json.arr(
-        List("milk", "flour", "eggs", "ham").map(
-          v => Json.arr(Json.fromString(v))
+        List("milk", "flour", "eggs", "ham").map(v =>
+          Json.arr(Json.fromString(v))
         ): _*
       )
     )
