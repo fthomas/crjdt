@@ -12,7 +12,7 @@ val modulesDir = "modules"
 
 val catsVersion = "2.0.0"
 val circeVersion = "0.11.2"
-val scalaCheckVersion = "1.14.2"
+val scalaCheckVersion = "1.14.3"
 
 val allSubprojects = Seq("core", "circe")
 val allSubprojectsJVM = allSubprojects.map(_ + "JVM")
