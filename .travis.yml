@@ -9,6 +9,7 @@ install:
 - pip install --user codecov
 cache:
   directories:
+  - "$HOME/.cache/coursier"
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
 script:
