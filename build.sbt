@@ -157,9 +157,7 @@ lazy val scaladocSettings = Def.settings(
 
 lazy val publishSettings = Def.settings(
   publishMavenStyle := true,
-  pomIncludeRepository := { _ =>
-    false
-  }
+  pomIncludeRepository := { _ => false }
 )
 
 lazy val noPublishSettings = Def.settings(
