@@ -8,13 +8,14 @@ import cats.syntax.order._
 trait RegNodeConflictResolver {
   def registerToJson(regNode: RegNode): Json
 
-  protected def valToJson(value: LeafVal): Json = value match {
-    case Val.False  => Json.False
-    case Val.True   => Json.True
-    case Val.Null   => Json.Null
-    case Val.Num(n) => Json.fromBigDecimal(n)
-    case Val.Str(s) => Json.fromString(s)
-  }
+  protected def valToJson(value: LeafVal): Json =
+    value match {
+      case Val.False  => Json.False
+      case Val.True   => Json.True
+      case Val.Null   => Json.Null
+      case Val.Num(n) => Json.fromBigDecimal(n)
+      case Val.Str(s) => Json.fromString(s)
+    }
 }
 
 object RegNodeConflictResolver {

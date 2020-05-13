@@ -9,13 +9,13 @@ private[circe] trait NodeToJson {
   protected def mapToJson(
       mapNode: MapNode
   )(implicit rcr: RegNodeConflictResolver): Json =
-    if (mapNode.children.contains(TypeTag.MapT(Key.DocK))) {
+    if (mapNode.children.contains(TypeTag.MapT(Key.DocK)))
       mapNode.getChild(TypeTag.MapT(Key.DocK)) match {
         case node: MapNode  => mapToJson(node)
         case node: ListNode => listToJson(node)
         case node: RegNode  => rcr.registerToJson(node)
       }
-    } else {
+    else {
       val fields = mapNode.children.collect {
         case (TypeTag.MapT(Key.StrK(key)), node: MapNode)
             if mapNode.getPres(Key.StrK(key)).nonEmpty =>
@@ -39,11 +39,10 @@ private[circe] trait NodeToJson {
         case keyRef: KeyRef =>
           val key = keyRef.toKey
           val next = listNode.order(keyRef)
-          if (listNode.getPres(key).nonEmpty) {
+          if (listNode.getPres(key).nonEmpty)
             loopOrder(next, keyOrder :+ key)
-          } else {
+          else
             loopOrder(next, keyOrder)
-          }
         case ListRef.TailR => keyOrder
       }
     val keyOrder = loopOrder(ListRef.HeadR, Vector.empty).zipWithIndex.toMap

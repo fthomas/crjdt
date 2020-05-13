@@ -33,13 +33,12 @@ object MoveVertical extends Properties("MoveVertical") {
       .applyCmd(parent2 := `[]`)
       .applyCmd(head2.insert("One"))
       .applyCmd(one2.insert("Two"))
-    val replicas0 = for (i <- cmdLists.indices) yield {
-      Replica.empty(i.toString).applyRemoteOps(start.generatedOps)
-    }
+    val replicas0 =
+      for (i <- cmdLists.indices)
+        yield Replica.empty(i.toString).applyRemoteOps(start.generatedOps)
 
-    val replicas1 = for (i <- cmdLists.indices) yield {
-      replicas0(i).applyCmds(cmdLists(i))
-    }
+    val replicas1 =
+      for (i <- cmdLists.indices) yield replicas0(i).applyCmds(cmdLists(i))
 
     val replicas2 = for (i <- cmdLists.indices) yield {
       val othersOpLists =
@@ -49,20 +48,20 @@ object MoveVertical extends Properties("MoveVertical") {
     }
 
     property("converged") = secure {
-      val props = for (replica <- replicas2) yield {
-        (replicas2(0).processedOps ?= replica.processedOps) &&
-        (replicas2(0).document ?= replica.document)
-      }
+      val props =
+        for (replica <- replicas2)
+          yield (replicas2(0).processedOps ?= replica.processedOps) &&
+            (replicas2(0).document ?= replica.document)
       all(props: _*)
     }
 
     property("content") = secure {
-      val props = for (replica <- replicas2) yield {
-        replica.document.toJson ?= Json.obj(
-          "parent1" -> Json.arr(resultList.map(Json.fromString): _*),
-          "parent2" -> Json.arr(List("One", "Two").map(Json.fromString): _*)
-        )
-      }
+      val props =
+        for (replica <- replicas2)
+          yield replica.document.toJson ?= Json.obj(
+            "parent1" -> Json.arr(resultList.map(Json.fromString): _*),
+            "parent2" -> Json.arr(List("One", "Two").map(Json.fromString): _*)
+          )
       all(props: _*)
     }
   }

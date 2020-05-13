@@ -4,8 +4,8 @@ import cats.Foldable
 import cats.UnorderedFoldable
 
 package object util {
-  final def applyAllLeft[F[_], A](fs: F[A => A], init: A)(
-      implicit F: Foldable[F]
+  final def applyAllLeft[F[_], A](fs: F[A => A], init: A)(implicit
+      F: Foldable[F]
   ): A =
     F.foldLeft(fs, init) { case (a, f) => f(a) }
 
