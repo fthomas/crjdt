@@ -102,12 +102,14 @@ sealed trait Node extends Product with Serializable {
             def concurrentOpsSince(count: BigInt): Vector[Operation] = {
               val allOps = replica.generatedOps ++ replica.receivedOps
 
-              for (o <- allOps
-                   if (replica.processedOps.contains(o.id) && cond(o.mut) {
-                     case InsertM(_) | DeleteM | MoveVerticalM(_, _) => true
-                   } || o.id == op.id) && o.id.c >= count && this
-                     .findChild(RegT(o.cur.finalKey))
-                     .isDefined)
+              for (
+                o <- allOps
+                if (replica.processedOps.contains(o.id) && cond(o.mut) {
+                  case InsertM(_) | DeleteM | MoveVerticalM(_, _) => true
+                } || o.id == op.id) && o.id.c >= count && this
+                  .findChild(RegT(o.cur.finalKey))
+                  .isDefined
+              )
                 yield o
             }
 
@@ -117,9 +119,11 @@ sealed trait Node extends Product with Serializable {
             //  incoming op: Restore the old order, then redo these ops.
             //  However, it is only necessary if a MoveVertical op is among them.
             //  Therefore we do it only then.
-            if (concurrentOps.length > 1 && concurrentOps.count(
-                  _.mut.isInstanceOf[MoveVerticalM]
-                ) >= 1) {
+            if (
+              concurrentOps.length > 1 && concurrentOps.count(
+                _.mut.isInstanceOf[MoveVerticalM]
+              ) >= 1
+            ) {
               //  Before applying an operation we save the order in orderArchive.
               // It is a Map whose key is the lamport timestamp counter value.
               // To improve performance and save disk space, we don't save the
@@ -144,11 +148,10 @@ sealed trait Node extends Product with Serializable {
 
               // redo newer ops in a specific order
               ctx1.applyMany(concurrentOps.sortWith(_.id < _.id), replica)
-            } else {
+            } else
               // The op was done without me doing an op concurrently, so there is
               // no need to restore anything. Just apply the op.
               applyAtLeaf(op, replica)
-            }
           case _ =>
             applyAtLeaf(op, replica)
         }
@@ -156,7 +159,8 @@ sealed trait Node extends Product with Serializable {
       // DESCEND
       case Cursor.Branch(k1, cur1) =>
         val child0 = getChild(k1)
-        val child1 = child0.applyOp(op.copy(cur = cur1), replica) // update that child
+        val child1 =
+          child0.applyOp(op.copy(cur = cur1), replica) // update that child
         // The DESCEND rule also invokes ADD-ID1,2 at each tree
         // node along the path described by the cursor, adding the
         // operation ID to the presence set pres(k) to indicate that the
@@ -238,14 +242,15 @@ sealed trait Node extends Product with Serializable {
         val targetNodeRef = ListRef.fromKey(targetCursor.finalKey)
         val nodeAfterTargetNodeRef = getNextRef(targetNodeRef)
 
-        if (// the order is already as wished
-            aboveBelow == Before && nodeAfterMovedNodeRef == targetNodeRef ||
-            aboveBelow == After && nodeAfterTargetNodeRef == movedNodeRef ||
-            movedNodeRef == targetNodeRef ||
-            // the target has not the same parent
-            this.findChild(RegT(targetCursor.finalKey)).isEmpty) {
+        if ( // the order is already as wished
+          aboveBelow == Before && nodeAfterMovedNodeRef == targetNodeRef ||
+          aboveBelow == After && nodeAfterTargetNodeRef == movedNodeRef ||
+          movedNodeRef == targetNodeRef ||
+          // the target has not the same parent
+          this.findChild(RegT(targetCursor.finalKey)).isEmpty
+        )
           this
-        } else {
+        else {
           val ctx0 = saveOrder(op)
 
           // Fix the whole where we removed the moved node:
@@ -461,9 +466,8 @@ object Node {
       * always different. Therefore don't compare the orderArchive. */
     override def equals(that: scala.Any): Boolean =
       that match {
-        case ln: ListNode => {
+        case ln: ListNode =>
           children == ln.children && presSets == ln.presSets && order == ln.order
-        }
         case _ => super.equals(that)
       }
   }

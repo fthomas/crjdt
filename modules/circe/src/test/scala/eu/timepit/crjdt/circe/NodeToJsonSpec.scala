@@ -25,9 +25,11 @@ object NodeToJsonSpec
 
   // filter out numbers BigDecimal (and Val.Num) cannot handle
   override def transformJsonNumber(n: JsonNumber): JsonNumber =
-    if (n.toDouble == -0.0 || n.toDouble == Double.PositiveInfinity || n.toDouble == Double.NegativeInfinity) {
+    if (
+      n.toDouble == -0.0 || n.toDouble == Double.PositiveInfinity || n.toDouble == Double.NegativeInfinity
+    )
       JsonNumber.fromDecimalStringUnsafe("0.0")
-    } else n
+    else n
 
   property("root document to JSON") = forAllNoShrink { (obj: JsonObject) =>
     val json = Json.fromJsonObject(obj)
