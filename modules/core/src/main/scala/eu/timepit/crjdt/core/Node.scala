@@ -81,7 +81,8 @@ sealed trait Node extends Product with Serializable {
     * order is saved. That's the order after user1's op was applied. When now
     * user3's op arrives and the order is reset, the order we reset to should be
     * the order before all three ops were applied. But it's not, since user2's op
-    * has overwritten the order. Therefore don't overwrite. */
+    * has overwritten the order. Therefore don't overwrite.
+    */
   def saveOrder(op: Operation): Node =
     this match {
       case ln: ListNode if (ln.orderArchive get op.id.c).isEmpty =>
@@ -283,7 +284,8 @@ sealed trait Node extends Product with Serializable {
     }
 
   /** Append a @param node (which is an ID, value pair) to the child specified
-    * by the @param tag (which has a key inside). */
+    * by the @param tag (which has a key inside).
+    */
   final def addNode(tag: TypeTag, node: Node): Node =
     this match {
       case n: BranchNode => n.withChildren(n.children.updated(tag, node))
@@ -463,7 +465,8 @@ object Node {
       copy(presSets = presSets)
 
     /** The tests cannot converge, since the orderArchive of two replicas is
-      * always different. Therefore don't compare the orderArchive. */
+      * always different. Therefore don't compare the orderArchive.
+      */
     override def equals(that: scala.Any): Boolean =
       that match {
         case ln: ListNode =>
