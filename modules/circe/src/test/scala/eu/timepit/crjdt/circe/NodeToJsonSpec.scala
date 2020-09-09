@@ -44,13 +44,12 @@ object NodeToJsonSpec
       val document = Replica.empty("").applyCmds(commands.toList).document
       val childNodes: Map[String, Node] = document
         .findChild(TypeTag.MapT(Key.DocK))
-        .collect {
-          case node: MapNode =>
-            node.children.collect {
-              case (TypeTag.MapT(StrK(key)), value)  => (key, value)
-              case (TypeTag.ListT(StrK(key)), value) => (key, value)
-              case (TypeTag.RegT(StrK(key)), value)  => (key, value)
-            }
+        .collect { case node: MapNode =>
+          node.children.collect {
+            case (TypeTag.MapT(StrK(key)), value)  => (key, value)
+            case (TypeTag.ListT(StrK(key)), value) => (key, value)
+            case (TypeTag.RegT(StrK(key)), value)  => (key, value)
+          }
         }
         .getOrElse(Map.empty)
       childNodes.mapValues(_.toJson) ?= obj.toMap

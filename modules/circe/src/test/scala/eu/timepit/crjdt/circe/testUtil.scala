@@ -53,10 +53,9 @@ object testUtil {
   }
 
   def assignObjectFieldsCmds(expr: Expr, obj: JsonObject): Vector[Cmd] =
-    obj.toMap.flatMap {
-      case (key, value) =>
-        val field = expr.downField(key)
-        assignCmds(field, value)
+    obj.toMap.flatMap { case (key, value) =>
+      val field = expr.downField(key)
+      assignCmds(field, value)
     }.toVector
 
   def jsonToVal(value: Json): Val =
